@@ -1,0 +1,34 @@
+{
+  "source": "https://overwatch.blizzard.com/en-us/heroes/",
+  "checked_at": "2026-11-19",
+  "note": "공식 영웅 페이지(영문)의 표기를 그대로 사용. 한국어 공식 명칭은 한국어 공식 페이지 확인 후 교체 예정.",
+  "official_count": 54,
+  "flags_source": {
+    "new_2026": "공식 패치노트 2026-02-10 · 04-14 · 06-16 · 08-11 · 10-06",
+    "recent_catchup": "공식 시즌 1 공지 'Returning Player Catch-up' 섹션에 소개된 최근 영웅",
+    "role_changed": "공식 패치노트 2026-10-06 (솜브라 공격 → 지원)"
+  },
+  "heroes": [
+    {"name": "Ana"}, {"name": "Anran", "new_2026": "2026-02-10"}, {"name": "Ashe"}, {"name": "Baptiste"},
+    {"name": "Bastion"}, {"name": "Brigitte"}, {"name": "Cassidy"}, {"name": "D.Mon", "new_2026": "2026-08-11"},
+    {"name": "D.Va"}, {"name": "Doctrine", "new_2026": "2026-10-06"}, {"name": "Domina", "new_2026": "2026-02-10"},
+    {"name": "Doomfist"}, {"name": "Echo"}, {"name": "Emre", "new_2026": "2026-02-10"},
+    {"name": "Freja", "recent_catchup": true}, {"name": "Genji"}, {"name": "Hanzo"},
+    {"name": "Hazard", "recent_catchup": true}, {"name": "Illari", "recent_catchup": true},
+    {"name": "Jetpack Cat", "new_2026": "2026-02-10"}, {"name": "Junker Queen"}, {"name": "Junkrat"},
+    {"name": "Juno", "recent_catchup": true}, {"name": "Kiriko"}, {"name": "Lifeweaver"}, {"name": "Lúcio"},
+    {"name": "Mauga", "recent_catchup": true}, {"name": "Mei"}, {"name": "Mercy"}, {"name": "Mizuki", "new_2026": "2026-02-10"},
+    {"name": "Moira"}, {"name": "Orisa"}, {"name": "Pharah"}, {"name": "Ramattra"}, {"name": "Reaper"},
+    {"name": "Reinhardt"}, {"name": "Roadhog"}, {"name": "Shion", "new_2026": "2026-06-16"},
+    {"name": "Sierra", "new_2026": "2026-04-14"}, {"name": "Sigma"}, {"name": "Sojourn"}, {"name": "Soldier: 76"},
+    {"name": "Sombra", "role_changed": "2026-10-06"}, {"name": "Symmetra"}, {"name": "Torbjörn"}, {"name": "Tracer"},
+    {"name": "Vendetta", "recent_catchup": true}, {"name": "Venture", "recent_catchup": true}, {"name": "Widowmaker"},
+    {"name": "Winston"}, {"name": "Wrecking Ball"}, {"name": "Wuyang", "recent_catchup": true}, {"name": "Zarya"},
+    {"name": "Zenyatta"}
+  ],
+  "skills_verified": [
+    {"hero": "D.Mon", "skills": ["Plasma Saber", "Propulsors", "Fusion Repeater"], "source": "https://overwatch.blizzard.com/en-us/news/patch-notes/live/2026/08/", "note": "2026-08 패치노트에 표기된 스킬 이름"},
+    {"hero": "Jetpack Cat", "skills": ["Purr"], "source": "https://overwatch.blizzard.com/en-us/news/patch-notes/live/2026/08/", "note": "2026-08-14 핫픽스에 표기된 스킬 이름"},
+    {"hero": "Sierra", "skills": ["Anchor Drone"], "source": "https://overwatch.blizzard.com/en-us/news/patch-notes/live/2026/04/", "note": "2026-04-17 핫픽스에 표기된 스킬 이름"}
+  ]
+}

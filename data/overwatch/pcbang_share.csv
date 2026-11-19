@@ -1,0 +1,15 @@
+id,tracker,period_start,period_end,granularity,rank,share_pct,metric,source_title,source_publisher,source_published,source_url,status,note
+pc01,게임트릭스,2026-04-13,2026-04-19,주간(4월 3주차),5,5.47,PC방 사용시간 점유율(기사 표기 '점유율'),'오버워치' 점유율 5.4% 선전…야외활동 증가에 PC방 이용 지표 하락세,EBN산업경제(다음 뉴스),2026-04-21,https://v.daum.net/v/F4fMVd5THF?f=p,언론 보도 확인,기사에는 '이달 3주차'로만 표기 - 날짜 범위는 3주차를 월~일로 가정한 표시용 값
+pc02,게임트릭스,2026-08-01,2026-08-01,일간,7,3.59,PC방 점유율(기사 표기),넥슨에 새 둥지 튼 '오버워치' PC방 성적 뚜렷한 상승세,아이러브PC방,2026-08-18,https://www.ilovepcbang.com/news/articleView.html?idxno=200887,언론 보도 확인,넥슨 서비스 개시 전
+pc03,게임트릭스,2026-08-12,2026-08-12,일간,5,4.30,PC방 점유율(기사 표기),넥슨에 새 둥지 튼 '오버워치' PC방 성적 뚜렷한 상승세,아이러브PC방,2026-08-18,https://www.ilovepcbang.com/news/articleView.html?idxno=200887,언론 보도 확인,넥슨 서비스 개시일
+pc04,게임트릭스,2026-08-15,2026-08-15,일간,5,3.82,PC방 점유율(기사 표기),넥슨에 새 둥지 튼 '오버워치' PC방 성적 뚜렷한 상승세,아이러브PC방,2026-08-18,https://www.ilovepcbang.com/news/articleView.html?idxno=200887,언론 보도 확인,
+pc05,게임트릭스,2026-08-16,2026-08-16,일간,5,3.88,PC방 점유율(기사 표기),넥슨에 새 둥지 튼 '오버워치' PC방 성적 뚜렷한 상승세,아이러브PC방,2026-08-18,https://www.ilovepcbang.com/news/articleView.html?idxno=200887,언론 보도 확인,
+pc06,게임트릭스,2026-08-17,2026-08-17,일간,5,4.04,PC방 점유율(기사 표기),넥슨에 새 둥지 튼 '오버워치' PC방 성적 뚜렷한 상승세,아이러브PC방,2026-08-18,https://www.ilovepcbang.com/news/articleView.html?idxno=200887,언론 보도 확인,
+pc07,게임트릭스,2026-10-05,2026-10-11,주간(10월 2주차),5,6.02,전체 점유율(장르 내 19.97%),[주간동향] 신규 시즌 오픈에 한글날 버프까지 '오버워치' PC방 성적 쑥↑,아이러브PC방,2026-10-14,https://www.ilovepcbang.com/news/articleView.html?idxno=202468,언론 보도 확인,기사에는 '10월 2주차'로만 표기 - 날짜 범위는 표시용 가정
+pc08,더로그,2026-08-01,2026-08-01,일간,6,4.99,PC방 점유율(기사 표기),넥슨에 새 둥지 튼 '오버워치' PC방 성적 뚜렷한 상승세,아이러브PC방,2026-08-18,https://www.ilovepcbang.com/news/articleView.html?idxno=200887,언론 보도 확인,넥슨 서비스 개시 전
+pc09,더로그,2026-08-12,2026-08-12,일간,5,5.92,PC방 점유율(기사 표기),넥슨에 새 둥지 튼 '오버워치' PC방 성적 뚜렷한 상승세,아이러브PC방,2026-08-18,https://www.ilovepcbang.com/news/articleView.html?idxno=200887,언론 보도 확인,넥슨 서비스 개시일
+pc10,더로그,2026-08-29,2026-08-29,일간,3,9.00,market share(기사 표기 '9%'),Nexon Firepower Boost! Overwatch Reaches 3rd Place in PC Cafe Share,Inven Global,2026-08-30,https://www.invenglobal.com/articles/25393/nexon-firepower-boost-overwatch-reaches-3rd-place-in-pc-cafe-share,언론 보도 확인,반올림된 값으로 보임 - PC방 이벤트 시작일(8/29)
+pc11,더로그,2026-09-06,2026-09-06,일간,3,9.17,PC방 점유율(기사 표기),'오버워치' PC방 이벤트로 3위 재달성,아이러브PC방,2026-09-07,https://www.ilovepcbang.com/news/articleView.html?idxno=201518,언론 보도 확인,같은 기간 게임트릭스 기준 5위로 보도됨
+pc12,더로그,2026-09-13,2026-09-13,일간,2,11.01,PC방 점유율(기사 표기),'오버워치' 전체 2위 장르 1위로 우뚝 역시 넥슨인 건가?,아이러브PC방,2026-09-14,https://www.ilovepcbang.com/news/articleView.html?idxno=201728,언론 보도 확인,같은 날 게임트릭스 기준 5위로 보도됨 - 게토PC방 무료 혜택 영향 언급
+pc13,게임트릭스,,,기준일 불명,5,4.88,사용시간 점유율,(이코노미스트 기사),이코노미스트,2026-08-16,https://economist.co.kr/article/view/ecn202608160011,기준일 불명 - 그래프 제외,측정 기간이 기사에 없어 그래프에서 제외
+pc14,게임트릭스,2026-03-01,2026-03-29,계약 발표 이전,,,PC방 점유율,,,,,검증 대기,계약 발표(3/30) 이전 공개 수치를 찾지 못함 - 확보 시 이 행에 입력

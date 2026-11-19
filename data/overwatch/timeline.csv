@@ -1,0 +1,20 @@
+date,type,title,detail,learning_note,source_name,source_url,status,date_precision
+2022-10-04,시스템,오버워치 2 얼리 액세스 출시,"5대5 팀 구성, 무료 플레이 모델로 전환 (오버워치 1 서버는 10/2 종료)",팀 구성·역할 책임 변화,Wikipedia (2차 출처 - Polygon/Eurogamer 인용),https://en.wikipedia.org/wiki/Overwatch_(2023_video_game),2차 출처 · 공식 원문 검증 대기,일
+2023-08-11,플랫폼,Steam 출시,Steam에서 서비스 시작 (Steam Charts 집계 시작 시점),,Wikipedia (2차 출처),https://en.wikipedia.org/wiki/Overwatch_(2023_video_game),2차 출처 · 공식 원문 검증 대기,일
+2024-04-17,시스템,시즌 10: 모든 영웅 즉시 플레이,"신규 영웅 포함 모든 영웅을 잠금 해제 없이 플레이 가능, 신화 스킨 상점 방식 변경",영웅 접근성 확대 → 선택지 증가,게임메카 (2024-04-17 보도),https://www.gamemeca.com/view.php?gid=1748007,언론 보도 확인,일
+2025-02-01,시스템,시즌 15: 특전(Perks) 도입,경기 중 영웅별 특전 선택 시스템 도입,영웅당 학습 정보 증가,Wikipedia (2차 출처 - PC Gamer/IGN 인용),https://en.wikipedia.org/wiki/Overwatch_(2023_video_game),2차 출처 · 공식 원문 검증 대기,월
+2025-04-01,시스템,시즌 16: 스타디움 모드 출시,빌드형 신규 모드,모드별 규칙 학습 추가,Wikipedia (2차 출처 - PCGamesN 인용),https://en.wikipedia.org/wiki/Overwatch_(2023_video_game),2차 출처 · 공식 원문 검증 대기,월
+2025-12-09,시스템,시즌 20 패치,"경쟁전 Challenger 리더보드 개편, 스타디움 Challenger Tier 지원",,Blizzard 공식 패치 노트,https://overwatch.blizzard.com/en-us/news/patch-notes/live/2025/12/,공식 확인,일
+2026-02-10,신규 영웅,시즌 1 '정복': 신규 영웅 5명 동시 출시,"Domina(돌격), Anran(공격), Emre(공격), Jetpack Cat(지원), Mizuki(지원)",한 시즌에 영웅 5명 동시 추가 → 학습 정보 급증 (PM 해석),Blizzard 공식 패치 노트 (페이지 헤더 2/9 표기),https://overwatch.blizzard.com/en-us/news/patch-notes/live/2026/02/,공식 확인,일
+2026-02-10,시스템,시즌 1: 하위 역할 패시브 개편 외,"하위 역할 패시브 개편, 고급 정보 패널 키워드 추가, 경쟁전 등급 초기화, 스타디움 영웅 빌더, 알림 허브",기존 이용자도 재학습 필요 + 학습 보조 기능 동시 추가,Blizzard 공식 패치 노트,https://overwatch.blizzard.com/en-us/news/patch-notes/live/2026/02/,공식 확인,일
+2026-03-30,퍼블리싱,넥슨-블리자드 한국 PC 퍼블리싱 계약 발표,넥슨이 PC 버전 국내 퍼블리싱 담당 · 블리자드는 IP 제공 및 개발 총괄,,Blizzard 공식 뉴스 (본문 '30일') + 언론 보도,https://news.blizzard.com/ko-kr/article/24243866/,공식 확인 (날짜는 언론 보도로 교차 확인),일
+2026-04-14,신규 영웅,시즌 2 'Summit': Sierra 출시,"Sierra(공격) 추가, 경기 후 칭찬 카드(Accolades) 개선 복귀, 매치 음성 채팅(선택 참여), 영웅 칭찬",,Blizzard 공식 패치 노트,https://overwatch.blizzard.com/en-us/news/patch-notes/live/2026/04/,공식 확인,일
+2026-06-04,퍼블리싱,블리자드 한국 FAQ 업데이트,"넥슨 퍼블리싱 범위(한국 PC, Steam 제외), 진척도 유지 안내",,Blizzard 공식 뉴스,https://overwatch.blizzard.com/ko-kr/news/24244886/,공식 확인,일
+2026-06-16,신규 영웅,시즌 3 'Into The Tiger's Den': Shion 출시,"Shion(공격) 추가, 로비 영웅 금지 5번째 슬롯, 'The Roster' 선호 영웅 표시, 고급 정보 패널 키워드 확장",,Blizzard 공식 패치 노트,https://overwatch.blizzard.com/en-us/news/patch-notes/live/2026/06/,공식 확인,일
+2026-08-11,신규 영웅,시즌 4 'Heroes of Busan': D.Mon 출시,"D.Mon(돌격) 추가, 배틀패스 개편, 에메랄드 등급 신설, 팀 상태 표시기",신규 돌격 영웅 대응 학습 수요 (포럼 의견 참고),Blizzard 공식 패치 노트,https://overwatch.blizzard.com/en-us/news/patch-notes/live/2026/08/,공식 확인,일
+2026-08-12,퍼블리싱,넥슨 국내 PC 서비스 개시,"기존 Battle.net에 더해 넥슨닷컴·넥슨플러그로 이용 가능, 사전 계정 연동(~8/11)",,CEO스코어데일리 (2026-08-10) · 아이러브PC방 (2026-08-18),https://www.ceoscoredaily.com/page/view/2026081015010970786,언론 보도 확인 · 넥슨 공식 공지 원문 검증 대기,일
+2026-08-22,퍼블리싱,'오버워치 데이' 부산 이용자 행사,8월 22~23일 부산 벡스코,,CEO스코어데일리 (2026-08-10),https://www.ceoscoredaily.com/page/view/2026081015010970786,언론 보도 확인,일
+2026-08-29,퍼블리싱,PC방 이벤트 (~9/13),"PC방 무료 이용 시간 지원, 누적 접속 보상, 넥슨캐시 응모",,Inven Global (2026-08-30) · 아이러브PC방 (2026-09-07),https://www.invenglobal.com/articles/25393/nexon-firepower-boost-overwatch-reaches-3rd-place-in-pc-cafe-share,언론 보도 확인,일
+2026-10-06,신규 영웅,시즌 5 'A Grim Doctrine': Doctrine 출시,"Doctrine(지원) 추가, 솜브라 공격→지원 역할 변경, 고급 정보 패널에 투사체 속도·크기 추가",기존 영웅 역할 변경 → 복귀 이용자 재학습 요소,Blizzard 공식 패치 노트,https://overwatch.blizzard.com/en-us/news/patch-notes/live/2026/10/,공식 확인,일
+2026-11-03,시스템,게임플레이 방해 감지 · 신고 감사 메시지,"Gameplay Sabotage Detection, 신고 'Thank You' 메시지",,Blizzard 공식 패치 노트,https://overwatch.blizzard.com/en-us/news/patch-notes/,공식 확인,일
+,신규 영웅,"2025년 출시 영웅 (Freja, Hazard, Wuyang, Vendetta)",출처별 출시일이 서로 다름 (Fandom 위키 vs Jetpunk) - 그래프 제외,,2차 출처 상충,https://overwatch.fandom.com/wiki/Heroes,검증 대기,

@@ -1,0 +1,538 @@
+"""전역 CSS (화이트 · 네이비 · 블루, 반응형)."""
+
+from __future__ import annotations
+
+import streamlit as st
+
+from gamepulse.config import COLORS as C
+
+CSS = f"""
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+html, body, [class*="css"], .stMarkdown, .stText, button, input, textarea {{
+  font-family: 'Pretendard', 'Noto Sans KR', 'Malgun Gothic', -apple-system, sans-serif;
+}}
+.block-container {{ padding-top: 2rem; padding-bottom: 4rem; max-width: 1240px; }}
+h1, h2, h3, h4 {{ color: {C['navy']}; letter-spacing: -0.02em; }}
+
+/* 사이드바 */
+section[data-testid="stSidebar"] {{ background: {C['navy']}; }}
+section[data-testid="stSidebar"] * {{ color: #E8EEF9 !important; }}
+section[data-testid="stSidebar"] [role="radiogroup"] label {{
+  padding: 0.45rem 0.6rem; border-radius: 8px; margin-bottom: 2px; width: 100%;
+}}
+section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: rgba(255,255,255,0.08); }}
+.gp-brand {{ font-size: 1.35rem; font-weight: 800; letter-spacing: -0.03em; margin: 0.2rem 0 0.1rem; }}
+.gp-brand span {{ color: {C['sky']} !important; }}
+.gp-brand-sub {{ font-size: 0.78rem; opacity: 0.75; margin-bottom: 1rem; }}
+
+/* 히어로 */
+.gp-hero {{
+  background: linear-gradient(135deg, {C['navy']} 0%, {C['navy_soft']} 55%, {C['blue']} 140%);
+  color: #fff; border-radius: 18px; padding: 2rem 2.2rem; margin-bottom: 1.2rem;
+}}
+.gp-hero h1 {{ color: #fff; font-size: 2rem; margin: 0.3rem 0 0.5rem; line-height: 1.25; }}
+.gp-hero p {{ color: #D6E2FA; margin: 0; font-size: 1rem; line-height: 1.6; }}
+.gp-hero .gp-eyebrow {{ color: {C['sky']}; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; }}
+.gp-hero .gp-quote {{ margin-top: 1rem; padding-left: 0.9rem; border-left: 3px solid {C['sky']}; color: #fff; font-weight: 600; }}
+
+/* 배지 */
+.gp-badge {{ display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.18rem 0.55rem;
+  border-radius: 999px; margin-right: 0.3rem; vertical-align: middle; white-space: nowrap; }}
+.gp-badge.sample {{ background: #FFF4E5; color: {C['warn']}; border: 1px solid #FBD9B0; }}
+.gp-badge.hypo {{ background: {C['ice']}; color: {C['blue']}; border: 1px solid #C3D6FF; }}
+.gp-badge.tier-ns {{ background: {C['navy']}; color: #fff; }}
+.gp-badge.tier-core {{ background: {C['blue']}; color: #fff; }}
+.gp-badge.tier-guard {{ background: #EEF1F6; color: {C['gray']}; border: 1px solid {C['line']}; }}
+.gp-badge.plain {{ background: {C['bg_soft']}; color: {C['navy']}; border: 1px solid {C['line']}; }}
+
+/* 공지 */
+.gp-notice {{ background: {C['bg_soft']}; border: 1px solid {C['line']}; border-left: 4px solid {C['blue']};
+  border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.88rem; color: {C['navy']}; margin: 0.4rem 0 1rem; line-height: 1.6; }}
+
+/* 섹션 제목 */
+.gp-section {{ margin: 1.4rem 0 0.8rem; }}
+.gp-section h3 {{ margin: 0; font-size: 1.25rem; }}
+.gp-section p {{ margin: 0.25rem 0 0; color: {C['gray']}; font-size: 0.92rem; }}
+
+/* 카드 그리드: 화면 폭에 따라 자동으로 열 개수가 바뀜 */
+.gp-grid {{ display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-bottom: 1rem; }}
+.gp-card {{ background: #fff; border: 1px solid {C['line']}; border-radius: 14px; padding: 1.1rem 1.2rem;
+  box-shadow: 0 1px 2px rgba(11,31,58,0.04); }}
+.gp-card h4 {{ margin: 0.2rem 0 0.4rem; font-size: 1.02rem; color: {C['navy']}; }}
+.gp-card p, .gp-card li {{ font-size: 0.9rem; color: #344563; line-height: 1.6; margin: 0; }}
+.gp-card ul {{ padding-left: 1.1rem; margin: 0.4rem 0 0; }}
+.gp-card .gp-meta {{ font-size: 0.8rem; color: {C['gray']}; margin-top: 0.6rem; }}
+.gp-card.accent {{ border-top: 4px solid {C['blue']}; }}
+.gp-card.navy {{ background: {C['navy']}; border-color: {C['navy']}; }}
+.gp-card.navy h4, .gp-card.navy p {{ color: #fff; }}
+
+/* KPI 카드 */
+.gp-kpi .gp-kpi-value {{ font-size: 1.7rem; font-weight: 800; color: {C['navy']}; margin: 0.35rem 0 0.1rem; }}
+.gp-kpi .gp-kpi-value small {{ font-size: 0.9rem; color: {C['gray']}; font-weight: 600; }}
+.gp-kpi .gp-kpi-arrow {{ color: {C['blue']}; font-weight: 700; }}
+
+/* 문제 정의 박스 */
+.gp-statement {{ background: {C['ice']}; border-radius: 14px; padding: 1.1rem 1.3rem; color: {C['navy']};
+  font-size: 1.02rem; font-weight: 600; line-height: 1.7; margin-bottom: 1rem; }}
+
+/* 탭 */
+.stTabs [data-baseweb="tab-list"] {{ gap: 0.25rem; overflow-x: auto; flex-wrap: nowrap; }}
+.stTabs [data-baseweb="tab"] {{ padding: 0.5rem 0.9rem; border-radius: 8px 8px 0 0; white-space: nowrap; }}
+.stTabs [aria-selected="true"] {{ color: {C['blue']} !important; }}
+
+/* 자료 성격 구분 영역: 실제 자료 vs 가상 시뮬레이션 */
+.gp-zone {{ border-radius: 12px; padding: 0.75rem 1rem; margin: 1.4rem 0 0.7rem; line-height: 1.55; }}
+.gp-zone .gp-zone-t {{ font-weight: 800; font-size: 1rem; color: {C['navy']}; }}
+.gp-zone .gp-zone-d {{ font-size: 0.85rem; color: #344563; margin-top: 0.15rem; }}
+.gp-zone.real {{ background: #EAF1FF; border-left: 6px solid {C['blue']}; }}
+.gp-zone.sim {{ background: repeating-linear-gradient(135deg, #FFF8EE, #FFF8EE 12px, #FFF2E0 12px, #FFF2E0 24px);
+  border-left: 6px dashed {C['warn']}; }}
+.gp-zone.pm {{ background: {C['bg_soft']}; border-left: 6px solid {C['navy']}; }}
+.gp-badge.official {{ background: {C['navy']}; color: #fff; }}
+.gp-badge.press {{ background: {C['blue']}; color: #fff; }}
+.gp-badge.voice {{ background: #E6F4F1; color: #0F5E52; border: 1px solid #B9E0D8; }}
+.gp-badge.pm {{ background: {C['ice']}; color: {C['navy']}; border: 1px solid #C3D6FF; }}
+.gp-badge.sim {{ background: #FFF4E5; color: {C['warn']}; border: 1px dashed #F0B37E; }}
+.gp-badge.pending {{ background: #fff; color: {C['gray']}; border: 1px dashed {C['gray']}; }}
+.gp-card {{ overflow-wrap: anywhere; word-break: keep-all; }}
+.gp-card a, .gp-src a {{ color: {C['blue']}; text-decoration: underline; overflow-wrap: anywhere; }}
+.gp-card .gp-quote-en {{ font-size: 0.82rem; color: {C['gray']}; font-style: italic; margin-top: 0.4rem; }}
+.gp-legend {{ display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.2rem 0 1rem; }}
+
+/* 가설 흐름도 */
+.gp-flow {{ display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.35rem; margin: 0.6rem 0 1rem; }}
+.gp-flow .gp-step {{ flex: 1 1 140px; background: #fff; border: 1px solid {C['line']}; border-top: 4px solid {C['blue']};
+  border-radius: 10px; padding: 0.7rem 0.8rem; font-weight: 600; font-size: 0.9rem; color: {C['navy']}; overflow-wrap: anywhere; }}
+.gp-flow .gp-step small {{ display: block; color: {C['gray']}; font-weight: 500; font-size: 0.75rem; margin-bottom: 0.2rem; }}
+.gp-flow .gp-arrow {{ align-self: center; color: {C['blue']}; font-weight: 800; font-size: 1.1rem; }}
+
+.gp-flow .gp-step-d {{ font-size: 0.78rem; font-weight: 500; color: {C['gray']}; }}
+.gp-stepno {{ display: inline-block; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em; color: #fff;
+  background: {C['blue']}; border-radius: 6px; padding: 0.15rem 0.5rem; margin-bottom: 0.35rem; }}
+
+/* 가설 카드: 근거 vs 가설 분리 */
+.gp-split {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.6rem; margin-top: 0.5rem; }}
+.gp-split > div {{ border-radius: 10px; padding: 0.6rem 0.75rem; font-size: 0.86rem; }}
+.gp-split-a {{ background: #EAF1FF; }}
+.gp-split-b {{ background: {C['bg_soft']}; border: 1px dashed #C3D6FF; }}
+.gp-split ul {{ padding-left: 1rem; margin: 0.3rem 0 0; }}
+.gp-split li {{ margin-bottom: 0.35rem; }}
+
+/* 세로 가설 흐름 */
+.gp-vflow {{ max-width: 720px; margin: 0.6rem auto 1.2rem; }}
+.gp-vstep {{ display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid {C['line']};
+  border-left: 5px solid {C['blue']}; border-radius: 10px; padding: 0.65rem 0.8rem; }}
+.gp-vno {{ flex: 0 0 auto; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: {C['navy']}; color: #fff;
+  font-weight: 800; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; }}
+.gp-vtext {{ flex: 1 1 200px; font-weight: 700; color: {C['navy']}; overflow-wrap: anywhere; }}
+.gp-varrow {{ text-align: center; color: {C['blue']}; font-weight: 800; font-size: 1.2rem; line-height: 1.4; }}
+
+/* 개선 조건 A + B */
+.gp-cond {{ display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.6rem; margin: 0.6rem 0 1rem; }}
+.gp-cond-card {{ flex: 1 1 280px; border-radius: 14px; padding: 1rem 1.1rem; overflow-wrap: anywhere; }}
+.gp-cond-card.a {{ background: #EAF1FF; border: 2px solid {C['blue']}; }}
+.gp-cond-card.b {{ background: {C['navy']}; color: #fff; border: 2px solid {C['navy']}; }}
+.gp-cond-card.b li, .gp-cond-card.b .gp-cond-h {{ color: #fff; }}
+.gp-cond-h {{ font-weight: 800; font-size: 1.05rem; color: {C['navy']}; margin-bottom: 0.4rem; }}
+.gp-cond-card ul {{ padding-left: 1.1rem; margin: 0; }}
+.gp-cond-card li {{ margin-bottom: 0.3rem; line-height: 1.5; }}
+.gp-cond-f {{ margin-top: 0.6rem; font-size: 0.8rem; opacity: 0.85; border-top: 1px dashed currentColor; padding-top: 0.45rem; }}
+.gp-cond-plus {{ align-self: center; font-size: 1.6rem; font-weight: 800; color: {C['blue']}; }}
+
+/* KPI 논리 연결 */
+.gp-chain {{ display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.4rem; margin-bottom: 0.55rem; }}
+.gp-chain-l {{ flex: 1 1 180px; background: {C['navy']}; color: #fff; border-radius: 10px; padding: 0.6rem 0.8rem; font-weight: 700; }}
+.gp-chain-l small {{ display: block; font-weight: 500; opacity: 0.75; font-size: 0.75rem; }}
+.gp-chain-a {{ align-self: center; color: {C['warn']}; font-weight: 800; text-align: center; }}
+.gp-chain-a small {{ display: block; font-size: 0.65rem; font-weight: 700; }}
+.gp-chain-r {{ flex: 3 1 260px; display: flex; flex-wrap: wrap; gap: 0.4rem; }}
+.gp-chain-m {{ flex: 1 1 150px; background: #FFFBF5; border: 1px dashed #F0B37E; border-radius: 10px; padding: 0.5rem 0.7rem; }}
+.gp-chain-m span {{ display: block; font-size: 0.78rem; color: {C['gray']}; }}
+.gp-chain-m b {{ color: {C['navy']}; font-size: 0.95rem; overflow-wrap: anywhere; }}
+
+/* 세로 타임라인 */
+.gp-tl {{ border-left: 3px solid {C['ice']}; margin: 0.5rem 0 1rem 0.4rem; padding-left: 1rem; }}
+.gp-tl-item {{ position: relative; margin-bottom: 0.9rem; }}
+.gp-tl-item::before {{ content: ""; position: absolute; left: -1.43rem; top: 0.35rem; width: 0.7rem; height: 0.7rem;
+  border-radius: 50%; background: {C['blue']}; border: 2px solid #fff; box-shadow: 0 0 0 1px {C['blue']}; }}
+.gp-tl-date {{ font-size: 0.8rem; font-weight: 700; color: {C['blue']}; }}
+.gp-tl-title {{ font-weight: 700; color: {C['navy']}; }}
+.gp-tl-body {{ font-size: 0.86rem; color: #344563; overflow-wrap: anywhere; }}
+
+/* 넓은 표: 가로 스크롤 */
+.gp-table-wrap {{ overflow-x: auto; margin: 0.5rem 0 1rem; }}
+.gp-table {{ border-collapse: collapse; width: 100%; min-width: 560px; font-size: 0.86rem; }}
+.gp-table th {{ background: {C['navy']}; color: #fff; text-align: left; padding: 0.55rem 0.6rem; }}
+.gp-table td {{ border-bottom: 1px solid {C['line']}; padding: 0.55rem 0.6rem; vertical-align: top; color: #344563; }}
+.gp-table td.score {{ font-weight: 800; color: {C['navy']}; white-space: nowrap; }}
+
+/* ---------- 가독성: 섹션 간격 · 출처 · 해석 분리 ---------- */
+.gp-step-head {{ margin-top: 0.6rem; margin-bottom: 1.2rem; }}
+.gp-zone {{ margin-top: 2.4rem; margin-bottom: 1rem; }}
+.gp-section {{ margin-top: 2rem; }}
+[data-testid="stPlotlyChart"] {{ margin-bottom: 0.2rem; }}
+.gp-srcline {{ font-size: 0.82rem; color: {C['gray']}; line-height: 1.6; margin: 0.1rem 0 0.9rem;
+  padding: 0.45rem 0.7rem; border-left: 3px solid {C['line']}; background: #FAFBFD; overflow-wrap: anywhere; }}
+.gp-srcline b {{ color: {C['navy']}; margin-right: 0.3rem; }}
+.gp-srcline a {{ color: {C['blue']}; text-decoration: underline; }}
+.gp-interp {{ background: #fff; border: 1px solid {C['line']}; border-radius: 12px; padding: 0.8rem 1rem;
+  margin: 0.6rem 0 1.6rem; font-size: 0.9rem; line-height: 1.7; color: #344563; overflow-wrap: anywhere; }}
+.gp-interp-k {{ display: inline-block; font-size: 0.72rem; font-weight: 800; color: #fff; background: {C['navy']};
+  border-radius: 6px; padding: 0.1rem 0.45rem; margin-right: 0.5rem; vertical-align: 1px; }}
+.gp-muted {{ color: {C['gray']}; font-size: 0.84rem; }}
+
+/* 독립 KPI 카드 */
+.gp-tiles {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.7rem; margin: 0.4rem 0 1rem; }}
+.gp-tile {{ background: #fff; border: 1px solid {C['line']}; border-top: 4px solid {C['blue']}; border-radius: 12px;
+  padding: 0.8rem 0.95rem; min-width: 0; }}
+.gp-tile-l {{ font-size: 0.82rem; color: {C['gray']}; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }}
+.gp-tile-v {{ font-size: 1.6rem; font-weight: 800; color: {C['navy']}; margin: 0.25rem 0; line-height: 1.2; overflow-wrap: anywhere; }}
+.gp-tile-s {{ font-size: 0.8rem; color: #4A5A73; line-height: 1.5; overflow-wrap: anywhere; }}
+.gp-tile-s a {{ color: {C['blue']}; }}
+
+/* 원칙 배너 */
+.gp-principles {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.6rem; margin: 0 0 1rem; }}
+.gp-principle {{ background: {C['navy']}; color: #fff; border-radius: 12px; padding: 0.75rem 1rem; font-weight: 700; line-height: 1.5; }}
+
+/* 카드 그리드 변형 */
+.gp-grid-sm {{ grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }}
+.gp-grid-wide {{ grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }}
+.gp-names {{ list-style: none; padding: 0 !important; margin: 0.4rem 0 0.2rem !important; }}
+.gp-names li {{ padding: 0.3rem 0; border-bottom: 1px dashed {C['line']}; font-weight: 600; color: {C['navy']}; overflow-wrap: anywhere; }}
+.gp-names li:last-child {{ border-bottom: 0; }}
+.gp-sblock {{ margin-top: 0.75rem; padding-top: 0.6rem; border-top: 1px solid {C['line']}; }}
+.gp-sblock-t {{ font-size: 0.78rem; font-weight: 800; color: {C['blue']}; letter-spacing: 0.02em; margin-bottom: 0.25rem; }}
+.gp-sblock p {{ margin: 0; }}
+.gp-refs {{ margin-top: 0.35rem !important; }}
+.gp-refs li {{ font-size: 0.82rem; }}
+
+/* 접이식 타임라인 */
+.gp-year {{ font-weight: 800; color: {C['navy']}; font-size: 1.05rem; margin: 1.2rem 0 0.2rem; }}
+.gp-tl details {{ margin-top: 0.15rem; }}
+.gp-tl summary {{ cursor: pointer; list-style: none; padding: 0.15rem 0; }}
+.gp-tl summary::-webkit-details-marker {{ display: none; }}
+.gp-tl summary::after {{ content: " ＋ 상세"; font-size: 0.75rem; font-weight: 600; color: {C['blue']}; }}
+.gp-tl details[open] summary::after {{ content: " － 접기"; }}
+.gp-tl details .gp-tl-body {{ margin-top: 0.35rem; }}
+
+/* 그래프 표시 기호 목록 (그래프 밖) */
+.gp-marklist {{ display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; margin: 0.2rem 0 0.8rem; font-size: 0.84rem; color: #344563; }}
+.gp-mark {{ display: inline-flex; align-items: center; gap: 0.4rem; }}
+.gp-mark-no {{ display: inline-flex; align-items: center; justify-content: center; min-width: 1.3rem; height: 1.3rem;
+  border-radius: 4px; background: {C['navy']}; color: #fff; font-size: 0.75rem; font-weight: 700; }}
+.gp-mark-line {{ display: inline-block; width: 1.4rem; border-top: 2px dotted {C['gray']}; }}
+.gp-mark-line.blue {{ border-top-color: {C['blue']}; }}
+.gp-mark-box {{ display: inline-block; width: 1.2rem; height: 0.8rem; background: {C['ice']}; }}
+
+/* 긴 배지·그리드 항목이 카드 폭을 밀어내지 않도록 */
+.gp-badge {{ white-space: normal; max-width: 100%; overflow-wrap: anywhere; line-height: 1.35; margin-bottom: 0.2rem; }}
+.gp-grid > * {{ min-width: 0; }}
+
+@media (max-width: 900px) {{
+  .gp-grid-wide {{ grid-template-columns: 1fr; }}
+  /* 좁은 화면: 탭을 가로 스크롤 대신 여러 줄로 감싸 모든 탭이 보이게 */
+  [data-testid="stTabs"] [role="tablist"] {{ flex-wrap: wrap; row-gap: 0.25rem; overflow-x: visible; }}
+  [data-testid="stTabs"] [role="tab"] {{ flex: 0 0 auto; }}
+}}
+@media (max-width: 640px) {{
+  /* 오버워치 페이지 한정: 좁은 화면에서 st.columns 를 세로로 쌓아 슬라이더·입력이 잘리지 않게 */
+  [data-testid="stMain"]:has(.gp-ow-page) [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap; }}
+  [data-testid="stMain"]:has(.gp-ow-page) [data-testid="stColumn"] {{ width: 100% !important; flex: 1 1 100% !important; min-width: 100% !important; }}
+  .gp-zone {{ margin-top: 1.8rem; }}
+  .gp-tile-v {{ font-size: 1.35rem; }}
+  .gp-table {{ min-width: 520px; }}
+  .gp-chain-a {{ width: 100%; text-align: left; }}
+}}
+
+/* ---------- 오버워치 압축판 (ow-*) : 큰 글씨 · 넓은 여백 · 최대 2열 ---------- */
+.ow-cover {{ background: linear-gradient(135deg, {C['navy']} 0%, {C['navy_soft']} 60%, {C['blue']} 140%); color: #fff;
+  border-radius: 20px; padding: 2.6rem 2.4rem 1.6rem; margin-bottom: 2rem; }}
+.ow-cover-t {{ font-size: 0.95rem; font-weight: 800; letter-spacing: 0.14em; color: {C['sky']}; }}
+.ow-cover-c {{ font-size: 2.3rem; font-weight: 800; line-height: 1.3; margin: 0.6rem 0 0.4rem; letter-spacing: -0.02em; }}
+.ow-cover-s {{ font-size: 1.1rem; color: #D6E2FA; }}
+.ow-ps {{ display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: stretch; margin-top: 1.8rem; }}
+.ow-p, .ow-s {{ flex: 1 1 240px; border-radius: 14px; padding: 1rem 1.2rem; font-size: 1.15rem; font-weight: 700; line-height: 1.45; }}
+.ow-p {{ background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); }}
+.ow-s {{ background: #fff; color: {C['navy']}; }}
+.ow-p span, .ow-s span {{ display: block; font-size: 0.8rem; font-weight: 700; opacity: 0.75; margin-bottom: 0.3rem; }}
+.ow-arrow {{ align-self: center; font-size: 1.6rem; font-weight: 800; color: {C['sky']}; }}
+.ow-foot {{ margin-top: 1.2rem; font-size: 0.8rem; color: #AFC3E8; }}
+
+.ow-head {{ margin: 2.6rem 0 1rem; }}
+.ow-head h3 {{ margin: 0; font-size: 1.35rem; color: {C['navy']}; }}
+.ow-head p {{ margin: 0.3rem 0 0; color: {C['gray']}; font-size: 0.98rem; }}
+.ow-line {{ font-size: 1rem; color: #26364F; line-height: 1.6; margin: 0.2rem 0 1.4rem; padding-left: 0.8rem; border-left: 3px solid {C['blue']}; }}
+
+.ow-tiles {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.9rem; margin: 0.4rem 0 1.2rem; }}
+.ow-tile {{ background: #fff; border: 1px solid {C['line']}; border-radius: 14px; padding: 1rem 1.1rem; min-width: 0; }}
+.ow-tile-l {{ font-size: 0.9rem; color: {C['gray']}; font-weight: 600; }}
+.ow-tile-v {{ font-size: 1.7rem; font-weight: 600; color: {C['navy']}; margin: 0.3rem 0 0.2rem; line-height: 1.25; overflow-wrap: anywhere; }}
+.ow-tile-v b {{ font-weight: 800; color: {C['blue']}; }}
+.ow-tile-s {{ font-size: 0.85rem; color: #4A5A73; overflow-wrap: anywhere; }}
+.ow-tile-s a {{ color: {C['blue']}; }}
+
+.ow-flow {{ display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.6rem 0 1.4rem; }}
+.ow-step {{ flex: 1 1 130px; background: {C['bg_soft']}; border-radius: 12px; padding: 0.9rem 1rem; font-weight: 700;
+  font-size: 1rem; color: {C['navy']}; }}
+.ow-step b {{ display: inline-flex; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: {C['blue']}; color: #fff;
+  font-size: 0.8rem; align-items: center; justify-content: center; margin-right: 0.45rem; }}
+.ow-step-a {{ color: {C['blue']}; font-weight: 800; }}
+
+.ow-grid2 {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; margin: 0.4rem 0 1.4rem; }}
+.ow-card {{ background: #fff; border: 1px solid {C['line']}; border-radius: 14px; padding: 1.1rem 1.2rem; font-size: 1.08rem;
+  font-weight: 700; color: {C['navy']}; line-height: 1.5; }}
+.ow-card.a {{ background: #EAF1FF; border-color: #C3D6FF; }}
+.ow-card.b {{ background: {C['navy']}; color: #fff; border-color: {C['navy']}; }}
+.ow-card-k {{ font-size: 0.8rem; font-weight: 800; color: {C['blue']}; margin-bottom: 0.3rem; }}
+.ow-card.b .ow-card-k {{ color: {C['sky']}; }}
+.ow-quote {{ background: #fff; border: 1px solid {C['line']}; border-left: 4px solid #0F5E52; border-radius: 12px; padding: 0.9rem 1.1rem; }}
+.ow-quote-t {{ font-size: 1.02rem; font-weight: 600; color: {C['navy']}; line-height: 1.55; }}
+.ow-quote-m {{ font-size: 0.85rem; color: {C['gray']}; margin-top: 0.4rem; }}
+.ow-quote-m a {{ color: {C['blue']}; }}
+
+.ow-strat {{ background: #fff; border: 1px solid {C['line']}; border-top: 5px solid {C['blue']}; border-radius: 14px;
+  padding: 1.2rem 1.3rem; margin-top: 0.6rem; }}
+.ow-strat-k {{ font-size: 0.8rem; font-weight: 800; color: {C['blue']}; letter-spacing: 0.04em; }}
+.ow-strat-n {{ font-size: 1.3rem; font-weight: 800; color: {C['navy']}; margin: 0.2rem 0; }}
+.ow-strat-t {{ font-size: 1.05rem; color: #26364F; line-height: 1.5; }}
+.ow-strat-kpi {{ margin-top: 0.7rem; font-size: 0.88rem; font-weight: 600; color: {C['gray']}; }}
+
+/* ---------- 오버워치 v4: 제목 24~30px · 본문 15~17px ---------- */
+.ow-head h3 {{ font-size: 1.75rem; line-height: 1.35; letter-spacing: -0.02em; }}
+.ow-head p {{ font-size: 1.02rem; line-height: 1.7; color: #3A4A63; max-width: 52rem; }}
+.ow-sub {{ font-size: 1.25rem; font-weight: 800; color: {C['navy']}; margin: 2.2rem 0 0.8rem; line-height: 1.45; }}
+.ow-meta {{ font-size: 0.95rem; color: {C['gray']}; margin: -0.4rem 0 0.9rem; }}
+.ow-line {{ font-size: 1rem; line-height: 1.7; }}
+.ow-conclusion {{ background: {C['navy']}; color: #fff; border-radius: 16px; padding: 1.2rem 1.4rem; font-size: 1.1rem;
+  font-weight: 700; line-height: 1.6; margin: 1.4rem 0 1rem; }}
+.ow-conclusion-k {{ font-size: 0.8rem; font-weight: 800; color: {C['sky']}; letter-spacing: 0.06em; margin-bottom: 0.3rem; }}
+.ow-list {{ display: grid; gap: 0.6rem; margin: 0.4rem 0 1.2rem; }}
+.ow-list-i {{ display: flex; gap: 0.8rem; align-items: flex-start; background: #fff; border: 1px solid {C['line']};
+  border-radius: 12px; padding: 0.9rem 1.1rem; font-size: 1.02rem; line-height: 1.6; color: #26364F; }}
+.ow-list-i b {{ flex: 0 0 auto; width: 1.9rem; height: 1.9rem; border-radius: 8px; background: {C['blue']}; color: #fff;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem; }}
+.ow-list-i strong {{ color: {C['navy']}; }}
+.ow-flow {{ align-items: stretch; }}
+.ow-step {{ flex: 1 1 190px; display: flex; flex-direction: column; gap: 0.3rem; background: #fff;
+  border: 1px solid {C['line']}; border-top: 4px solid {C['blue']}; padding: 1rem 1.1rem; }}
+.ow-step-n {{ font-size: 0.8rem; font-weight: 800; color: {C['blue']}; }}
+.ow-step-t {{ font-size: 1.1rem; font-weight: 800; color: {C['navy']}; }}
+.ow-step-d {{ font-size: 0.95rem; font-weight: 500; color: #3A4A63; line-height: 1.55; }}
+.ow-step-b {{ margin-top: auto; font-size: 0.8rem; font-weight: 700; color: {C['gray']}; border-top: 1px dashed {C['line']}; padding-top: 0.4rem; }}
+.ow-step-a {{ align-self: center; }}
+.ow-quote.neg {{ border-left-color: {C['warn']}; }}
+.ow-quote.neu {{ border-left-color: {C['gray']}; }}
+.ow-quote.pos {{ border-left-color: #0F5E52; }}
+.ow-quote-tag {{ font-size: 0.8rem; font-weight: 800; color: {C['gray']}; margin-bottom: 0.3rem; }}
+.ow-quote-t {{ font-size: 1rem; }}
+.ow-strat {{ margin-top: 1.2rem; }}
+.ow-strat.ext {{ border-top-color: #F0B37E; background: #FFFCF7; }}
+.ow-strat-row {{ margin-top: 0.7rem; font-size: 0.97rem; line-height: 1.6; color: #3A4A63; }}
+.ow-strat-row span {{ display: inline-block; font-size: 0.8rem; font-weight: 800; color: {C['blue']}; margin-right: 0.5rem; }}
+.ow-card.plain {{ font-weight: 500; font-size: 1rem; }}
+.ow-card ul {{ margin: 0.2rem 0 0; padding-left: 1.1rem; }}
+.ow-card li {{ margin-bottom: 0.3rem; line-height: 1.55; }}
+.gp-table td, .gp-table th {{ font-size: 0.95rem; line-height: 1.6; }}
+.gp-table td ul {{ margin: 0; padding-left: 1rem; }}
+@media (max-width: 1100px) {{
+  .ow-flow .ow-step-a {{ display: none; }}
+}}
+
+/* ---------- 오버워치 v5: 시각·체험 중심 (오렌지 포인트는 강조에만) ---------- */
+.ow-cover {{ margin-bottom: 1rem; padding-bottom: 1.8rem; }}
+.ow-slot {{ position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; margin: 0.6rem 0 1rem;
+  background: repeating-linear-gradient(135deg, #0E2244, #0E2244 18px, #12294F 18px, #12294F 36px);
+  border: 2px dashed #F0B37E; overflow: hidden; }}
+.ow-slot-in {{ position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
+  padding: 1.2rem 1.6rem; color: #E8EEF9; overflow: auto; }}
+.ow-slot-k {{ font-size: 0.85rem; font-weight: 800; color: #F99E1A; letter-spacing: 0.04em; }}
+.ow-slot-t {{ font-size: 1.4rem; font-weight: 800; margin: 0.2rem 0; }}
+.ow-slot-d {{ font-size: 0.95rem; color: #C9D6EE; }}
+.ow-slot-f {{ font-family: Consolas, monospace; font-size: 0.85rem; color: {C['sky']}; margin-top: 0.4rem; overflow-wrap: anywhere; }}
+.ow-slot-r {{ margin: 0.5rem 0 0; padding-left: 1.1rem; font-size: 0.82rem; color: #AFC3E8; }}
+
+.ow-heroes {{ display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.6rem 0 0.4rem; }}
+.ow-hero {{ display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.6rem; border-radius: 8px;
+  background: #fff; border: 1px solid {C['line']}; font-size: 0.86rem; font-weight: 600; color: #3A4A63; }}
+.ow-hero small {{ font-size: 0.7rem; opacity: 0.85; }}
+.ow-hero.new {{ background: #F99E1A; border-color: #F99E1A; color: #1B1B1B; }}
+.ow-hero.recent {{ background: {C['ice']}; border-color: #B9CFFF; color: {C['navy']}; }}
+.ow-hero.changed {{ box-shadow: inset 0 0 0 2px {C['blue']}; }}
+.ow-heroes.small .ow-hero {{ font-size: 0.95rem; padding: 0.45rem 0.7rem; }}
+.ow-legend {{ display: flex; flex-wrap: wrap; gap: 0.4rem 0.6rem; align-items: center; margin-bottom: 1rem; }}
+.ow-legend .ow-hero {{ font-size: 0.75rem; padding: 0.2rem 0.5rem; }}
+.ow-legend-t {{ font-size: 0.82rem; color: {C['gray']}; }}
+
+.ow-vs {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.9rem; font-size: 0.92rem; line-height: 1.55; }}
+.ow-vs > div {{ border-radius: 10px; padding: 0.7rem 0.9rem; background: {C['bg_soft']}; color: #3A4A63; }}
+.ow-vs > div:last-child {{ background: #FFF4E5; }}
+.ow-vs b {{ display: block; color: {C['navy']}; font-size: 0.8rem; margin-bottom: 0.15rem; }}
+
+.ow-proto {{ background: linear-gradient(160deg, #0B1F3A 0%, #15325E 100%); color: #fff; border-radius: 16px;
+  padding: 1.1rem 1.3rem; margin: 0.6rem 0 0.8rem; border: 1px solid #22406E; }}
+.ow-proto-bar {{ display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: 0.8rem;
+  font-weight: 800; color: #F99E1A; letter-spacing: 0.05em; }}
+.ow-proto-h {{ font-size: 1.5rem; font-weight: 800; margin: 0.4rem 0 0.2rem; }}
+.ow-proto-s {{ font-size: 1.02rem; color: #D6E2FA; }}
+.ow-proto-s b {{ color: #F99E1A; font-size: 1.15rem; }}
+.ow-proto-chips {{ display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.7rem; }}
+.ow-proto-chips span {{ background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 999px;
+  padding: 0.25rem 0.7rem; font-size: 0.88rem; }}
+.ow-proto-card {{ background: #fff; border: 1px solid {C['line']}; border-left: 5px solid #F99E1A; border-radius: 12px;
+  padding: 1rem 1.2rem; margin: 0.4rem 0 0.6rem; }}
+.ow-proto-card-t {{ font-weight: 800; color: {C['navy']}; font-size: 1.1rem; margin-bottom: 0.4rem; }}
+.ow-proto-card ul {{ margin: 0; padding-left: 1.1rem; }}
+.ow-proto-card-s {{ font-size: 0.8rem; color: {C['gray']}; margin-top: 0.6rem; }}
+.ow-proto .ow-proto-card-s {{ color: #AFC3E8; }}
+.ow-proto .ow-proto-card-s a {{ color: {C['sky']}; }}
+.ow-skill {{ display: flex; gap: 1rem; align-items: stretch; margin-top: 0.9rem; flex-wrap: wrap; }}
+.ow-skill-icon {{ flex: 0 0 84px; height: 84px; border-radius: 12px; border: 2px dashed rgba(255,255,255,0.35);
+  display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.72rem; color: #AFC3E8; }}
+.ow-skill > div:last-child {{ flex: 1 1 220px; }}
+.ow-skill-n {{ font-size: 1.3rem; font-weight: 800; color: #fff; }}
+.ow-skill-d {{ font-size: 0.95rem; color: #D6E2FA; margin-top: 0.3rem; }}
+.ow-skill-tip {{ font-size: 1rem; color: #fff; margin-top: 0.5rem; padding: 0.55rem 0.75rem; border-radius: 8px;
+  background: rgba(249,158,26,0.16); border-left: 3px solid #F99E1A; }}
+.ow-proto small {{ color: #AFC3E8; font-weight: 500; }}
+
+.ow-progress {{ display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 0.3rem; margin: 0.8rem 0; }}
+.ow-progress span {{ text-align: center; padding: 0.45rem 0; border-radius: 6px; font-weight: 800; font-size: 0.85rem;
+  background: rgba(255,255,255,0.08); color: #AFC3E8; }}
+.ow-progress span.on {{ background: #F99E1A; color: #1B1B1B; }}
+.ow-grid3 {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; margin: 0.4rem 0 0.8rem; }}
+.ow-mission {{ background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 0.8rem 0.9rem; }}
+.ow-mission.active {{ border-color: #F99E1A; }}
+.ow-mission.done {{ background: rgba(249,158,26,0.12); }}
+.ow-mission-h {{ font-weight: 800; font-size: 0.95rem; display: flex; justify-content: space-between; gap: 0.4rem; margin-bottom: 0.4rem; }}
+.ow-mission-h span {{ font-size: 0.75rem; color: #F99E1A; }}
+.ow-mission-i {{ font-size: 0.9rem; color: #D6E2FA; line-height: 1.6; }}
+
+.ow-alt {{ background: #fff; border: 1px solid {C['line']}; border-top: 4px solid {C['gray']}; border-radius: 12px; padding: 0.9rem 1rem; }}
+.ow-alt-t {{ font-weight: 800; color: {C['navy']}; font-size: 1.05rem; }}
+.ow-alt-n {{ font-size: 0.82rem; font-weight: 700; color: {C['blue']}; margin: 0.15rem 0 0.4rem; }}
+.ow-alt-d {{ font-size: 0.92rem; color: #3A4A63; line-height: 1.55; }}
+.ow-alt-c {{ font-size: 0.82rem; color: {C['gray']}; margin-top: 0.5rem; }}
+
+.ow-timeline {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.6rem; margin: 0.4rem 0 0.8rem; }}
+.ow-tl {{ background: #fff; border: 1px solid {C['line']}; border-top: 4px solid {C['blue']}; border-radius: 12px; padding: 0.8rem 0.95rem; }}
+.ow-tl-d {{ font-size: 0.8rem; font-weight: 800; color: {C['blue']}; }}
+.ow-tl-t {{ font-weight: 800; color: {C['navy']}; margin: 0.2rem 0; line-height: 1.4; }}
+.ow-tl-b {{ font-size: 0.9rem; color: #3A4A63; line-height: 1.55; }}
+.ow-tl-s {{ font-size: 0.8rem; margin-top: 0.4rem; }}
+.ow-tl-s a {{ color: {C['blue']}; }}
+.ow-quote-o {{ font-size: 0.86rem; color: {C['gray']}; font-style: italic; margin-top: 0.35rem; overflow-wrap: anywhere; }}
+
+@media (max-width: 900px) {{
+  .ow-grid3 {{ grid-template-columns: 1fr; }}
+}}
+@media (max-width: 640px) {{
+  .ow-vs {{ grid-template-columns: 1fr; }}
+  .ow-slot {{ aspect-ratio: auto; min-height: 220px; }}
+  .ow-slot-in {{ position: static; }}
+  .ow-progress {{ grid-template-columns: repeat(5, minmax(0, 1fr)); }}
+  .ow-proto-h {{ font-size: 1.25rem; }}
+}}
+
+@media (max-width: 640px) {{
+  .ow-head h3 {{ font-size: 1.45rem; }}
+  .ow-cover {{ padding: 1.8rem 1.3rem 1.2rem; }}
+  .ow-cover-c {{ font-size: 1.65rem; }}
+  .ow-grid2 {{ grid-template-columns: 1fr; }}
+  .ow-arrow {{ width: 100%; text-align: center; transform: rotate(90deg); }}
+  .ow-step-a {{ display: none; }}
+}}
+
+/* ---------- 오버워치 v6: 이미지 중심 · 실제 화면 vs 기획 시안 구분 ---------- */
+.ow-shot {{ margin: 0.5rem 0 1.1rem; border-radius: 14px; overflow: hidden; background: {C['navy']};
+  border: 2px solid {C['navy']}; box-shadow: 0 6px 22px rgba(11,31,58,0.18); }}
+.ow-shot-bar {{ display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.6rem; padding: 0.5rem 0.8rem;
+  color: #E8EEF9; font-size: 0.86rem; font-weight: 700; }}
+.ow-shot-tag {{ display: inline-flex; align-items: center; gap: 0.3rem; background: #fff; color: {C['navy']};
+  border-radius: 999px; padding: 0.12rem 0.6rem; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; }}
+.ow-shot-tag::before {{ content: ""; width: 7px; height: 7px; border-radius: 50%; background: #22C55E; }}
+.ow-shot-img {{ position: relative; line-height: 0; background: #000; }}
+.ow-shot-img img {{ width: 100%; height: auto; display: block; }}
+.ow-mark {{ position: absolute; border: 3px solid #F99E1A; border-radius: 8px; box-shadow: 0 0 0 2px rgba(0,0,0,0.45); pointer-events: none; }}
+.ow-mark > span {{ position: absolute; left: -3px; bottom: calc(100% + 4px); display: inline-flex; align-items: center; gap: 0.3rem;
+  background: #F99E1A; color: #1B1B1B; font-size: clamp(0.62rem, 1.15vw, 0.92rem); line-height: 1.2; font-weight: 800;
+  padding: 0.15rem 0.45rem; border-radius: 6px; white-space: nowrap; }}
+.ow-mark.below > span {{ bottom: auto; top: calc(100% + 4px); }}
+.ow-mark.right > span {{ left: auto; right: -3px; }}
+.ow-mark > span i {{ font-style: normal; display: inline-flex; align-items: center; justify-content: center; width: 1.25em; height: 1.25em;
+  border-radius: 50%; background: {C['navy']}; color: #fff; font-size: 0.85em; }}
+.ow-shot figcaption {{ background: #fff; color: #3A4A63; padding: 0.7rem 0.9rem 0.75rem; font-size: 0.9rem; line-height: 1.55; }}
+.ow-shot figcaption ol {{ margin: 0 0 0.35rem; padding-left: 1.25rem; }}
+.ow-shot figcaption li {{ margin-bottom: 0.15rem; }}
+.ow-shot figcaption li b {{ color: {C['navy']}; }}
+.ow-shot-src {{ font-size: 0.76rem; color: {C['gray']}; }}
+.ow-shot.hero {{ border-width: 3px; }}
+.ow-shot.hero .ow-shot-bar {{ font-size: 0.95rem; padding: 0.65rem 1rem; }}
+
+.ow-zoom {{ margin: -0.4rem 0 1.1rem; border-radius: 12px; overflow: hidden; border: 2px solid {C['navy']}; background: #0B1F3A; }}
+.ow-zoom img {{ width: 100%; display: block; }}
+.ow-zoom-h {{ display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.3rem; color: #fff; padding: 0.45rem 0.8rem;
+  font-size: 0.85rem; font-weight: 700; }}
+.ow-count {{ display: grid; grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0 0 1.1rem; }}
+.ow-count > div {{ background: #fff; border: 1px solid {C['line']}; border-radius: 12px; padding: 0.7rem 0.9rem; }}
+.ow-count > div:first-child {{ background: {C['navy']}; border-color: {C['navy']}; color: #fff; }}
+.ow-count-v {{ font-size: 2.4rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }}
+.ow-count > div:first-child .ow-count-v {{ color: #F99E1A; font-size: 3rem; }}
+.ow-count-l {{ font-size: 0.85rem; font-weight: 700; color: {C['gray']}; }}
+.ow-count > div:first-child .ow-count-l {{ color: #D6E2FA; }}
+
+.ow-journey {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.7rem; margin: 0.5rem 0 1.2rem; }}
+.ow-journey .ow-shot {{ margin: 0; display: flex; flex-direction: column; }}
+.ow-journey .ow-shot figcaption {{ flex: 1; font-size: 0.86rem; }}
+.ow-journey-n {{ display: inline-flex; width: 1.5rem; height: 1.5rem; border-radius: 50%; align-items: center; justify-content: center;
+  background: #F99E1A; color: #1B1B1B; font-weight: 800; font-size: 0.8rem; }}
+
+.ow-key {{ display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; align-items: center; margin: 0.2rem 0 0.9rem; font-size: 0.86rem; color: #3A4A63; }}
+.ow-key span {{ display: inline-flex; align-items: center; gap: 0.4rem; }}
+.ow-key span::before {{ content: ""; width: 26px; height: 16px; border-radius: 4px; }}
+.ow-key .k-real::before {{ background: {C['navy']}; border: 2px solid {C['navy']}; }}
+.ow-key .k-mock::before {{ background: #FFF4E5; border: 2px dashed #F99E1A; }}
+.ow-colh {{ font-size: 0.8rem; font-weight: 800; letter-spacing: 0.04em; margin: 0.2rem 0 0.3rem; }}
+.ow-colh.real {{ color: {C['navy']}; }}
+.ow-colh.mock {{ color: #C2410C; }}
+
+/* 기획 시안은 점선 테두리 + '실제 게임에 없음' 리본으로 실제 화면과 구분 */
+.ow-proto {{ border: 2px dashed #F99E1A; position: relative; margin-top: 1.1rem; }}
+.ow-grid2 > .ow-shot {{ margin: 0; }}
+.ow-grid2 > .ow-shot:last-child:nth-child(odd) {{ grid-column: 1 / -1; }}
+.ow-proto::after {{ content: "기획 시안 · 실제 게임에 없음"; position: absolute; top: -0.75rem; right: 1rem; background: #F99E1A; color: #1B1B1B;
+  font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.6rem; border-radius: 999px; }}
+.ow-proto.narrow .ow-grid3 {{ grid-template-columns: 1fr; }}
+.ow-proto-card.mock {{ border-style: dashed; border-color: #F99E1A; border-left-style: solid; }}
+
+@media (max-width: 1100px) {{
+  .ow-journey {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+}}
+@media (max-width: 640px) {{
+  .ow-journey {{ grid-template-columns: 1fr; }}
+  .ow-count {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+  .ow-count > div:first-child {{ grid-column: 1 / -1; }}
+  .ow-count-v {{ font-size: 1.7rem; }}
+  .ow-count > div:first-child .ow-count-v {{ font-size: 2.2rem; }}
+  .ow-mark {{ border-width: 2px; }}
+  .ow-mark > span b {{ display: none; }}
+}}
+
+.gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
+
+/* 모바일 */
+@media (max-width: 640px) {{
+  .block-container {{ padding: 1rem 0.9rem 3rem; }}
+  .gp-hero {{ padding: 1.3rem 1.2rem; border-radius: 14px; }}
+  .gp-hero h1 {{ font-size: 1.45rem; }}
+  .gp-hero p {{ font-size: 0.92rem; }}
+  .gp-grid {{ grid-template-columns: 1fr; }}
+  .gp-kpi .gp-kpi-value {{ font-size: 1.4rem; }}
+}}
+</style>
+"""
+
+
+def inject_css() -> None:
+    st.markdown(CSS, unsafe_allow_html=True)

@@ -1,0 +1,212 @@
+"""PROJECT RE:START KPI 시뮬레이터 (순수 계산 함수).
+
+⚠ 모든 입력값과 결과는 가정에 따른 가상 시뮬레이션이며, 실제 오버워치 성과가 아닙니다.
+
+계산 원칙
+1) 효과는 '참여자'에게만 한 번 적용한다.
+   개선 후 잔존율 = 기존 잔존율 + 참여율 × 참여자 개선 폭(%p)
+   → 참여율과 효과를 곱하는 지점은 이 식 하나뿐이며, 다른 단계에서 다시 곱하지 않는다.
+2) 잔존율은 0~100% 범위로 자르고, D1 ≥ D7 ≥ D30 관계를 강제한다. (보정이 일어나면 경고)
+3) PC방 이벤트는 '참여 채널 퍼널'로만 계산하고, 잔존율에 별도로 더하지 않는다. (중복 가산 방지)
+4) DAU 는 코호트 잔존 인원을 그대로 쓰지 않는다.
+   DAU(t) = 기존 활성 이용자(가정, 고정) + Σ 유입일별 (일일 유입 인원 × 잔존 곡선 R(경과일) × 잔존자 일일 접속 확률)
+"""
+
+from __future__ import annotations
+
+import math
+from dataclasses import dataclass, field
+from statistics import NormalDist
+
+import numpy as np
+import pandas as pd
+
+DAYS = ("D1", "D7", "D30")
+
+
+@dataclass
+class CohortInput:
+    name: str
+    size: int
+    base: dict[str, float]          # {"D1": %, "D7": %, "D30": %}
+    participation: float            # 0~100 (%)
+
+
+@dataclass
+class SimInput:
+    cohorts: list[CohortInput]
+    uplift: dict[str, float]        # 참여자 개선 폭 %p {"D1","D7","D30"}
+    # 적응 퍼널 (조건부 전환율 %, 이전 단계 대비)
+    funnel_first: float = 85.0
+    funnel_3: float = 70.0
+    funnel_10: float = 55.0
+    funnel_d7_of_10: float = 60.0
+    funnel_uplift_3: float = 8.0
+    funnel_uplift_10: float = 10.0
+    # PC방 이벤트
+    pc_reach: float = 25.0          # 코호트 중 PC방 이벤트 대상 비율 %
+    pc_participation: float = 30.0  # 대상 중 참여율 %
+    pc_completion: float = 60.0     # 참여자 중 미션 완료율 %
+    pc_revisit: float = 50.0        # 참여자 중 7일 내 재방문율 %
+    pc_companion: float = 40.0      # 참여자 중 친구 동반 플레이 비율 %
+    # 선행 지표 (잔존율 계산에는 쓰지 않는 관측용 지표)
+    briefing_completion: float = 70.0   # 복귀 참여자(브리핑 시작자) 중 완료율 %
+    card_usage: float = 30.0            # 전체 코호트 중 학습 카드 이용률 %
+    reward_cost: float = 3000.0     # 참여자 1인당 보상 비용(원)
+    event_fixed_cost: float = 20_000_000.0
+    # 개발·운영
+    headcount: float = 5.0
+    months: float = 3.0
+    monthly_cost_per_person: float = 6_000_000.0
+    # DAU
+    base_dau: float = 100_000.0
+    active_prob: float = 50.0       # 잔존자가 특정일에 접속할 확률 %
+    arrival_days: int = 14
+    horizon: int = 90
+
+
+@dataclass
+class SimResult:
+    retention: pd.DataFrame                 # cohort, day, base_rate, new_rate, base_users, new_users, added
+    funnel: pd.DataFrame                    # stage, base, improved
+    pcbang: pd.DataFrame                    # stage, users
+    dau: pd.DataFrame                       # day, scenario, dau
+    costs: dict[str, float]
+    warnings: list[str] = field(default_factory=list)
+    leading: dict[str, float] = field(default_factory=dict)   # 선행 지표 인원 (관측용, 잔존율에 미반영)
+
+
+def validate_base(base: dict[str, float]) -> list[str]:
+    errs = []
+    for d in DAYS:
+        if not 0 <= base[d] <= 100:
+            errs.append(f"{d} 잔존율은 0~100% 사이여야 합니다.")
+    if not base["D1"] >= base["D7"] >= base["D30"]:
+        errs.append("기존 잔존율은 D1 ≥ D7 ≥ D30 이어야 합니다.")
+    return errs
+
+
+def apply_uplift(base: dict[str, float], participation: float, uplift: dict[str, float]) -> tuple[dict[str, float], list[str]]:
+    """개선 후 잔존율 = 기존 + 참여율 × 개선 폭. 범위·단조성 보정."""
+    p = participation / 100
+    raw = {d: base[d] + p * uplift[d] for d in DAYS}
+    out = {d: min(max(raw[d], 0.0), 100.0) for d in DAYS}
+    warns = []
+    if out["D7"] > out["D1"]:
+        out["D7"] = out["D1"]
+        warns.append("개선 후 D7 이 D1 보다 커져 D7 = D1 로 보정했습니다. (D7 개선 폭을 줄이세요)")
+    if out["D30"] > out["D7"]:
+        out["D30"] = out["D7"]
+        warns.append("개선 후 D30 이 D7 보다 커져 D30 = D7 로 보정했습니다. (D30 개선 폭을 줄이세요)")
+    if any(raw[d] > 100 for d in DAYS):
+        warns.append("개선 후 잔존율이 100%를 넘어 100%로 제한했습니다.")
+    return out, warns
+
+
+def retention_curve(rates: dict[str, float], horizon: int) -> np.ndarray:
+    """R(t), t=0..horizon. (0,100%)→(1,D1)→(7,D7)→(30,D30) 로그-선형 보간, 30일 이후 7→30일 감소 속도로 외삽."""
+    eps = 1e-4
+    pts_t = np.array([0, 1, 7, 30], dtype=float)
+    pts_r = np.array([1.0, rates["D1"] / 100, rates["D7"] / 100, rates["D30"] / 100])
+    logs = np.log(np.maximum(pts_r, eps))
+    t = np.arange(horizon + 1, dtype=float)
+    r = np.exp(np.interp(t, pts_t, logs))
+    slope = (logs[3] - logs[2]) / 23
+    late = t > 30
+    r[late] = np.exp(logs[3] + slope * (t[late] - 30))
+    return np.clip(r, 0, 1)
+
+
+def _dau_series(cohorts: list[CohortInput], rates_by_cohort: dict[str, dict[str, float]], inp: SimInput) -> np.ndarray:
+    h, a = inp.horizon, inp.active_prob / 100
+    total = np.full(h + 1, inp.base_dau, dtype=float)
+    for c in cohorts:
+        r = retention_curve(rates_by_cohort[c.name], h)
+        daily = c.size / max(inp.arrival_days, 1)
+        for s in range(min(inp.arrival_days, h + 1)):
+            total[s:] += daily * r[: h + 1 - s] * a
+    return total
+
+
+def sample_size_two_proportions(p1: float, p2: float, alpha: float = 0.05, power: float = 0.8) -> int | None:
+    """양측 검정, 두 비율 차이 검정의 그룹당 필요 표본 수. p 는 0~1."""
+    if not (0 < p1 < 1 and 0 < p2 < 1) or p1 == p2:
+        return None
+    nd = NormalDist()
+    za, zb = nd.inv_cdf(1 - alpha / 2), nd.inv_cdf(power)
+    pbar = (p1 + p2) / 2
+    num = (za * math.sqrt(2 * pbar * (1 - pbar)) + zb * math.sqrt(p1 * (1 - p1) + p2 * (1 - p2))) ** 2
+    return math.ceil(num / (p2 - p1) ** 2)
+
+
+def run(inp: SimInput) -> SimResult:
+    warnings: list[str] = []
+    rows, rates_base, rates_new = [], {}, {}
+    for c in inp.cohorts:
+        errs = validate_base(c.base)
+        if errs:
+            raise ValueError(f"[{c.name}] " + " ".join(errs))
+        new, w = apply_uplift(c.base, c.participation, inp.uplift)
+        warnings += [f"[{c.name}] {x}" for x in w]
+        rates_base[c.name], rates_new[c.name] = c.base, new
+        for d in DAYS:
+            bu, nu = c.size * c.base[d] / 100, c.size * new[d] / 100
+            rows.append({"cohort": c.name, "day": d, "base_rate": c.base[d], "new_rate": new[d],
+                         "base_users": bu, "new_users": nu, "added": nu - bu})
+    retention = pd.DataFrame(rows)
+
+    # 적응 퍼널: 참여율 가중 평균으로 조건부 전환율에 한 번만 효과 적용
+    total = sum(c.size for c in inp.cohorts)
+    p_avg = sum(c.size * c.participation for c in inp.cohorts) / total / 100 if total else 0.0
+    conv_b = [inp.funnel_first, inp.funnel_3, inp.funnel_10, inp.funnel_d7_of_10]
+    conv_i = [inp.funnel_first, min(inp.funnel_3 + p_avg * inp.funnel_uplift_3, 100),
+              min(inp.funnel_10 + p_avg * inp.funnel_uplift_10, 100), inp.funnel_d7_of_10]
+    stages = ["접속", "첫 경기", "3경기 완료", "10경기 완료", "D7 재접속(10경기 완료자 중)"]
+
+    def chain(conv):
+        vals = [float(total)]
+        for cv in conv:
+            vals.append(vals[-1] * cv / 100)
+        return vals
+
+    funnel = pd.DataFrame({"stage": stages, "base": chain(conv_b), "improved": chain(conv_i)})
+
+    # PC방 이벤트 퍼널 (잔존율에 가산하지 않음)
+    target = total * inp.pc_reach / 100
+    part = target * inp.pc_participation / 100
+    pcbang = pd.DataFrame({
+        "stage": ["PC방 이벤트 대상", "이벤트 참여", "적응 미션 완료", "7일 내 재방문"],
+        "users": [target, part, part * inp.pc_completion / 100, part * inp.pc_revisit / 100],
+    })
+
+    ret_size = sum(c.size for c in inp.cohorts if c.name == "복귀")
+    ret_part = sum(c.size * c.participation / 100 for c in inp.cohorts if c.name == "복귀")
+    leading = {
+        "briefing_started": ret_part,
+        "briefing_completed": ret_part * inp.briefing_completion / 100,
+        "card_users": total * inp.card_usage / 100,
+        "pc_returning": ret_size * inp.pc_reach / 100 * inp.pc_participation / 100,
+        "pc_companion": part * inp.pc_companion / 100,
+        "pc_revisit": part * inp.pc_revisit / 100,
+    }
+
+    event_cost = part * inp.reward_cost + inp.event_fixed_cost
+    dev_cost = inp.headcount * inp.months * inp.monthly_cost_per_person
+    added_d7 = float(retention.loc[retention["day"] == "D7", "added"].sum())
+    costs = {
+        "event_cost": event_cost,
+        "dev_cost": dev_cost,
+        "total_cost": event_cost + dev_cost,
+        "cost_per_participant": event_cost / part if part > 0 else float("nan"),
+        "cost_per_revisit": event_cost / (part * inp.pc_revisit / 100) if part * inp.pc_revisit > 0 else float("nan"),
+        "cost_per_added_d7": (event_cost + dev_cost) / added_d7 if added_d7 > 0 else float("nan"),
+        "added_d7": added_d7,
+        "p_avg": p_avg * 100,
+    }
+
+    days = np.arange(inp.horizon + 1)
+    dau = pd.concat([
+        pd.DataFrame({"day": days, "scenario": "현재 가정", "dau": _dau_series(inp.cohorts, rates_base, inp)}),
+        pd.DataFrame({"day": days, "scenario": "RE:START 적용 가정", "dau": _dau_series(inp.cohorts, rates_new, inp)}),
+    ])
+    return SimResult(retention, funnel, pcbang, dau, costs, warnings, leading)
