@@ -18,7 +18,7 @@ GAMES = {
         "name": "오버워치",
         "short": "OW",
         "genre": "팀 기반 하이퍼 FPS",
-        "theme": "PROJECT RE:START · 넥슨 한국 PC 퍼블리싱을 고려한 신규·복귀 이용자 정착 및 PC방 활성화",
+        "theme": "PROJECT RE:START · 복귀·신규 유저가 바뀐 영웅·스킬·시스템을 실전에서 따라잡도록 돕는 단계적 개선안 (실제 자료 기반)",
         "one_liner": "새로 들어온 이용자는 '어려워서', 기존 이용자는 '달라져서' 떠나는 것은 아닐까?",
         "aliases": ["오버워치", "오버워치2", "overwatch", "overwatch2", "ow", "ow2"],
         "problem": {

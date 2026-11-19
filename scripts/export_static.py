@@ -131,6 +131,20 @@ def _cell(v) -> str:
     return H.escape(str(v))
 
 
+def _plain(v) -> str:
+    """차트 라벨의 HTML 태그 제거 (예: '복귀 D7  <b>+2.0%p</b>' → '복귀 D7 +2.0%p')."""
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", str(v))).strip()
+
+
+def _cat(v) -> str:
+    """범주 값 표시: 날짜(ISO)는 날짜로, 그 밖에는 태그를 지운 글자."""
+    s = str(v)
+    m = re.match(r"^(\d{4}-\d{2}-\d{2})(?:[T ]00:00:00(?:\.0+)?)?$", s)
+    if m:
+        return m.group(1)
+    return _cell(v) if isinstance(v, (int, float)) else H.escape(_plain(v))
+
+
 def _title(obj) -> str:
     t = obj.get("title") if isinstance(obj, dict) else None
     if isinstance(t, dict):
@@ -167,26 +181,34 @@ class Exporter:
         cid = f"chart{self.n_chart}"
         payload = json.dumps({"data": spec.get("data", []), "layout": layout}, ensure_ascii=False).replace("</", "<\\/")
 
-        # 글자만 읽는 도구를 위한 숫자 표
-        xt, yt = _title(layout.get("xaxis", {}) or {}) or "x", _title(layout.get("yaxis", {}) or {}) or "y"
+        # 글자만 읽는 도구를 위한 숫자 표 · 열 제목은 차트가 알려 준 의미(layout.meta.table) → 축 제목 → 일반 이름 순
+        meta = (layout.get("meta") or {}).get("table", {}) if isinstance(layout.get("meta"), dict) else {}
+        xt, yt = _title(layout.get("xaxis", {}) or {}), _title(layout.get("yaxis", {}) or {})
+        traces = spec.get("data", [])
+        horizontal = any(tr.get("orientation") == "h" for tr in traces)
+        cat_t, val_t = (yt, xt) if horizontal else (xt, yt)
+        cat_h = meta.get("category") or cat_t or "항목"
+        val_h = meta.get("value") or val_t or "값"
+        ser_h = meta.get("series") or "구분"
         rows = []
-        for tr in spec.get("data", []):
+        for tr in traces:
             x, y = _arr(tr.get("x")), _arr(tr.get("y"))
+            cat, val = (y, x) if tr.get("orientation") == "h" else (x, y)
             name = tr.get("name") or ""
-            if isinstance(x, list) and isinstance(y, list):
-                rows += [(name, a, b) for a, b in zip(x, y)]
-            elif isinstance(y, list):
-                rows += [(name, i, b) for i, b in enumerate(y)]
-            elif isinstance(x, list):
-                rows += [(name, a, "") for a in x]
+            if isinstance(cat, list) and isinstance(val, list):
+                rows += [(name, a, b) for a, b in zip(cat, val)]
+            elif isinstance(val, list):
+                rows += [(name, i + 1, b) for i, b in enumerate(val)]
+        multi = len({n for n, _, _ in rows}) > 1
         table = ""
         if rows:
             total, cap = len(rows), 200
             note = f" · 원자료 {total:,}행 중 앞 {cap}행만 표시 (차트는 전체 자료로 그림)" if total > cap else ""
-            body = "".join(f"<tr><td>{H.escape(str(n))}</td><td>{_cell(a)}</td><td>{_cell(b)}</td></tr>" for n, a, b in rows[:cap])
+            body = "".join("<tr>" + (f"<td>{H.escape(_plain(n))}</td>" if multi else "")
+                           + f"<td>{_cat(a)}</td><td>{_cell(b)}</td></tr>" for n, a, b in rows[:cap])
+            head = (f"<th>{H.escape(ser_h)}</th>" if multi else "") + f"<th>{H.escape(cat_h)}</th><th>{H.escape(val_h)}</th>"
             table = (f'<details class="sx-chartdata"><summary>차트 데이터 표 ({min(total, cap)}행{note})</summary>'
-                     f'<div class="gp-table-wrap"><table class="gp-table"><tr><th>계열</th><th>{H.escape(xt)}</th>'
-                     f'<th>{H.escape(yt)}</th></tr>{body}</table></div></details>')
+                     f'<div class="gp-table-wrap"><table class="gp-table"><tr>{head}</tr>{body}</table></div></details>')
         self.charts += 1
         # 제목이 없는 차트는 앱의 차트 카드(배지·제목·단위)가 바로 위에 있으므로 캡션을 다시 달지 않는다
         cap = f'<figcaption class="sx-chart-h">{KIND_BADGE[kind]} {H.escape(title)}</figcaption>' if title else ""
@@ -436,10 +458,11 @@ def page_html(title: str, desc: str, current: str, body: str, toc: list, charts:
 
 
 def index_html(gen: str) -> str:
-    g = GAMES["overwatch"]
+    rs = json.loads((ROOT / "data" / "overwatch" / "restart.json").read_text(encoding="utf-8"))
     cards = [f'<a class="sx-card feature" href="overwatch.html"><div class="k">대표 프로젝트 · 실제 자료 기반</div>'
-             f'<h3>오버워치 · PROJECT RE:START</h3><p>{H.escape(g.get("one_liner", ""))} — 최신 한국어 게임 화면, 검증한 유저 의견, '
-             '공식 업데이트·이용 지표, 개선안 A·B·C 시안, KPI·A/B 테스트·가정 시뮬레이션을 한 페이지에 담았습니다.</p></a>']
+             f'<h3>오버워치 · PROJECT RE:START</h3><p><b>{H.escape(rs["summary"]["headline"])}</b> — '
+             f'{H.escape(rs["cover"]["solution_sub"])}. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 '
+             '개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a>']
     for pid, f, name, _ in PAGES[1:]:
         one = GAMES[pid].get("one_liner", "") if pid in GAMES else {
             "home": "사이트 전체 소개와 게임별 분석 바로가기", "data_lab": "CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)",

@@ -374,39 +374,39 @@
   },
   "rice": {
     "formula": "RICE = 도달(Reach) × 영향(Impact) × 확신(Confidence) ÷ 노력(Effort)",
-    "notes": "도달은 분기당 대상 유저 수(가정), 영향은 0.5/1/2/3 척도, 확신은 근거 수준, 노력은 인월(가정)",
+    "notes": "도달 = 분기(13주) 유입 × 기능을 실제로 쓰는 비율 (복귀·신규 유입과 참여율은 05 실험 설계와 같은 가정값) · 영향 0.5/1/2/3 척도 · 확신 = 근거 수준 · 노력 = 인월 (모두 가정)",
     "items": [
       {
         "key": "A",
-        "reach": 20000,
         "impact": 1,
         "confidence": 0.8,
         "effort": 3,
-        "why": "복귀 의견 근거가 가장 많고 공식 복귀 요약과 방향이 같음"
+        "why": "복귀 의견 근거가 가장 많고 공식 복귀 요약과 방향이 같음",
+        "reach_basis": "분기 복귀 유입 × 브리핑 참여율"
       },
       {
         "key": "B",
-        "reach": 30000,
         "impact": 1,
         "confidence": 0.5,
         "effort": 4,
-        "why": "게임 데이터 협업 범위가 불확실"
+        "why": "게임 데이터 협업 범위가 불확실",
+        "reach_basis": "분기 신규+복귀 유입 × 카드 사용률"
       },
       {
         "key": "C",
-        "reach": 15000,
         "impact": 2,
         "confidence": 0.6,
         "effort": 4,
-        "why": "신규 정착 효과가 크지만 미션 설계 검증 필요"
+        "why": "신규 정착 효과가 크지만 미션 설계 검증 필요",
+        "reach_basis": "분기 신규 유입 × 미션 참여율"
       },
       {
         "key": "D",
-        "reach": 7500,
         "impact": 1,
         "confidence": 0.4,
         "effort": 5,
-        "why": "넥슨·블리자드 협의와 비용 검증 필요"
+        "why": "넥슨·블리자드 협의와 비용 검증 필요",
+        "reach_basis": "분기 신규+복귀 유입 × PC방 대상 비율 × 참여율"
       }
     ]
   },
@@ -771,6 +771,16 @@
         "leading": "-",
         "why": "실험 1에서 A 확대가 결정되고 실험 3을 통과했을 때만 진행"
       }
-    ]
+    ],
+    "period_weeks": 13,
+    "leading": {
+      "briefing_completion": 60,
+      "card_usage": 20,
+      "pc_reach": 25,
+      "pc_participation": 30,
+      "pc_completion": 60,
+      "pc_revisit": 50,
+      "pc_companion": 40
+    }
   }
 }

@@ -22,6 +22,7 @@
 from __future__ import annotations
 
 import math
+import os
 from html import escape
 
 import pandas as pd
@@ -34,8 +35,8 @@ from gamepulse.content.games import GAMES
 from gamepulse.data.overwatch_data import (COLLECTED_AT, OPINION_CATEGORIES, STEAM_SOURCE, USER_TYPES, OverwatchDataError,
                                           load_json, load_opinions, load_pcbang, load_steam, load_timeline, opinion_codes)
 from gamepulse.data.overwatch_images import all_status, load_manifest, web_jpeg_b64
-from gamepulse.sim.restart_sim import (CohortInput, SimInput, experiment_plan, run, sample_size_two_proportions,
-                                       validate_base)
+from gamepulse.sim.restart_sim import (CohortInput, SimInput, experiment_plan, rice_table, run,
+                                       sample_size_two_proportions, validate_base)
 from gamepulse.ui.charts import PLOTLY_CONFIG, style
 from gamepulse.ui.components import badge, html
 from gamepulse.views import game_page
@@ -157,11 +158,14 @@ C_TREAT, C_CTRL, C_MUTED = C["blue"], "#94A3B8", "#CBD5E1"
 
 
 def chart_card(fig: go.Figure, *, key: str, kind: str, title: str, unit: str, kpis: list[tuple[str, str]],
-               analysis: str, decision: str, basis: str, height: int = 360, legend: bool = True) -> None:
+               analysis: str, decision: str, basis: str, height: int = 360, legend: bool = True,
+               cols: tuple[str, str] = ("항목", "값"), series: str = "구분") -> None:
     """차트 1개 = 배지·제목·단위 → 핵심 수치 → 차트 → 분석 결과 · 사업PM 의사결정 · 비교 기준.
 
     kpis 의 값(value)은 HTML 을 허용한다(호출하는 쪽에서 숫자만 넣음).
+    cols = (범주 열 이름, 값 열 이름): 정적 보고서의 '차트 데이터 표' 열 제목으로 쓰인다 (layout.meta).
     """
+    fig.update_layout(meta={"table": {"category": cols[0], "value": cols[1], "series": series, "title": title}})
     with st.container(border=True, key=f"owc_{key}"):
         chips = "".join(f'<div class="ow-kpi"><div class="ow-kpi-v">{v}</div><div class="ow-kpi-l">{escape(l)}</div></div>'
                         for l, v in kpis)
@@ -447,9 +451,10 @@ def _decision_cards(rs: dict, plan: dict) -> str:
     """PM 의사결정 요약 5개 카드. 비용·효과는 가정값으로 계산하고 배지로 표시."""
     ex, rice = rs["experiment"], {x["key"]: x for x in rs["rice"]["items"]}
     r = plan["seg"]["복귀"]
+    q = plan["quarter"]
     mcost = ex["cost"]["monthly_cost_per_person"]
     a_cost = rice["A"]["effort"] * mcost
-    a_added = r["size"] * r["mde"]["D7"] / 100
+    a_added = q["added_d7"]["A"]          # 분기 복귀 유입 × MDE (05 실험 설계와 같은 가정)
     sc = plan["sched"]
     cards = [
         ("왜 이 문제가 먼저인가", b_real() + b_interp(),
@@ -460,8 +465,9 @@ def _decision_cards(rs: dict, plan: dict) -> str:
          f"주요 지표 1개: 복귀 D7 잔존율(Day 7 당일 접속, 배정 기준). 최소 의미 있는 개선 폭(MDE) +{r['mde']['D7']:.1f}%p. "
          "안전 지표: 불만·신고율, 경기 시작률."),
         ("비용 대비 기대 효과", b_sim(),
-         f"A 개발 {rice['A']['effort']}인월 × 월 {mcost / 1e4:,.0f}만 원 = {a_cost / 1e4:,.0f}만 원. 2주 복귀 코호트 {r['size']:,}명에 "
-         f"+{r['mde']['D7']:.1f}%p면 추가 D7 잔존 {a_added:,.0f}명 → 1명당 {a_cost / a_added / 1e4:,.1f}만 원. 실제 비용·LTV는 내부 자료로 확정."),
+         f"A 개발 {rice['A']['effort']}인월 × 월 {mcost / 1e4:,.0f}만 원 = {a_cost / 1e4:,.0f}만 원. 분기({q['weeks']}주) 복귀 유입 "
+         f"{q['inflow']['복귀']:,.0f}명에 +{r['mde']['D7']:.1f}%p면 추가 D7 잔존 {a_added:,.0f}명 → 1명당 약 {a_cost / a_added:,.0f}원. "
+         "모두 가정값이며 실제 비용·LTV는 내부 자료로 확정."),
         ("확대·수정·중단 조건", b_mock(),
          f"{sc['e1_d7']}주차 D7로 1차 판정, {sc['e1_d30']}주차 D30 확인. 유의(95% 신뢰구간 하한 > 0)하고 MDE 이상이면 확대, "
          "선행 지표 미달이면 수정 후 재실험, 재실험도 효과 없거나 안전 지표 악화 시 중단."),
@@ -589,7 +595,7 @@ def _s2_evidence(rs: dict, kp: dict, steam: pd.DataFrame, pc: pd.DataFrame, ops:
                                 f"{last['avg_players'] / pk['avg_players'] * 100:.0f}% 수준이다. 늘어난 유입이 모두 남지는 않았다.",
                        decision="새로 들어온 유저를 붙잡는 '복귀·신규 첫 주 정착'을 주요 과제로 두고, 성과는 D7 잔존율로 본다.",
                        basis=f"{first['month']:%Y년 %m월}~{last['month']:%Y년 %m월} 같은 출처의 월평균 · Steam 이용자만 포함 (Battle.net·넥슨·콘솔 제외)",
-                       height=340, legend=False)
+                       height=340, legend=False, cols=("월", "월평균 동시접속자 (명)"))
             note(f"{last['month']:%Y년 %m월} 월평균 {last['avg_players']:,.0f}명. 전 세계 Steam 이용자만 집계한 값으로, 전체 이용자나 한국 유저 수가 아니다.")
             with st.expander("자세히 보기 · 출처와 해석 주의"):
                 st.markdown(f"출처: [{STEAM_SOURCE['name']}]({STEAM_SOURCE['url']}) · 확인일 {COLLECTED_AT}")
@@ -641,7 +647,7 @@ def _s2_evidence(rs: dict, kp: dict, steam: pd.DataFrame, pc: pd.DataFrame, ops:
                        kpis=kp, analysis=analysis,
                        decision="한국 PC방은 복귀 유입이 큰 채널이므로, 복귀 정착(A) 검증 후 PC방 연계안(D)을 별도로 판단한다.",
                        basis=f"같은 집계원({tracker})·같은 단위(일간) 값끼리 비교 · 주간 값은 참고로만 표시 · 위의 '집계원' 선택으로 다른 집계원 확인",
-                       height=360)
+                       height=360, cols=("기준일", "PC방 점유율 (%)"), series="집계 단위")
         note("한국 PC방 표본 기준의 지역 지표로, 전 세계 이용 지표와는 다르다. 점선은 넥슨 서비스 개시일(8/12).")
         with st.expander("자세히 보기 · 원자료와 집계 기준"):
             st.caption("두 집계원은 표본 PC방이 달라 같은 날에도 순위가 다르다(9/13 더로그 2위, 게임트릭스 5위). PC방 이벤트·신규 시즌이 겹쳐 상승 원인을 단정할 수 없고, 계약 발표 이전 수치는 확보하지 못했다.")
@@ -707,7 +713,7 @@ def _opinions(rs: dict, ops: pd.DataFrame) -> None:
                         f"다만 매칭·실력 차이({int(cnt.get('매칭·실력 차이', 0))}건)와 긍정 경험도 함께 나타난다.",
                decision="학습 부담을 줄이는 A·C를 먼저 검증 대상으로 삼고, 매칭·비매너는 대안 원인으로 실험 중 함께 추적한다.",
                basis=f"자발적 게시글 {len(v)}건 · 합계 {int(cnt.sum())}건(중복 집계) · 전체 이용자 비율이 아님",
-               height=380, legend=False)
+               height=380, legend=False, cols=("문제 유형", "언급 수 (건)"))
 
     sub("댓글 카드로 보기")
     c1, c2 = st.columns(2)
@@ -824,7 +830,7 @@ def _s4_experience(rs: dict, ops: pd.DataFrame, heroes: dict, tl: pd.DataFrame, 
     with t[2]:
         _proto_c(statuses)
     with t[3]:
-        _strategy_detail(rs, ops)
+        _strategy_detail(rs, ops, plan)
 
 
 LAST_ACCESS = {"2026년 1월 (시즌 1 이전)": "2026-01-31", "2026년 7월": "2026-07-31", "2026년 9월": "2026-09-30"}
@@ -990,10 +996,10 @@ def _proto_c_body() -> None:
          f'<div class="ow-proto-card-s">보상 예시: 외형 아이템 (확정 아님 · 경쟁 밸런스에 영향 없는 보상만 검토)</div></div>')
 
 
-def _strategy_detail(rs: dict, ops: pd.DataFrame) -> None:
+def _strategy_detail(rs: dict, ops: pd.DataFrame, plan: dict) -> None:
     rc = rs["rice"]
-    items = pd.DataFrame(rc["items"])
-    items["score"] = items["reach"] * items["impact"] * items["confidence"] / items["effort"]
+    # 도달(Reach)은 05 실험 설계와 같은 분기 유입·참여율 가정에서 계산 (기준값 혼재 방지)
+    items = pd.DataFrame(rice_table(rc["items"], plan["quarter"]["reach"]))
     items = items.sort_values("score", ascending=False)
     order = " → ".join(items["key"])
     sub(f"RICE 점수 순서도 {order} (단계적 출시 순서와 같음)", b_sim())
@@ -1030,16 +1036,16 @@ def _strategy_detail(rs: dict, ops: pd.DataFrame) -> None:
                kpis=[(f"1순위 {top['label']}", f"{top['score']:,.0f}점"),
                      (f"2순위 {second['label']}", f"{second['score']:,.0f}점"),
                      ("1순위 ÷ 2순위", f"{top['score'] / second['score']:.2f}배")],
-               analysis=f"A는 노력({items.set_index('key').loc['A', 'effort']}인월)이 가장 작고 확신이 가장 높아 1순위다. "
+               analysis=f"A는 분기 도달 {top['reach']:,.0f}명으로 가장 크고, 노력({top['effort']}인월)이 가장 작으며 확신이 가장 높아 1순위다. "
                         "D는 협력사 변수로 확신이 낮아 점수가 가장 낮다.",
                decision="A → C → B 순서로 단계 출시하고, D는 A~C 결과와 넥슨 협의를 본 뒤 결정한다.",
-               basis="같은 산식·같은 가정 척도로 4개 전략을 상대 비교 · 점수 자체는 실적이 아님",
-               height=300, legend=False)
+               basis=f"도달 = 분기({plan['quarter']['weeks']}주) 유입 × 참여·사용률 · 05 실험 설계와 같은 가정값 · 점수 자체는 실적이 아님",
+               height=300, legend=False, cols=("전략", "RICE 점수 (점)"))
     with st.expander("자세히 보기 · RICE 산식과 가정값"):
         st.caption(f"{rc['formula']} · {rc['notes']}")
-        table(["전략", "도달", "영향", "확신", "노력(인월)", "점수", "근거"],
-              [[escape(x.label), f"{x.reach:,}", str(x.impact), str(x.confidence), str(x.effort), f"{x.score:,.0f}", escape(x.why)]
-               for x in items.itertuples()], badge_html=b_sim())
+        table(["전략", "도달 (분기·명)", "영향", "확신", "노력 (인월)", "점수", "근거"],
+              [[escape(x.label), f"{x.reach:,.0f}<br><small>{escape(x.reach_basis)}</small>", str(x.impact), str(x.confidence),
+                str(x.effort), f"<b>{x.score:,.0f}</b>", escape(x.why)] for x in items.itertuples()], badge_html=b_sim())
 
     cmp_ = rs["comparison"]
     sub(f"대안 비교: {cmp_['alt_name']} vs RE:START", b_interp())
@@ -1061,7 +1067,7 @@ def _strategy_detail(rs: dict, ops: pd.DataFrame) -> None:
                analysis="유저 선택 자유·PvP 경쟁성·한국 PC방 적용에서 차이가 크고, 개발 난이도는 두 안이 비슷하다.",
                decision=cmp_["decision"],
                basis="같은 5개 기준·같은 척도로 두 안을 비교한 기획자 판단 · 실제 성과가 아님",
-               height=380)
+               height=380, cols=("평가 기준", "점수 (1~5점)"), series="안")
     with st.expander("자세히 보기 · 평가 근거"):
         st.caption(cmp_["alt_desc"] + " · " + cmp_["note"])
         table(["기준", "RE:START", cmp_["alt_name"], "근거"],
@@ -1195,29 +1201,32 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
         f_3 = c2.slider("첫 경기 → 3경기", 0, 100, int(fn["m3"]), key="rs_f3")
         c1, c2 = st.columns(2)
         f_10 = c1.slider("3경기 → 10경기", 0, 100, int(fn["m10"]), key="rs_f10")
-        f_d7 = c2.slider("10경기 → D7 재접속", 0, 100, int(fn["d7_of_10"]), key="rs_fd7")
+        c2.caption("퍼널은 KPI '첫 10경기 완료율'과 같이 신규 코호트만으로 계산합니다. D7은 위 잔존율 하나로만 봅니다.")
         c1, c2 = st.columns(2)
         fu3 = c1.slider("참여자 3경기 개선 (%p)", 0.0, 30.0, float(fn["up3"]), 0.5, key="rs_fu3")
         fu10 = c2.slider("참여자 10경기 개선 (%p)", 0.0, 30.0, float(fn["up10"]), 0.5, key="rs_fu10")
+        ld0 = ex["leading"]   # 선행 지표·PC방 가정값 (KPI 표의 기준선과 같음)
         c1, c2 = st.columns(2)
-        brief_comp = c1.slider("브리핑 완료율 (%)", 0, 100, 70, key="rs_bc")
-        card_use = c2.slider("카드 사용률 (%)", 0, 100, 30, key="rs_cu")
+        brief_comp = c1.slider("브리핑 완료율 (%)", 0, 100, int(ld0["briefing_completion"]), key="rs_bc")
+        card_use = c2.slider("카드 사용률 (%)", 0, 100, int(ld0["card_usage"]), key="rs_cu")
         st.markdown("**PC방 이벤트(D) · 비용**")
         c1, c2 = st.columns(2)
-        pc_reach = c1.slider("PC방 대상 비율 (%)", 0, 100, 25, key="rs_pcr")
-        pc_part = c2.slider("PC방 참여율 (%)", 0, 100, 30, key="rs_pcp")
+        pc_reach = c1.slider("PC방 대상 비율 (%)", 0, 100, int(ld0["pc_reach"]), key="rs_pcr")
+        pc_part = c2.slider("PC방 참여율 (%)", 0, 100, int(ld0["pc_participation"]), key="rs_pcp")
         c1, c2 = st.columns(2)
-        pc_comp = c1.slider("미션 완료율 (%)", 0, 100, 60, key="rs_pcc")
-        pc_rev = c2.slider("7일 재방문율 (%)", 0, 100, 50, key="rs_pcv")
+        pc_comp = c1.slider("미션 완료율 (%)", 0, 100, int(ld0["pc_completion"]), key="rs_pcc")
+        pc_rev = c2.slider("7일 재방문율 (%)", 0, 100, int(ld0["pc_revisit"]), key="rs_pcv")
         c1, c2 = st.columns(2)
-        pc_friend = c1.slider("친구 동반율 (%)", 0, 100, 40, key="rs_pcf")
+        pc_friend = c1.slider("친구 동반율 (%)", 0, 100, int(ld0["pc_companion"]), key="rs_pcf")
         reward = c2.number_input("1인당 보상 (원)", 0, 1_000_000, 3000, step=500, key="rs_rw")
+        abc_effort = sum(x["effort"] for x in rs["rice"]["items"] if x["key"] in ("A", "B", "C"))
         c1, c2 = st.columns(2)
         fixed = c1.number_input("이벤트 고정비 (원)", 0, 10_000_000_000, 20_000_000, step=1_000_000, key="rs_fx")
-        hc = c2.number_input("개발·운영 인력 (명)", 0.0, 200.0, 5.0, step=1.0, key="rs_hc")
+        effort = c2.number_input("A~C 개발·운영 공수 (인월 · RICE 노력 합계)", 0.0, 500.0, float(abc_effort), step=1.0, key="rs_eff")
         c1, c2 = st.columns(2)
-        months = c1.number_input("기간 (개월)", 0.0, 36.0, 3.0, step=0.5, key="rs_mo")
-        mcost = c2.number_input("1인 월 비용 (원)", 0, 100_000_000, int(ex["cost"]["monthly_cost_per_person"]), step=500_000, key="rs_mc")
+        mcost = c1.number_input("1인 월 비용 (원)", 0, 100_000_000, int(ex["cost"]["monthly_cost_per_person"]), step=500_000, key="rs_mc")
+        hc, months = effort, 1.0     # 인월 = 인력 × 개월 → 공수를 그대로 쓴다
+        f_d7 = int(fn["d7_of_10"])   # 퍼널 마지막 단계는 표시하지 않음 (D7 기준 혼재 방지)
         st.markdown("**DAU 가정**")
         c1, c2 = st.columns(2)
         base_dau = c1.number_input("코호트 외 활성 유저 (명/일)", 0, 100_000_000, 100_000, step=10_000, key="rs_bd")
@@ -1240,10 +1249,12 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
         funnel_uplift_3=fu3, funnel_uplift_10=fu10, briefing_completion=brief_comp, card_usage=card_use,
         pc_reach=pc_reach, pc_participation=pc_part, pc_completion=pc_comp, pc_revisit=pc_rev, pc_companion=pc_friend,
         reward_cost=reward, event_fixed_cost=fixed, headcount=hc, months=months, monthly_cost_per_person=mcost,
-        base_dau=base_dau, active_prob=act, arrival_days=arrive, horizon=horizon)
+        base_dau=base_dau, active_prob=act, arrival_days=arrive, horizon=horizon, funnel_cohort="신규")
     res = run(inp)
     r, f, pcb, cs, ld = res.retention, res.funnel, res.pcbang, res.costs, res.leading
     total = n_new + n_ret
+    f_total = n_new                                  # 퍼널 = 신규 코호트 (KPI 정의와 같은 대상)
+    per_q = plan["quarter"]["weeks"] * 7 / max(arrive, 1)   # 코호트(유입 기간) → 분기 환산 배수
 
     def rate(day, col):
         return r.loc[r["day"] == day, col].sum() / total * 100 if total else float("nan")
@@ -1251,8 +1262,8 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
     with top:
         for w in res.warnings:
             st.warning(w)
-    m10_b = f.loc[3, "base"] / total * 100 if total else float("nan")
-    m10_n = f.loc[3, "improved"] / total * 100 if total else float("nan")
+    m10_b = f.loc[3, "base"] / f_total * 100 if f_total else float("nan")
+    m10_n = f.loc[3, "improved"] / f_total * 100 if f_total else float("nan")
     with chart:
         # 코호트별 D7·D30을 '도입 전(대조군 가정) vs 도입 후(실험군 가정)' 한 쌍씩 비교
         cats, before, after = [], [], []
@@ -1277,32 +1288,36 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
                             f"복귀 {pp(after[ri] - before[ri])}, 신규 {pp(after[ni] - before[ni])} 오른다. 실적이 아닌 계산 예시다.",
                    decision="이 변화 폭을 실험의 최소 개선 폭(MDE)으로 두고, 실제 실험에서 이 이상 유의하게 오를 때만 확대한다.",
                    basis="같은 코호트의 도입 전(가정 기준값) vs 도입 후(가정) · 전체 = 신규+복귀 인원 가중 평균",
-                   height=520)
+                   height=520, cols=("코호트 · 지표", "잔존율 (%)"), series="그룹")
 
     with st.expander("자세히 보기 · 추가 지표 · 퍼널 · DAU · 비용 · 계산식"):
         dd = res.dau.pivot(index="day", columns="scenario", values="dau")
         dau_b, dau_n = dd.iloc[-1]["현재 가정"], dd.iloc[-1]["RE:START 적용 가정"]
+        added_q = cs["added_d7"] * per_q
         tiles([
-            ("브리핑 완료 (가정)", f"{fmt_int(ld['briefing_completed'])}명", f"{b_sim()} 복귀 × 시작률 × 완료율"),
-            ("카드 사용 (가정)", f"{fmt_int(ld['card_users'])}명", f"{b_sim()} 전체 × 사용률"),
-            ("PC방 복귀 유저 (D · 가정)", f"{fmt_int(ld['pc_returning'])}명", f"{b_sim()} 복귀 × 대상 × 참여율"),
+            ("브리핑 완료 (코호트 · 가정)", f"{fmt_int(ld['briefing_completed'])}명", f"{b_sim()} 복귀 × 시작률 × 완료율 {brief_comp}%"),
+            ("카드 사용 (코호트 · 가정)", f"{fmt_int(ld['card_users'])}명", f"{b_sim()} 신규+복귀 × 사용률 {card_use}%"),
+            ("PC방 이벤트 참여 (D · 가정)", f"{fmt_int(pcb['users'].iloc[1])}명", f"{b_sim()} 신규+복귀 × 대상 {pc_reach}% × 참여 {pc_part}%"),
             ("총 이벤트 비용 (D · 별도)", fmt_won(cs["event_cost"]), f"{b_sim()} 참여자 × 보상 + 고정비 · 효과는 잔존율에 미반영"),
-            ("추가 D7 잔존 1명당 개발·운영비 (A~C)", fmt_won(cs["cost_per_added_d7_dev"]), f"{b_sim()} 인건비 ÷ 추가 D7 잔존 인원"),
+            ("추가 D7 잔존 1명당 개발·운영비 (A~C · 분기)", fmt_won(cs["dev_cost"] / added_q if added_q else float("nan")),
+             f"{b_sim()} {effort:g}인월 × 월 비용 ÷ 분기 추가 D7 {added_q:,.0f}명"),
             (f"{horizon}일차 DAU 차이 (가정)", f"{dau_n - dau_b:+,.0f}명", f"{b_sim()} 가정 모형"),
         ])
-        stages = [s.replace("D7 재접속(10경기 완료자 중)", "D7 재접속") for s in f["stage"]]
-        fb = (f["base"] / total * 100).tolist() if total else [0] * len(f)
-        fn_ = (f["improved"] / total * 100).tolist() if total else [0] * len(f)
+        keep = f["stage"] != "D7 재접속(10경기 완료자 중)"   # D7은 잔존율 차트 하나로만 본다
+        fv = f[keep].reset_index(drop=True)
+        stages = list(fv["stage"])
+        fb = (fv["base"] / f_total * 100).tolist() if f_total else [0] * len(fv)
+        fn_ = (fv["improved"] / f_total * 100).tolist() if f_total else [0] * len(fv)
         fig = hpair(stages, fb, fn_, xtitle="접속 대비 (%)", names=("도입 전 · 대조군 (가정)", "도입 후 · 실험군 (가정)"),
                     xmax=118)
-        chart_card(fig, key="funnel", kind="sim", title="첫 10경기 적응 퍼널 · 도입 전 vs 도입 후 (가정)",
-                   unit="단위: 접속 인원 대비 % · 회색 = 대조군, 파랑 = 실험군 · 행 이름 옆 = 변화 폭 · 가로축 0~100%",
-                   kpis=[("10경기 완료 (접속 대비)", f"{m10_b:.1f}% → <b>{m10_n:.1f}%</b> <em>{pp(m10_n - m10_b)}</em>"),
+        chart_card(fig, key="funnel", kind="sim", title="신규 유저 첫 10경기 적응 퍼널 · 도입 전 vs 도입 후 (가정)",
+                   unit="단위: 신규 접속 인원 대비 % · 회색 = 대조군, 파랑 = 실험군 · 행 이름 옆 = 변화 폭 · 가로축 0~100%",
+                   kpis=[("10경기 완료 (신규 접속 대비)", f"{m10_b:.1f}% → <b>{m10_n:.1f}%</b> <em>{pp(m10_n - m10_b)}</em>"),
                          ("10경기 완료 인원", f"{f.loc[3, 'base']:,.0f} → <b>{f.loc[3, 'improved']:,.0f}</b>명")],
                    analysis="3경기·10경기 전환 단계에만 미션 효과를 가정해, 첫 경기까지는 두 그룹이 같고 그 뒤에서 차이가 난다.",
                    decision="실험 2에서 첫 10경기 완료율이 오르는데 D7이 그대로면, 미션 보상이 아니라 학습 연결이 약한 것으로 보고 미션을 고친다.",
-                   basis=f"같은 접속 인원 {total:,}명(가정)에서 출발 · 3·10경기 전환율에만 가중 참여율 {cs['p_avg']:.0f}% × 개선 폭 적용",
-                   height=470)
+                   basis=f"같은 신규 접속 인원 {f_total:,}명(가정)에서 출발 · 3·10경기 전환율에만 미션 참여율 {cs['p_avg']:.0f}% × 개선 폭 적용 · KPI '첫 10경기 완료율'과 같은 대상",
+                   height=470, cols=("단계", "신규 접속 대비 (%)"), series="그룹")
         fig = go.Figure()
         cur, app = res.dau[res.dau["scenario"] == "현재 가정"], res.dau[res.dau["scenario"] != "현재 가정"]
         fig.add_scatter(x=cur["day"], y=cur["dau"], name="현재 · 대조군 (가정)", line=dict(color=C_CTRL, width=3))
@@ -1316,7 +1331,7 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
                    analysis=f"코호트 {total:,}명에 대한 효과라, 기존 활성 유저 {base_dau:,}명이 포함된 전체 DAU에서는 차이가 거의 보이지 않는다.",
                    decision="DAU는 성과 판단 지표로 쓰지 않고, 실험 대상 코호트의 D7·D30 잔존율로 판단한다.",
                    basis="같은 기존 활성 유저·같은 유입 일정에서 잔존 곡선만 다르게 적용 · Steam 수치와 무관",
-                   height=340)
+                   height=340, cols=("경과일 (일)", "DAU (명)"), series="시나리오")
         tgt0 = pcb["users"].iloc[0] or 1
         share = (pcb["users"] / tgt0 * 100).tolist()
         fig = go.Figure(go.Bar(y=pcb["stage"], x=share, orientation="h", marker_color=[C_MUTED] + [C_TREAT] * (len(pcb) - 1),
@@ -1330,7 +1345,7 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
                    analysis="이벤트 효과는 잔존율에 더하지 않고 참여 채널 퍼널로만 계산했다. 비용은 보상비와 고정비만 포함한다.",
                    decision="D는 MVP에서 제외하고, A~C 결과와 넥슨 협의 후 '재방문 1명당 비용'을 기준으로 진행 여부를 정한다.",
                    basis="신규+복귀 코호트 중 PC방 이벤트 대상 비율에서 출발 · 대조군 없음",
-                   height=320, legend=False)
+                   height=320, legend=False, cols=("단계", "이벤트 대상 대비 (%)"))
         st.markdown("**KPI 연결 구조 (가설)**")
         table(["개선 방향", "전략", "확인할 지표"],
               [[escape(k["lever"]), escape(k["strategies"]), escape(" · ".join(k["leading"]))] for k in rs["kpi_chain"]], badge_html=b_hypo())
@@ -1339,7 +1354,9 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
 - 전체 잔존율 = (신규 잔존 인원 + 복귀 잔존 인원) ÷ (신규 + 복귀 코호트)
 - 적응 퍼널 = 이전 단계 × 전환율. 3·10경기 전환율에만 가중 참여율({cs['p_avg']:.1f}%) × 개선 폭을 더함
 - 브리핑·카드·PC방 지표는 관측용이라 잔존율에 더하지 않음
-- 추가 D7 잔존 1명당 개발·운영비 = 인력 × 기간 × 1인 월 비용 ÷ 추가 D7 잔존 인원 (효과를 반영하지 않는 D 이벤트 비용은 제외)
+- 추가 D7 잔존 1명당 개발·운영비 = A~C 공수(인월) × 1인 월 비용 ÷ 분기 추가 D7 잔존 인원 (코호트 결과 × 분기 환산 {per_q:.1f}배 · D 이벤트 비용 제외)
+- RICE 도달 = 분기 유입 × 참여·사용률 · 의사결정 카드·RICE·비용이 모두 같은 분기({plan['quarter']['weeks']}주) 유입 가정을 쓴다
+- 적응 퍼널 = 신규 코호트만 (KPI '첫 10경기 완료율'과 같은 대상) · D7은 잔존율 차트 하나로만 판단
 - DAU = 코호트 외 활성 유저 + Σ 일별 유입 × 잔존 곡선 × 일일 접속 확률 (Steam 수치와 무관)
 - 기존 유저는 실험 대상이 아니며 불만·신고율로만 관찰
 """)
@@ -1396,8 +1413,13 @@ def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
         st.caption(f"게임 화면 {len(pending)}종은 최신 한국어 스크린샷 검증 전이라 자리만 표시했습니다. (assets/overwatch/README.md 참고)")
     st.caption(f"{rs['disclaimer']} · 자료 확인일 {COLLECTED_AT}")
 
-    with st.expander("부록 · v0.1 분석 (가상 예시 데이터)"):
-        st.caption("초기 버전의 예시 데이터 화면입니다. 실제 유저 의견이 아닙니다.")
+    # v0.1 예시 분석(보호 매칭·역할별 잔존율·그룹 플레이·별도 온보딩 퍼널·KPI)은 RE:START와 기준값이 달라 공개 본문에서 제외.
+    # 내용은 삭제하지 않고 gamepulse/content/games.py · views/deep_dives.py · views/game_page.py 에 보관하며,
+    # 로컬에서 환경변수 GAMEPULSE_SHOW_ARCHIVE=1 로 실행할 때만 아래 보관함을 표시한다. (archive/README.md 참고)
+    if os.getenv("GAMEPULSE_SHOW_ARCHIVE") != "1":
+        return
+    with st.expander("보관함 · v0.1 분석 (가상 예시 데이터 · 비공개)"):
+        st.caption("초기 버전의 예시 데이터 화면입니다. 실제 유저 의견이 아니며 RE:START와 기준값이 다릅니다.")
         t = st.tabs(["문제 정의", "불만 유형(가상)", "원인 가설", "개선 전략", "KPI", "심층 분석"])
         with t[0]:
             game_page._problem(g)

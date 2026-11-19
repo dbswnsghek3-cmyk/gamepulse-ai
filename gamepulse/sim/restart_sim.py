@@ -63,6 +63,7 @@ class SimInput:
     active_prob: float = 50.0       # 잔존자가 특정일에 접속할 확률 %
     arrival_days: int = 14
     horizon: int = 90
+    funnel_cohort: str | None = None  # 지정하면 적응 퍼널을 이 코호트(예: '신규')만으로 계산 (KPI '첫 10경기 완료율'과 같은 대상)
 
 
 @dataclass
@@ -165,7 +166,7 @@ def experiment_plan(cfg: dict) -> dict:
                      "base": c["base"], "participation": c["participation"], "size": c["size"]}
 
     f = cfg["funnel"]
-    p_avg = sum(c["size"] * c["participation"] for c in cfg["cohorts"].values()) / sum(c["size"] for c in cfg["cohorts"].values()) / 100
+    p_avg = cfg["cohorts"]["신규"]["participation"] / 100   # KPI '첫 10경기 완료율'은 신규 계정 기준
     m10_base = f["first"] * f["m3"] * f["m10"] / 1e4
     m10_new = f["first"] * min(f["m3"] + p_avg * f["up3"], 100) * min(f["m10"] + p_avg * f["up10"], 100) / 1e4
     m10_mde = m10_new - m10_base
@@ -181,7 +182,29 @@ def experiment_plan(cfg: dict) -> dict:
     }
     sched["e3"] = (sched["e2_d7"], sched["e2_d7"] + 3)
     sched["decision"] = max(sched["e1_d30"], sched["e2_d30"], sched["e3"][1])
-    return {"seg": seg, "m10": {"base": m10_base, "new": m10_new, "mde": m10_mde}, "sched": sched, "p_avg": p_avg * 100}
+
+    # 분기(period_weeks) 환산: RICE 도달 · 비용 대비 효과가 같은 기간·같은 유입 가정을 쓰도록
+    weeks = cfg.get("period_weeks", 13)
+    q_in = {k: v["weekly"] * weeks for k, v in seg.items()}
+    lead = cfg["leading"]
+    reach = {   # 도달 = 분기 유입 × 기능을 실제로 쓰는 비율 (가정)
+        "A": q_in["복귀"] * seg["복귀"]["participation"] / 100,
+        "C": q_in["신규"] * seg["신규"]["participation"] / 100,
+        "B": (q_in["복귀"] + q_in["신규"]) * lead["card_usage"] / 100,
+        "D": (q_in["복귀"] + q_in["신규"]) * lead["pc_reach"] / 100 * lead["pc_participation"] / 100,
+    }
+    added_q = {"A": q_in["복귀"] * seg["복귀"]["mde"]["D7"] / 100, "C": q_in["신규"] * seg["신규"]["mde"]["D7"] / 100}
+    return {"seg": seg, "m10": {"base": m10_base, "new": m10_new, "mde": m10_mde}, "sched": sched, "p_avg": p_avg * 100,
+            "quarter": {"weeks": weeks, "inflow": q_in, "reach": reach, "added_d7": added_q}}
+
+
+def rice_table(items: list[dict], reach: dict[str, float]) -> list[dict]:
+    """RICE = 도달 × 영향 × 확신 ÷ 노력. 도달은 experiment_plan 의 분기 도달(가정)을 쓴다."""
+    out = []
+    for x in items:
+        r = reach[x["key"]]
+        out.append({**x, "reach": r, "score": r * x["impact"] * x["confidence"] / x["effort"]})
+    return out
 
 
 def run(inp: SimInput) -> SimResult:
@@ -202,14 +225,16 @@ def run(inp: SimInput) -> SimResult:
 
     # 적응 퍼널: 참여율 가중 평균으로 조건부 전환율에 한 번만 효과 적용
     total = sum(c.size for c in inp.cohorts)
-    p_avg = sum(c.size * c.participation for c in inp.cohorts) / total / 100 if total else 0.0
+    fc = [c for c in inp.cohorts if inp.funnel_cohort is None or c.name == inp.funnel_cohort]
+    f_total = sum(c.size for c in fc)
+    p_avg = sum(c.size * c.participation for c in fc) / f_total / 100 if f_total else 0.0
     conv_b = [inp.funnel_first, inp.funnel_3, inp.funnel_10, inp.funnel_d7_of_10]
     conv_i = [inp.funnel_first, min(inp.funnel_3 + p_avg * inp.funnel_uplift_3, 100),
               min(inp.funnel_10 + p_avg * inp.funnel_uplift_10, 100), inp.funnel_d7_of_10]
     stages = ["접속", "첫 경기", "3경기 완료", "10경기 완료", "D7 재접속(10경기 완료자 중)"]
 
     def chain(conv):
-        vals = [float(total)]
+        vals = [float(f_total)]
         for cv in conv:
             vals.append(vals[-1] * cv / 100)
         return vals
