@@ -56,8 +56,8 @@ PAGES += [(g, f"{g}.html", GAMES[g]["name"], "sample") for g in GAME_ORDER if g 
 PAGES += [("data_lab", "data_lab.html", "데이터 랩 (CSV 분석)", "sample"),
           ("assistant", "assistant.html", "PM 어시스턴트 (미리보기)", "sample")]
 
-KIND_BADGE = {"real": badge("실제 자료", "press"), "sim": badge("가정 시뮬레이션", "sim"),
-              "plan": badge("기획자 평가", "pm"), "sample": badge("예시 데이터", "sample")}
+KIND_BADGE = {"real": badge("실제 자료", "k-real"), "sim": badge("가정 시뮬레이션", "k-sim"),
+              "plan": badge("분석자 해석", "k-interp"), "sample": badge("예시 데이터", "k-sample")}
 
 
 # ----------------------------------------------------------------------
@@ -188,7 +188,9 @@ class Exporter:
                      f'<div class="gp-table-wrap"><table class="gp-table"><tr><th>계열</th><th>{H.escape(xt)}</th>'
                      f'<th>{H.escape(yt)}</th></tr>{body}</table></div></details>')
         self.charts += 1
-        return (f'<figure class="sx-chart"><figcaption class="sx-chart-h">{KIND_BADGE[kind]} {H.escape(title)}</figcaption>'
+        # 제목이 없는 차트는 앱의 차트 카드(배지·제목·단위)가 바로 위에 있으므로 캡션을 다시 달지 않는다
+        cap = f'<figcaption class="sx-chart-h">{KIND_BADGE[kind]} {H.escape(title)}</figcaption>' if title else ""
+        return (f'<figure class="sx-chart{"" if title else " bare"}">{cap}'
                 f'<div id="{cid}" class="sx-chart-c" style="height:{h}px"></div>'
                 f'<script>(function(s){{Plotly.newPlot("{cid}", s.data, s.layout, {{displayModeBar:false, responsive:true}});}})'
                 f'({payload});</script>{table}</figure>')
@@ -268,6 +270,8 @@ class Exporter:
             return f'<div class="sx-col" style="flex:{w:.4f} 1 0">{self.children(n, depth)}</div>'
         if t == "flex_container" and "HORIZONTAL" in str(n.proto):
             return f'<div class="sx-row">{self.children(n, depth)}</div>'
+        if "border: true" in str(n.proto):  # st.container(border=True) · 차트 카드
+            return f'<div class="sx-box">{self.children(n, depth)}</div>'
         return f"<div>{self.children(n, depth)}</div>"
 
     def dataframe(self, df: pd.DataFrame) -> str:
@@ -370,6 +374,11 @@ body { margin: 0; background: #fff; color: #0B1F3A; }
 .sx-chart { margin: 0.6rem 0 1.2rem; border: 1px solid #DDE4EF; border-radius: 12px; padding: 0.6rem 0.6rem 0.4rem; background: #fff; }
 .sx-chart-h { font-weight: 700; font-size: 0.95rem; padding: 0.1rem 0.3rem 0.4rem; }
 .sx-chart-c { width: 100%; }
+.sx-chart.bare { border: 0; padding: 0; margin: 0.3rem 0 0.6rem; }
+.sx-box { border: 1px solid #DDE4EF; border-radius: 16px; padding: 1rem 1rem 0.8rem; margin: 0.6rem 0 1.4rem; background: #fff; }
+.sx-box > div > .sx-md, .sx-box .sx-chart.bare { margin: 0; }
+html { scroll-behavior: smooth; }
+.ow-sec, .ow-nav { scroll-margin-top: 4.5rem; }
 .sx-chartdata > summary { cursor: pointer; font-size: 0.82rem; color: #6B7A90; padding: 0.3rem; }
 .sx-df { max-height: 520px; overflow: auto; }
 .sx-w { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; margin: 0.35rem 0; font-size: 0.88rem; }
@@ -397,11 +406,12 @@ body { margin: 0; background: #fff; color: #0B1F3A; }
 
 def legend() -> str:
     return ('<div class="sx-legend"><b>배지 뜻</b>'
-            f'{badge("실제 자료", "press")} 공개 출처로 확인한 사실'
-            f'{badge("가정 시뮬레이션", "sim")} 가정값으로 계산한 예측 (실적 아님)'
-            f'{badge("기획 시안", "sim")} 게임에 없는 제안 기능 화면'
-            f'{badge("가설", "hypo")} 검증 전 해석'
-            f'{badge("예시 데이터", "sample")} 시연용 가상 데이터</div>')
+            f'{badge("실제 자료", "k-real")} 공개 출처·직접 캡처로 확인'
+            f'{badge("분석자 해석", "k-interp")} 자료를 바탕으로 한 판단'
+            f'{badge("검증 전 가설", "k-hypo")} 아직 입증되지 않음'
+            f'{badge("기획 시안", "k-mock")} 게임에 없는 제안·계획'
+            f'{badge("가정 시뮬레이션", "k-sim")} 가정값으로 계산 (실적 아님)'
+            f'{badge("예시 데이터", "k-sample")} 시연용 가상 데이터</div>')
 
 
 def page_html(title: str, desc: str, current: str, body: str, toc: list, charts: bool, gen: str) -> str:
@@ -490,7 +500,8 @@ def main() -> int:
         at = run_page(pid)
         body = ex.children(at.main, 0)
         desc = GAMES[pid].get("one_liner", name) if pid in GAMES else name
-        doc = save_images(page_html(name, desc, fname, body, ex.toc, ex.charts > 0, gen))
+        toc = [] if 'class="ow-nav"' in body else ex.toc  # 페이지에 01~06 이동 메뉴가 있으면 별도 목차 생략
+        doc = save_images(page_html(name, desc, fname, body, toc, ex.charts > 0, gen))
         (DOCS / fname).write_text(doc, encoding="utf-8")
         written.append(DOCS / fname)
         print(f"  {fname:18} 차트 {ex.charts:2} · {len(doc) / 1024:,.0f} KB")

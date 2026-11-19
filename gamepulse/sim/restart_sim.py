@@ -139,6 +139,51 @@ def sample_size_two_proportions(p1: float, p2: float, alpha: float = 0.05, power
     return math.ceil(num / (p2 - p1) ** 2)
 
 
+def _week(day: float) -> int:
+    """시작일을 Day 1 로 셀 때 해당 날짜가 속한 주차 (1주차 = Day 1~7)."""
+    return max(1, math.ceil(day / 7))
+
+
+def experiment_plan(cfg: dict) -> dict:
+    """가정값(cfg = restart.json 'experiment')에서 MDE·표본·배정 기간·관측 완료 주차를 계산한다.
+
+    - MDE(배정 기준 ITT) = 참여율 × 참여자 개선 폭  → KPI 목표, 표본 계산, 시뮬레이션이 모두 이 값을 쓴다.
+    - 배정 주수 = ceil(두 그룹 표본 합 ÷ 주당 유입)   · 주당 유입 = 코호트 크기 ÷ (코호트 기간 / 7)
+    - 실험 1(복귀 A) → 배정이 끝난 다음 주에 실험 2(신규 C) 시작 (대상이 겹치지 않음)
+    - D7·D30 관측 완료 = 마지막 배정일 + 7 / + 30 일
+    """
+    alpha, power = cfg["alpha"], cfg["power"]
+    up = cfg["uplift"]
+    seg = {}
+    for name, c in cfg["cohorts"].items():
+        p = c["participation"] / 100
+        mde = {d: p * up[d] for d in DAYS}
+        base = c["base"]["D7"] / 100
+        n = sample_size_two_proportions(base, base + mde["D7"] / 100, alpha, power)
+        weekly = c["size"] / (cfg["cohort_days"] / 7)
+        seg[name] = {"mde": mde, "n": n, "weekly": weekly, "assign_weeks": math.ceil(2 * n / weekly) if n else None,
+                     "base": c["base"], "participation": c["participation"], "size": c["size"]}
+
+    f = cfg["funnel"]
+    p_avg = sum(c["size"] * c["participation"] for c in cfg["cohorts"].values()) / sum(c["size"] for c in cfg["cohorts"].values()) / 100
+    m10_base = f["first"] * f["m3"] * f["m10"] / 1e4
+    m10_new = f["first"] * min(f["m3"] + p_avg * f["up3"], 100) * min(f["m10"] + p_avg * f["up10"], 100) / 1e4
+    m10_mde = m10_new - m10_base
+
+    r, n_ = seg["복귀"], seg["신규"]
+    a1 = r["assign_weeks"]
+    s2 = a1 + 1                                   # 실험 2 시작 주차
+    a2 = n_["assign_weeks"]
+    e1_last, e2_last = a1 * 7, (s2 - 1 + a2) * 7  # 마지막 배정일 (Day)
+    sched = {
+        "e1_assign": (1, a1), "e1_d7": _week(e1_last + 7), "e1_d30": _week(e1_last + 30),
+        "e2_assign": (s2, s2 - 1 + a2), "e2_d7": _week(e2_last + 7), "e2_m10": _week(e2_last + 14), "e2_d30": _week(e2_last + 30),
+    }
+    sched["e3"] = (sched["e2_d7"], sched["e2_d7"] + 3)
+    sched["decision"] = max(sched["e1_d30"], sched["e2_d30"], sched["e3"][1])
+    return {"seg": seg, "m10": {"base": m10_base, "new": m10_new, "mde": m10_mde}, "sched": sched, "p_avg": p_avg * 100}
+
+
 def run(inp: SimInput) -> SimResult:
     warnings: list[str] = []
     rows, rates_base, rates_new = [], {}, {}
@@ -200,6 +245,8 @@ def run(inp: SimInput) -> SimResult:
         "cost_per_participant": event_cost / part if part > 0 else float("nan"),
         "cost_per_revisit": event_cost / (part * inp.pc_revisit / 100) if part * inp.pc_revisit > 0 else float("nan"),
         "cost_per_added_d7": (event_cost + dev_cost) / added_d7 if added_d7 > 0 else float("nan"),
+        # A~C 개발·운영비만으로 계산 (D PC방 이벤트는 효과를 잔존율에 더하지 않으므로 비용도 제외)
+        "cost_per_added_d7_dev": dev_cost / added_d7 if added_d7 > 0 else float("nan"),
         "added_d7": added_d7,
         "p_avg": p_avg * 100,
     }

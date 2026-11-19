@@ -519,6 +519,211 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
   .ow-mark > span b {{ display: none; }}
 }}
 
+/* ---------- 오버워치 v7: 채용 담당자 3~5분 가독성 ---------- */
+/* 정보 구분 배지 6종 · 색상 + 텍스트 + 테두리 모양으로 구분 */
+.gp-badge.k-real {{ background: #1E5EFF; color: #fff; border: 1px solid #1E5EFF; }}
+.gp-badge.k-interp {{ background: #fff; color: #0B1F3A; border: 1.5px solid #0B1F3A; }}
+.gp-badge.k-hypo {{ background: #F3E8FF; color: #5B21B6; border: 1.5px dashed #8B5CF6; }}
+.gp-badge.k-mock {{ background: #FFF1E0; color: #9A3412; border: 1.5px dashed #F97316; }}
+.gp-badge.k-sim {{ background: #FEF9C3; color: #713F12; border: 1.5px dotted #CA8A04; }}
+.gp-badge.k-sample {{ background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }}
+.gp-badge[class*=" k-"] {{ font-size: 0.76rem; vertical-align: middle; }}
+.ow-badges {{ display: flex; flex-wrap: wrap; gap: 0.45rem 1rem; align-items: center; margin: 0 0 1.4rem; padding: 0.7rem 0.9rem;
+  background: {C['bg_soft']}; border-radius: 12px; font-size: 0.88rem; color: #26364F; }}
+.ow-badges > b {{ font-size: 0.85rem; color: {C['navy']}; }}
+.ow-badges span {{ display: inline-flex; align-items: center; gap: 0.35rem; }}
+
+/* 핵심 문제 → 핵심 해결 */
+.ow-ps2 {{ display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 1rem; align-items: stretch; margin: 1.2rem 0 1.4rem; }}
+.ow-pcard, .ow-scard {{ border-radius: 18px; padding: 1.4rem 1.6rem; color: #fff; box-shadow: 0 10px 28px rgba(11,31,58,0.18); }}
+.ow-pcard {{ background: linear-gradient(135deg, #3B0A17 0%, #9F1239 100%); }}
+.ow-scard {{ background: linear-gradient(135deg, #0B4F6C 0%, #1E5EFF 100%); }}
+.ow-pcard-k {{ display: inline-block; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.06em; padding: 0.2rem 0.65rem;
+  border-radius: 999px; background: rgba(255,255,255,0.18); margin-bottom: 0.6rem; }}
+.ow-pcard-t {{ font-size: 1.6rem; font-weight: 800; line-height: 1.35; letter-spacing: -0.02em; }}
+.ow-pcard-d {{ margin-top: 0.6rem; font-size: 1.02rem; line-height: 1.6; color: rgba(255,255,255,0.92); }}
+.ow-parrow {{ display: flex; align-items: center; justify-content: center; }}
+.ow-parrow span {{ display: flex; align-items: center; justify-content: center; width: 3.4rem; height: 3.4rem; border-radius: 50%;
+  background: {C['navy']}; color: #fff; font-size: 1.7rem; box-shadow: 0 6px 16px rgba(11,31,58,0.25); }}
+
+/* 01~06 이동 메뉴 */
+.ow-nav {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 0 0 1rem; scroll-margin-top: 4rem; }}
+.ow-nav-i {{ display: flex; align-items: center; gap: 0.9rem; min-height: 5.2rem; padding: 0.9rem 1.1rem; border-radius: 14px;
+  background: linear-gradient(135deg, #0B2A66 0%, #1E5EFF 100%); color: #fff !important; text-decoration: none !important;
+  box-shadow: 0 4px 14px rgba(30,94,255,0.22); transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease; }}
+.ow-nav-i:hover, .ow-nav-i:focus-visible {{ transform: translateY(-3px); box-shadow: 0 10px 24px rgba(30,94,255,0.35); filter: brightness(1.08); outline: none; }}
+.ow-nav-i b {{ font-size: 2rem; font-weight: 900; line-height: 1; letter-spacing: -0.03em; opacity: 0.95; min-width: 2.6rem; }}
+.ow-nav-i span {{ font-size: 1.12rem; font-weight: 800; line-height: 1.3; }}
+.ow-nav-i small {{ display: block; font-size: 0.82rem; font-weight: 500; color: rgba(255,255,255,0.85); margin-top: 0.15rem; }}
+.ow-nav-i span, .ow-nav-i small {{ color: #fff; }}
+.ow-nav-i > span {{ display: flex; flex-direction: column; }}
+.ow-nav-i.hot {{ background: linear-gradient(135deg, #9A3412 0%, #F97316 100%); box-shadow: 0 4px 14px rgba(249,115,22,0.3); }}
+.ow-nav-i.hot:hover {{ box-shadow: 0 10px 24px rgba(249,115,22,0.42); }}
+
+/* 섹션 머리 */
+.ow-sec {{ display: flex; align-items: center; gap: 1rem; margin: 3.2rem 0 0.6rem; padding: 0.9rem 1.1rem; border-radius: 14px;
+  background: {C['navy']}; color: #fff; scroll-margin-top: 4rem; }}
+.ow-sec-n {{ font-size: 2.2rem; font-weight: 900; color: {C['sky']}; line-height: 1; }}
+.ow-sec-t {{ flex: 1; min-width: 0; }}
+.ow-sec-t h2 {{ margin: 0; padding: 0; font-size: 1.55rem; color: #fff; line-height: 1.3; }}
+.ow-sec-t p {{ margin: 0.15rem 0 0; color: #C9D6EE; font-size: 0.95rem; }}
+.ow-sec-top {{ flex: 0 0 auto; color: #fff !important; font-size: 0.85rem; font-weight: 700; text-decoration: none !important;
+  border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; padding: 0.3rem 0.6rem; }}
+.ow-sec-top:hover {{ background: rgba(255,255,255,0.12); }}
+#ow-s04.ow-sec {{ background: linear-gradient(135deg, #7C2D12 0%, #EA580C 100%); }}
+#ow-s04 .ow-sec-n {{ color: #FED7AA; }}
+
+/* 문제 정의 */
+.ow-statement {{ border-left: 6px solid #9F1239; background: #FFF5F7; border-radius: 12px; padding: 1.1rem 1.3rem; margin: 1rem 0 0.4rem; }}
+.ow-statement-k {{ font-size: 0.85rem; font-weight: 800; color: #9F1239; margin-bottom: 0.3rem; }}
+.ow-statement-t {{ font-size: 1.45rem; font-weight: 800; color: {C['navy']}; line-height: 1.4; letter-spacing: -0.02em; }}
+.ow-statement-d {{ margin-top: 0.45rem; font-size: 1.02rem; color: #26364F; line-height: 1.65; }}
+.ow-dec {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin: 0.3rem 0 0.6rem; }}
+.ow-dec-i {{ background: #fff; border: 1px solid {C['line']}; border-top: 4px solid {C['navy']}; border-radius: 12px; padding: 0.9rem 1rem; }}
+.ow-dec-q {{ font-weight: 800; color: {C['navy']}; font-size: 1.02rem; margin-bottom: 0.4rem; line-height: 1.4; }}
+.ow-dec-b {{ display: inline-flex; gap: 0.25rem; flex-wrap: wrap; }}
+.ow-dec-a {{ font-size: 0.95rem; color: #26364F; line-height: 1.6; }}
+.ow-layers {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 0.3rem 0 1rem; }}
+.ow-layer {{ border-radius: 12px; padding: 0.9rem 1rem; border: 1px solid {C['line']}; background: #fff; }}
+.ow-layer.real {{ border-top: 4px solid #1E5EFF; }} .ow-layer.hypo {{ border-top: 4px dashed #8B5CF6; background: #FCFAFF; }}
+.ow-layer-h {{ font-weight: 800; color: {C['navy']}; font-size: 1.02rem; margin-bottom: 0.3rem; }}
+.ow-layer ul {{ margin: 0; padding-left: 1.1rem; }} .ow-layer li {{ font-size: 0.95rem; line-height: 1.6; color: #26364F; margin-bottom: 0.25rem; }}
+.ow-why {{ display: grid; gap: 0.5rem; margin: 0.3rem 0 1.2rem; }}
+.ow-why-i {{ display: flex; gap: 0.7rem; align-items: flex-start; background: #fff; border: 1px solid {C['line']}; border-radius: 10px; padding: 0.7rem 0.9rem;
+  font-size: 0.98rem; line-height: 1.6; color: #26364F; }}
+.ow-why-i .gp-badge {{ flex: 0 0 auto; margin-top: 0.15rem; }}
+.ow-list-i em {{ font-style: normal; font-size: 0.8rem; font-weight: 700; color: #9A3412; margin-left: 0.3rem; }}
+
+/* 근거: 표본·분류 기준 */
+.ow-sample {{ border: 1px solid {C['line']}; border-radius: 14px; background: {C['bg_soft']}; padding: 0.9rem 1rem; margin: 0 0 1.2rem; }}
+.ow-sample-h {{ font-weight: 800; color: {C['navy']}; margin-bottom: 0.5rem; }}
+.ow-sample-g {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; }}
+.ow-sample-g > div {{ background: #fff; border-radius: 10px; padding: 0.7rem 0.8rem; font-size: 0.92rem; line-height: 1.55; color: #26364F; }}
+.ow-sample-g b {{ display: block; color: {C['navy']}; margin-bottom: 0.25rem; }}
+.ow-sample-g ul {{ margin: 0; padding-left: 1rem; }}
+
+/* 개선안 사양 카드 · 단계 */
+.ow-specs {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; margin: 0.6rem 0 1.2rem; }}
+.ow-spec {{ border: 1px solid {C['line']}; border-radius: 14px; background: #fff; padding: 1rem 1.05rem; display: flex; flex-direction: column; gap: 0.45rem; }}
+.ow-spec.kA {{ border-top: 5px solid #1E5EFF; }} .ow-spec.kB {{ border-top: 5px solid #0E7490; }} .ow-spec.kC {{ border-top: 5px solid #F97316; }}
+.ow-spec-h {{ display: flex; gap: 0.7rem; align-items: center; margin-bottom: 0.2rem; }}
+.ow-spec-key {{ flex: 0 0 auto; width: 2.4rem; height: 2.4rem; border-radius: 10px; background: {C['navy']}; color: #fff; font-weight: 900;
+  font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }}
+.ow-spec-n {{ font-weight: 800; font-size: 1.12rem; color: {C['navy']}; line-height: 1.35; }}
+.ow-spec-p {{ font-size: 0.82rem; font-weight: 700; color: #9A3412; }}
+.ow-spec-r {{ display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); gap: 0.5rem; font-size: 0.93rem; line-height: 1.55; color: #26364F;
+  border-top: 1px dashed {C['line']}; padding-top: 0.4rem; }}
+.ow-spec-r > span {{ font-weight: 800; color: {C['gray']}; font-size: 0.82rem; padding-top: 0.1rem; }}
+.ow-spec-x {{ margin-top: 0.2rem; font-size: 0.88rem; line-height: 1.5; background: #FFF7ED; border: 1px dashed #F97316; border-radius: 8px; padding: 0.5rem 0.6rem; color: #7C2D12; }}
+.ow-phase {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; margin: 0.3rem 0 0.8rem; counter-reset: ph; }}
+.ow-phase-i {{ border-radius: 12px; padding: 0.8rem 0.9rem; background: #EAF1FF; border: 1px solid #C3D6FF; }}
+.ow-phase-i.hold {{ background: #F8FAFC; border: 1px dashed #94A3B8; }}
+.ow-phase-k {{ font-size: 0.8rem; font-weight: 800; color: #1E5EFF; }} .ow-phase-i.hold .ow-phase-k {{ color: #475569; }}
+.ow-phase-t {{ font-weight: 800; color: {C['navy']}; margin: 0.15rem 0; font-size: 1.02rem; }}
+.ow-phase-d {{ font-size: 0.88rem; color: #26364F; line-height: 1.5; }}
+.ow-defer {{ margin: 0.6rem 0 1rem; padding: 0.75rem 0.9rem; border-radius: 10px; border: 1.5px dashed #94A3B8; background: #F8FAFC;
+  font-size: 0.95rem; line-height: 1.6; color: #26364F; }}
+.ow-defer b {{ display: block; color: #475569; font-size: 0.85rem; margin-bottom: 0.15rem; }}
+.ow-rules {{ margin: 0.4rem 0 1rem; padding: 0.8rem 1rem; border-radius: 12px; background: #FFF7ED; border: 1px solid #FED7AA; font-size: 0.95rem; }}
+.ow-rules b {{ color: #9A3412; }} .ow-rules ul {{ margin: 0.3rem 0 0; padding-left: 1.1rem; }} .ow-rules li {{ line-height: 1.6; }}
+.ow-mission-i small {{ display: block; font-size: 0.8rem; color: #AFC3E8; margin: 0.05rem 0 0.35rem 1.1rem; }}
+
+/* KPI */
+.ow-defbox {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin: 0.2rem 0 1.2rem; }}
+.ow-defbox > div {{ background: {C['bg_soft']}; border-radius: 10px; padding: 0.7rem 0.9rem; font-size: 0.95rem; line-height: 1.55; color: #26364F; }}
+.ow-defbox b {{ display: block; color: {C['navy']}; }}
+.ow-defbox .ow-defbox-n {{ grid-column: 1 / -1; background: #FEF9C3; color: #713F12; }}
+.ow-gantt {{ border-collapse: separate; border-spacing: 3px; width: 100%; min-width: 640px; font-size: 0.85rem; }}
+.ow-gantt th {{ text-align: left; font-weight: 700; color: {C['navy']}; white-space: nowrap; padding: 0.3rem 0.4rem; }}
+.ow-gantt tr:first-child th {{ text-align: center; color: {C['gray']}; font-size: 0.78rem; }}
+.ow-gantt td {{ height: 2rem; background: #F4F7FC; border-radius: 6px; text-align: center; font-weight: 700; font-size: 0.76rem; white-space: nowrap; }}
+.ow-gantt td.assign {{ background: #1E5EFF; color: #fff; }} .ow-gantt td.d7 {{ background: #0E7490; color: #fff; }}
+.ow-gantt td.d30 {{ background: {C['navy']}; color: #fff; }} .ow-gantt td.m10 {{ background: #67E8F9; color: #0B1F3A; }}
+.ow-gantt td.small {{ background: #CCFBF1; color: #134E4A; }} .ow-gantt td.dec {{ background: #F97316; color: #fff; }}
+.ow-sig {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.9rem; }}
+.ow-sig > div {{ background: #fff; border: 1px solid {C['line']}; border-radius: 12px; padding: 0.8rem 0.9rem; font-size: 0.95rem; line-height: 1.55; color: #26364F; }}
+.ow-sig b {{ display: block; color: {C['navy']}; margin-bottom: 0.2rem; }}
+.ow-sig > div:last-child {{ background: {C['navy']}; color: #E8EEF9; }} .ow-sig > div:last-child b {{ color: #fff; }}
+
+/* 차트 카드: 배지·제목·단위 → 핵심 수치 → 차트 → 분석 결과·의사결정 → 비교 기준 */
+[class*="st-key-owc_"] {{ border-radius: 16px !important; border-color: {C['line']} !important; background: #fff; padding: 0.4rem 0.3rem; margin: 0.6rem 0 1.4rem; }}
+.ow-chart-h {{ display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3rem 1rem; margin-bottom: 0.5rem; }}
+.ow-chart-t {{ font-size: 1.12rem; font-weight: 800; color: {C['navy']}; line-height: 1.4; }}
+.ow-chart-u {{ font-size: 0.85rem; color: #55657D; }}
+.ow-kpis {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.55rem; margin: 0.2rem 0 0.3rem; }}
+.ow-kpi {{ background: {C['bg_soft']}; border-radius: 12px; padding: 0.65rem 0.8rem; min-width: 0; }}
+.ow-kpi-v {{ font-size: 1.45rem; font-weight: 800; color: {C['navy']}; line-height: 1.25; overflow-wrap: anywhere; }}
+.ow-kpi-v b {{ color: #1E5EFF; }} .ow-kpi-v small {{ font-size: 0.9rem; color: #55657D; font-weight: 600; }}
+.ow-kpi-v em {{ font-style: normal; display: inline-block; font-size: 0.95rem; font-weight: 800; color: #fff; background: #1E5EFF;
+  border-radius: 6px; padding: 0.05rem 0.4rem; margin-left: 0.2rem; vertical-align: middle; }}
+.ow-kpi-l {{ font-size: 0.82rem; color: #55657D; font-weight: 600; margin-top: 0.15rem; }}
+.ow-chart-f {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 0.2rem; }}
+.ow-chart-f > div {{ border-radius: 10px; padding: 0.7rem 0.85rem; font-size: 0.95rem; line-height: 1.6; color: #1F2D44; }}
+.ow-chart-f b {{ display: block; font-size: 0.8rem; letter-spacing: 0.03em; margin-bottom: 0.15rem; }}
+.ow-chart-a {{ background: #EEF4FF; }} .ow-chart-a b {{ color: #1E5EFF; }}
+.ow-chart-d {{ background: #0B1F3A; color: #E8EEF9 !important; }} .ow-chart-d b {{ color: #FDBA74; }}
+.ow-chart-b {{ margin-top: 0.45rem; font-size: 0.82rem; color: #55657D; line-height: 1.5; padding-left: 0.1rem; }}
+
+/* 표: 헤더 대비·행 간격·줄무늬·모바일 스크롤 안내 */
+.ow-table {{ border-collapse: separate; border-spacing: 0; border: 1px solid {C['line']}; border-radius: 12px; overflow: hidden; }}
+.ow-table th {{ background: {C['navy']}; color: #fff; font-size: 0.9rem; font-weight: 700; padding: 0.7rem 0.8rem; white-space: nowrap; }}
+.ow-table td {{ padding: 0.7rem 0.8rem; font-size: 0.93rem; line-height: 1.55; color: #1F2D44; border-bottom: 1px solid {C['line']}; }}
+.ow-table tr:nth-child(odd) td {{ background: #F8FAFD; }}
+.ow-table tr:last-child td {{ border-bottom: 0; }}
+.ow-table td small {{ color: #55657D; font-size: 0.82rem; }}
+.ow-table td b {{ color: {C['navy']}; }}
+.ow-tag {{ display: inline-block; margin-left: 0.35rem; font-size: 0.72rem; font-weight: 700; color: #1E5EFF; background: #EAF1FF;
+  border-radius: 5px; padding: 0.05rem 0.35rem; vertical-align: middle; }}
+.ow-num {{ display: block; }} .ow-den {{ display: block; color: #55657D; font-size: 0.86rem; margin-top: 0.15rem; }}
+.ow-kpi-table td:first-child {{ min-width: 9rem; }} .ow-kpi-table td:nth-child(2) {{ min-width: 16rem; }}
+.ow-table-b {{ margin: 0.6rem 0 -0.2rem; }}
+.ow-scroll-hint {{ display: none; font-size: 0.8rem; color: #55657D; margin: 0.4rem 0 -0.2rem; }}
+
+/* 이미지 크기 · 가독성 보정 */
+.ow-shot.wide {{ max-width: 980px; margin-left: auto; margin-right: auto; }}
+.ow-shot figcaption {{ font-size: 0.95rem; color: #26364F; }}
+.ow-shot-src {{ font-size: 0.8rem; color: #55657D; }}
+.ow-line {{ color: #1F2D44; }}
+.ow-tile-l {{ color: #55657D; }}
+.ow-conclusion-k .gp-badge {{ margin-left: 0.3rem; }}
+
+@media (max-width: 1100px) {{
+  .ow-specs {{ grid-template-columns: 1fr; }}
+  .ow-sample-g {{ grid-template-columns: 1fr 1fr; }}
+  .ow-phase {{ grid-template-columns: 1fr 1fr; }}
+}}
+@media (max-width: 900px) {{
+  .ow-nav {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+  .ow-layers, .ow-sig {{ grid-template-columns: 1fr; }}
+}}
+@media (max-width: 640px) {{
+  .ow-ps2 {{ grid-template-columns: 1fr; gap: 0.6rem; }}
+  .ow-parrow span {{ transform: rotate(90deg); width: 2.8rem; height: 2.8rem; font-size: 1.4rem; }}
+  .ow-pcard, .ow-scard {{ padding: 1.1rem 1.15rem; }}
+  .ow-pcard-t {{ font-size: 1.3rem; }}
+  .ow-nav-i {{ min-height: 4.4rem; padding: 0.75rem 0.8rem; gap: 0.6rem; }}
+  .ow-nav-i b {{ font-size: 1.5rem; min-width: 2rem; }}
+  .ow-nav-i span {{ font-size: 0.98rem; }}
+  .ow-nav-i small {{ display: none; }}
+  .ow-sec {{ gap: 0.7rem; padding: 0.75rem 0.85rem; margin-top: 2.4rem; }}
+  .ow-sec-n {{ font-size: 1.7rem; }} .ow-sec-t h2 {{ font-size: 1.25rem; }} .ow-sec-t p {{ display: none; }}
+  .ow-statement-t {{ font-size: 1.2rem; }}
+  .ow-sample-g, .ow-phase, .ow-defbox, .ow-chart-f {{ grid-template-columns: 1fr; }}
+  .ow-kpis {{ grid-template-columns: 1fr 1fr; }}
+  .ow-kpi-v {{ font-size: 1.15rem; }}
+  /* 표 → 카드: 행마다 카드 1장, 칸 앞에 열 이름 */
+  .ow-table {{ min-width: 0 !important; border: 0; border-radius: 0; }}
+  .ow-table, .ow-table tbody, .ow-table tr, .ow-table td {{ display: block; width: 100%; }}
+  .ow-table tr:first-child {{ display: none; }}
+  .ow-table tr {{ border: 1px solid {C['line']}; border-radius: 12px; margin-bottom: 0.6rem; overflow: hidden; }}
+  .ow-table tr td {{ background: #fff !important; border-bottom: 1px dashed {C['line']}; padding: 0.5rem 0.75rem; font-size: 0.92rem; }}
+  .ow-table tr td:first-child {{ background: {C['bg_soft']} !important; }}
+  .ow-table tr td:last-child {{ border-bottom: 0; }}
+  .ow-table td::before {{ content: attr(data-label); display: block; font-size: 0.75rem; font-weight: 800; color: #55657D; margin-bottom: 0.1rem; }}
+  .ow-kpi-table td:first-child, .ow-kpi-table td:nth-child(2) {{ min-width: 0; }}
+  .ow-spec-r {{ grid-template-columns: 1fr; gap: 0.1rem; }}
+}}
+
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
 /* 모바일 */
