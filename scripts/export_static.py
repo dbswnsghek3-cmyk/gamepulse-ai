@@ -1,0 +1,517 @@
+"""GamePulse AI 정적 HTML 보고서 생성기 (GitHub Pages 용).
+
+Streamlit 앱은 JavaScript·WebSocket 으로 화면을 그리기 때문에, 글자만 읽는 AI 검토 도구는 내용을 볼 수 없다.
+이 스크립트는 실제 앱을 Streamlit 테스트 실행기(AppTest)로 돌려 화면 요소를 순서대로 읽고,
+같은 CSS 를 입힌 정적 HTML 로 docs/ 에 저장한다. 내용을 따로 옮겨 적지 않으므로 앱이 바뀌면 다시 실행만 하면 된다.
+
+사용법 (프로젝트 폴더에서):
+    .venv\\Scripts\\python.exe scripts\\export_static.py
+
+변환 규칙
+- 탭      → 차례대로 펼친 섹션 + 목차
+- 펼치기  → 열린 상태로 표시 (내용 누락 방지)
+- 차트    → 같은 Plotly 엔진으로 그리고, 아래에 숫자 표를 함께 넣음 (글자만 읽는 도구용)
+- 버튼·슬라이더 등 → 기본값 스냅샷 (직접 조작은 원본 앱에서)
+- 이미지  → docs/assets/img/ 에 파일로 저장. 원본 파일은 이미 닉네임을 가린 사본이며,
+           표시 단계에서도 manifest 의 blur 영역을 한 번 더 가린다.
+
+앱 코드·데이터·디자인은 수정하지 않는다. 결과물은 docs/ 폴더에만 쓴다.
+"""
+
+from __future__ import annotations
+
+import base64
+import datetime as dt
+import hashlib
+import html as H
+import json
+import re
+import shutil
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+import pandas as pd  # noqa: E402
+from streamlit.testing.v1 import AppTest  # noqa: E402
+from streamlit.testing.v1.element_tree import Block  # noqa: E402
+
+from gamepulse.config import APP_NAME, APP_TAGLINE  # noqa: E402
+from gamepulse.content.games import GAME_ORDER, GAMES  # noqa: E402
+from gamepulse.ui.components import badge  # noqa: E402
+from gamepulse.ui.styles import CSS as APP_CSS  # noqa: E402
+
+DOCS = ROOT / "docs"
+IMG_DIR = DOCS / "assets" / "img"
+LIVE_URL = "https://gamepulse-ai1.streamlit.app/"
+REPO_URL = "https://github.com/dbswnsghek3-cmyk/gamepulse-ai"
+SITE_URL = "https://dbswnsghek3-cmyk.github.io/gamepulse-ai/"
+KST = dt.timezone(dt.timedelta(hours=9))
+
+# (앱 페이지 id, 파일명, 메뉴 이름, 차트 기본 분류)
+PAGES = [("overwatch", "overwatch.html", "오버워치 · PROJECT RE:START", "real")]
+PAGES += [("home", "home.html", "사이트 홈 · 개요", "sample")]
+PAGES += [(g, f"{g}.html", GAMES[g]["name"], "sample") for g in GAME_ORDER if g != "overwatch"]
+PAGES += [("data_lab", "data_lab.html", "데이터 랩 (CSV 분석)", "sample"),
+          ("assistant", "assistant.html", "PM 어시스턴트 (미리보기)", "sample")]
+
+KIND_BADGE = {"real": badge("실제 자료", "press"), "sim": badge("가정 시뮬레이션", "sim"),
+              "plan": badge("기획자 평가", "pm"), "sample": badge("예시 데이터", "sample")}
+
+
+# ----------------------------------------------------------------------
+# 마크다운(일부 문법)을 HTML 로
+def md_inline(s: str) -> str:
+    s = H.escape(s, quote=False).replace("\\~", "~")
+    s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
+    s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
+    s = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r'<a href="\2" target="_blank" rel="noopener">\1</a>', s)
+    return s
+
+
+def md_block(text: str) -> str:
+    out, para, lst = [], [], None
+
+    def flush():
+        nonlocal para
+        if para:
+            out.append("<p>" + "<br>".join(para) + "</p>")
+            para = []
+
+    def close():
+        nonlocal lst
+        if lst:
+            out.append(f"</{lst}>")
+            lst = None
+
+    for line in text.split("\n"):
+        mu, mo, mh = re.match(r"^\s*[-*]\s+(.*)", line), re.match(r"^\s*\d+\.\s+(.*)", line), re.match(r"^(#{1,6})\s+(.*)", line)
+        if mu or mo:
+            flush()
+            tag = "ul" if mu else "ol"
+            if lst != tag:
+                close()
+                out.append(f"<{tag}>")
+                lst = tag
+            out.append(f"<li>{md_inline((mu or mo).group(1))}</li>")
+        elif mh:
+            flush(); close()
+            out.append(f"<h4>{md_inline(mh.group(2))}</h4>")
+        elif line.strip() == "---":
+            flush(); close()
+            out.append("<hr>")
+        elif not line.strip():
+            flush(); close()
+        else:
+            close()
+            para.append(md_inline(line.strip()))
+    flush(); close()
+    return f'<div class="sx-md">{"".join(out)}</div>'
+
+
+# ----------------------------------------------------------------------
+# 차트: Plotly spec (배열은 base64 typed array 로 인코딩돼 있을 수 있음)
+def _arr(v):
+    if isinstance(v, dict) and "bdata" in v:
+        import numpy as np
+
+        a = np.frombuffer(base64.b64decode(v["bdata"]), dtype=np.dtype(v["dtype"]))
+        if v.get("shape"):
+            a = a.reshape([int(x) for x in str(v["shape"]).split(",")])
+        return a.tolist()
+    return v
+
+
+def _cell(v) -> str:
+    if isinstance(v, float):
+        return f"{v:,.2f}".rstrip("0").rstrip(".") if abs(v) < 1e15 else str(v)
+    if isinstance(v, int):
+        return f"{v:,}"
+    return H.escape(str(v))
+
+
+def _title(obj) -> str:
+    t = obj.get("title") if isinstance(obj, dict) else None
+    if isinstance(t, dict):
+        return t.get("text") or ""
+    return t or ""
+
+
+class Exporter:
+    def __init__(self, page_kind: str):
+        self.page_kind = page_kind
+        self.n_chart = 0
+        self.n_tabs = 0
+        self.toc: list[tuple[str, str]] = []
+        self.tab_extras: dict[str, str] = {}
+        self.charts = 0
+        self.kinds: list[tuple[str, str]] = []
+
+    # ---------------- 차트
+    def chart(self, spec_json: str) -> str:
+        spec = json.loads(spec_json)
+        layout = spec.setdefault("layout", {})
+        title = _title(layout)
+        axes = " ".join(_title(layout.get(k, {}) or {}) for k in ("xaxis", "yaxis"))
+        words = f"{title} {axes}"
+        kind = ("sample" if "예시" in words else
+                "plan" if ("정성" in words or "기획자 평가" in words) else
+                "sim" if ("가정" in words or "시뮬레이션" in words) else self.page_kind)
+        self.kinds.append((kind, title))
+        layout.pop("width", None)
+        layout["autosize"] = True
+        layout.setdefault("font", {}).setdefault("family", "Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif")
+        h = int(layout.get("height") or 380)
+        self.n_chart += 1
+        cid = f"chart{self.n_chart}"
+        payload = json.dumps({"data": spec.get("data", []), "layout": layout}, ensure_ascii=False).replace("</", "<\\/")
+
+        # 글자만 읽는 도구를 위한 숫자 표
+        xt, yt = _title(layout.get("xaxis", {}) or {}) or "x", _title(layout.get("yaxis", {}) or {}) or "y"
+        rows = []
+        for tr in spec.get("data", []):
+            x, y = _arr(tr.get("x")), _arr(tr.get("y"))
+            name = tr.get("name") or ""
+            if isinstance(x, list) and isinstance(y, list):
+                rows += [(name, a, b) for a, b in zip(x, y)]
+            elif isinstance(y, list):
+                rows += [(name, i, b) for i, b in enumerate(y)]
+            elif isinstance(x, list):
+                rows += [(name, a, "") for a in x]
+        table = ""
+        if rows:
+            total, cap = len(rows), 200
+            note = f" · 원자료 {total:,}행 중 앞 {cap}행만 표시 (차트는 전체 자료로 그림)" if total > cap else ""
+            body = "".join(f"<tr><td>{H.escape(str(n))}</td><td>{_cell(a)}</td><td>{_cell(b)}</td></tr>" for n, a, b in rows[:cap])
+            table = (f'<details class="sx-chartdata"><summary>차트 데이터 표 ({min(total, cap)}행{note})</summary>'
+                     f'<div class="gp-table-wrap"><table class="gp-table"><tr><th>계열</th><th>{H.escape(xt)}</th>'
+                     f'<th>{H.escape(yt)}</th></tr>{body}</table></div></details>')
+        self.charts += 1
+        return (f'<figure class="sx-chart"><figcaption class="sx-chart-h">{KIND_BADGE[kind]} {H.escape(title)}</figcaption>'
+                f'<div id="{cid}" class="sx-chart-c" style="height:{h}px"></div>'
+                f'<script>(function(s){{Plotly.newPlot("{cid}", s.data, s.layout, {{displayModeBar:false, responsive:true}});}})'
+                f'({payload});</script>{table}</figure>')
+
+    # ---------------- 위젯 스냅샷
+    def widget(self, n) -> str:
+        t, label = n.type, H.escape(str(getattr(n, "label", "") or ""))
+        if t in ("radio", "selectbox", "multiselect", "select_slider"):
+            opts = [str(o) for o in (getattr(n, "options", None) or [])]
+            val = n.value
+            sel = {str(v) for v in val} if isinstance(val, (list, tuple)) else {str(val)}
+            chips = "".join(f'<span class="{"on" if o in sel else ""}">{H.escape(o)}</span>' for o in opts[:30])
+            more = f"<span>외 {len(opts) - 30}개</span>" if len(opts) > 30 else ""
+            return f'<div class="sx-w"><span class="sx-w-l">{label}</span><span class="sx-w-o">{chips}{more}</span></div>'
+        if t in ("slider", "number_input"):
+            return f'<div class="sx-w"><span class="sx-w-l">{label}</span><span class="sx-w-v">{_cell(n.value)}</span></div>'
+        if t in ("toggle", "checkbox"):
+            return f'<div class="sx-w"><span class="sx-w-l">{label}</span><span class="sx-w-v">{"켜짐" if n.value else "꺼짐"}</span></div>'
+        if t in ("button", "download_button"):
+            return f'<span class="sx-btn">{label}</span>'
+        if t in ("text_input", "text_area", "chat_input"):
+            ph = H.escape(str(getattr(n, "placeholder", "") or ""))
+            return f'<div class="sx-w"><span class="sx-w-l">{label or "입력"}</span><span class="sx-w-in">{ph}</span></div>'
+        if t == "file_uploader":
+            return f'<div class="sx-w"><span class="sx-w-l">{label}</span><span class="sx-w-in">파일 업로드는 원본 앱에서</span></div>'
+        return ""
+
+    # ---------------- 요소 → HTML
+    def render(self, n, depth: int = 0) -> str:
+        if isinstance(n, Block):
+            return self.block(n, depth)
+        t = n.type
+        if t == "markdown":
+            v = n.value
+            if "<style" in v:
+                return ""
+            return v if v.lstrip().startswith("<") else md_block(v)
+        if t == "caption":
+            return f'<div class="sx-cap">{md_inline(n.value)}</div>'
+        if t in ("info", "warning", "success", "error", "exception"):
+            return f'<div class="sx-alert {t}">{md_inline(str(n.value))}</div>'
+        if t == "metric":
+            d = f'<div class="sx-metric-d">{H.escape(str(n.delta))}</div>' if getattr(n, "delta", "") else ""
+            return (f'<div class="sx-metric"><div class="sx-metric-l">{H.escape(str(n.label))}</div>'
+                    f'<div class="sx-metric-v">{H.escape(str(n.value))}</div>{d}</div>')
+        if t == "dataframe":
+            return self.dataframe(n.value)
+        if t == "plotly_chart":
+            return self.chart(n.proto.spec)
+        w = self.widget(n)
+        if w:
+            return w
+        return f"<!-- 미지원 요소: {H.escape(t)} -->"
+
+    def children(self, n, depth: int) -> str:
+        return "".join(self.render(c, depth) for _, c in sorted(n.children.items()))
+
+    def block(self, n, depth: int) -> str:
+        t = n.type
+        if t == "tab_container":
+            tabs = [c for _, c in sorted(n.children.items())]
+            self.n_tabs += 1
+            ids = [f"t{self.n_tabs}-{i}" for i in range(len(tabs))]
+            if depth == 0 and not self.toc:
+                self.toc = [(i, tb.label) for i, tb in zip(ids, tabs)]
+            nav = "".join(f'<a href="#{i}">{H.escape(tb.label)}</a>' for i, tb in zip(ids, tabs))
+            secs = "".join(
+                f'<section class="sx-tab" id="{i}"><h2 class="sx-tab-h"><span>탭</span>{H.escape(tb.label)}</h2>'
+                f'{self.children(tb, depth + 1)}{self.tab_extras.get(tb.label, "")}</section>'
+                for i, tb in zip(ids, tabs))
+            return f'<div class="sx-tabs d{min(depth, 2)}"><nav class="sx-tabnav">{nav}</nav>{secs}</div>'
+        if t == "expander":
+            return (f'<details class="sx-exp" open><summary>{H.escape(n.label)}</summary>'
+                    f'<div class="sx-exp-b">{self.children(n, depth)}</div></details>')
+        if t == "column":
+            w = getattr(n.proto, "weight", 0) or 1
+            return f'<div class="sx-col" style="flex:{w:.4f} 1 0">{self.children(n, depth)}</div>'
+        if t == "flex_container" and "HORIZONTAL" in str(n.proto):
+            return f'<div class="sx-row">{self.children(n, depth)}</div>'
+        return f"<div>{self.children(n, depth)}</div>"
+
+    def dataframe(self, df: pd.DataFrame) -> str:
+        if df is None or df.empty:
+            return '<div class="sx-cap">표시할 자료가 없습니다.</div>'
+        head = "".join(f"<th>{H.escape(str(c))}</th>" for c in df.columns)
+        body = []
+        for _, r in df.iterrows():
+            cells = []
+            for v in r.tolist():
+                if isinstance(v, pd.Timestamp) and not pd.isna(v) and v == v.normalize():
+                    v = v.strftime("%Y-%m-%d")
+                s = "" if v is None or (isinstance(v, float) and pd.isna(v)) or v is pd.NaT else str(v)
+                if s.startswith(("http://", "https://")):
+                    cells.append(f'<td><a href="{H.escape(s)}" target="_blank" rel="noopener">열기</a></td>')
+                else:
+                    cells.append(f"<td>{_cell(v) if isinstance(v, (int, float)) and s else H.escape(s)}</td>")
+            body.append("<tr>" + "".join(cells) + "</tr>")
+        return (f'<div class="gp-table-wrap sx-df"><table class="gp-table"><tr>{head}</tr>{"".join(body)}</table></div>'
+                f'<div class="sx-cap">표 {len(df)}행 · 원본 앱에서는 정렬·검색 가능</div>')
+
+
+# ----------------------------------------------------------------------
+def run_page(page: str) -> AppTest:
+    at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180)
+    at.session_state["page"] = page
+    at.run()
+    if at.exception:
+        raise RuntimeError(f"{page} 페이지 실행 오류: {[e.value for e in at.exception]}")
+    return at
+
+
+def overwatch_extras() -> dict[str, str]:
+    """기본 화면에 안 보이는 시안 단계(A 복귀 브리핑 1~3단계)를 클릭해 얻은 화면을 탭 끝에 덧붙인다."""
+    at = run_page("overwatch")
+    shots = []
+    at.button(key="ow_a_start").click().run()
+    for step in range(1, 4):
+        cards = [m.value for m in at.markdown if 'class="ow-proto-card mock"' in m.value]
+        if cards:
+            shots.append(cards[0])
+        at.button(key="ow_a_next").click().run()
+    if not shots:
+        return {}
+    body = "".join(shots)
+    return {"A 복귀 브리핑": (
+        '<details class="sx-exp" open><summary>시안 단계 미리보기 · "3분 요약 보기"를 눌렀을 때 1~3단계 (예시 계정: 2026년 1월 마지막 접속)</summary>'
+        f'<div class="sx-exp-b">{body}</div></details>')}
+
+
+def save_images(doc: str) -> str:
+    """data URI 이미지를 파일로 분리 (같은 이미지는 한 번만 저장)."""
+    def repl(m):
+        ext = "jpg" if m.group(1) in ("jpeg", "jpg") else m.group(1)
+        raw = base64.b64decode(m.group(2))
+        name = hashlib.sha1(raw).hexdigest()[:16] + "." + ext
+        p = IMG_DIR / name
+        if not p.exists():
+            p.write_bytes(raw)
+        return f"assets/img/{name}"
+    return re.sub(r"data:image/(jpeg|jpg|png);base64,([A-Za-z0-9+/=]+)", repl, doc)
+
+
+STATIC_CSS = """
+body { margin: 0; background: #fff; color: #0B1F3A; }
+.sx-top { position: sticky; top: 0; z-index: 10; background: #0B1F3A; color: #E8EEF9; }
+.sx-top-in { max-width: 1240px; margin: 0 auto; padding: 0.6rem 16px; display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: center; }
+.sx-top .gp-brand { font-size: 1.15rem; margin: 0; color: #fff; }
+.sx-top .gp-brand a { color: inherit; text-decoration: none; }
+.sx-top nav { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.sx-top nav a { color: #C9D6EE; text-decoration: none; font-size: 0.85rem; padding: 0.25rem 0.55rem; border-radius: 6px; }
+.sx-top nav a.on, .sx-top nav a:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.sx-main { max-width: 1240px; margin: 0 auto; padding: 1.2rem 16px 3rem; }
+.sx-note { background: #FFF8EC; border: 1px solid #F5D6A8; border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.8rem; }
+.sx-note a { color: #1E5EFF; }
+.sx-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; align-items: center; font-size: 0.85rem; color: #3A4A63; margin: 0 0 1rem; }
+.sx-toc { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1.2rem; padding: 0.7rem; background: #F4F7FC; border-radius: 12px; }
+.sx-toc b { width: 100%; font-size: 0.8rem; color: #6B7A90; }
+.sx-toc a { background: #fff; border: 1px solid #DDE4EF; border-radius: 8px; padding: 0.35rem 0.7rem; color: #0B1F3A; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+.sx-tabnav { display: flex; flex-wrap: wrap; gap: 0.3rem; border-bottom: 2px solid #DDE4EF; margin: 0.6rem 0 0.8rem; padding-bottom: 0.4rem; }
+.sx-tabnav a { font-size: 0.85rem; color: #1E5EFF; text-decoration: none; padding: 0.2rem 0.5rem; border-radius: 6px; background: #F4F7FC; }
+.sx-tab { scroll-margin-top: 4rem; margin-bottom: 2rem; }
+.sx-tab-h { font-size: 1.45rem; margin: 1.4rem 0 0.6rem; padding-bottom: 0.35rem; border-bottom: 3px solid #1E5EFF; }
+.sx-tabs.d1 > .sx-tab > .sx-tab-h, .sx-tabs.d2 > .sx-tab > .sx-tab-h { font-size: 1.15rem; border-bottom-width: 2px; border-color: #8DB3FF; }
+.sx-tab-h span { font-size: 0.7rem; font-weight: 800; color: #fff; background: #1E5EFF; border-radius: 6px; padding: 0.1rem 0.4rem; margin-right: 0.5rem; vertical-align: middle; }
+.sx-exp { border: 1px solid #DDE4EF; border-radius: 12px; margin: 0.6rem 0 1rem; background: #fff; }
+.sx-exp > summary { cursor: pointer; padding: 0.7rem 1rem; font-weight: 700; color: #0B1F3A; }
+.sx-exp-b { padding: 0 1rem 0.8rem; }
+.sx-row { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0.3rem 0; }
+.sx-col { min-width: 0; }
+.sx-md p { line-height: 1.65; margin: 0.4rem 0; } .sx-md li { line-height: 1.6; margin-bottom: 0.2rem; }
+.sx-md code { background: #F4F7FC; padding: 0 0.3rem; border-radius: 4px; font-size: 0.85em; }
+.sx-md a, .sx-cap a, .gp-table a { color: #1E5EFF; overflow-wrap: anywhere; }
+.sx-cap { font-size: 0.85rem; color: #6B7A90; margin: 0.3rem 0 0.8rem; line-height: 1.55; }
+.sx-alert { border-radius: 10px; padding: 0.7rem 0.9rem; margin: 0.5rem 0; font-size: 0.92rem; line-height: 1.55; }
+.sx-alert.info { background: #EAF1FF; color: #1B3358; } .sx-alert.warning { background: #FFF6E0; color: #7A4B00; }
+.sx-alert.success { background: #E8F7EE; color: #14532D; } .sx-alert.error, .sx-alert.exception { background: #FDECEC; color: #7F1D1D; }
+.sx-metric { border: 1px solid #DDE4EF; border-radius: 12px; padding: 0.7rem 0.9rem; margin: 0.3rem 0; }
+.sx-metric-l { font-size: 0.82rem; color: #6B7A90; } .sx-metric-v { font-size: 1.6rem; font-weight: 800; } .sx-metric-d { font-size: 0.82rem; color: #1E5EFF; }
+.sx-chart { margin: 0.6rem 0 1.2rem; border: 1px solid #DDE4EF; border-radius: 12px; padding: 0.6rem 0.6rem 0.4rem; background: #fff; }
+.sx-chart-h { font-weight: 700; font-size: 0.95rem; padding: 0.1rem 0.3rem 0.4rem; }
+.sx-chart-c { width: 100%; }
+.sx-chartdata > summary { cursor: pointer; font-size: 0.82rem; color: #6B7A90; padding: 0.3rem; }
+.sx-df { max-height: 520px; overflow: auto; }
+.sx-w { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: center; margin: 0.35rem 0; font-size: 0.88rem; }
+.sx-w-l { color: #6B7A90; font-weight: 600; }
+.sx-w-v, .sx-w-o span.on { background: #EAF1FF; color: #0B1F3A; border: 1px solid #B9CFFF; border-radius: 6px; padding: 0.1rem 0.5rem; font-weight: 700; }
+.sx-w-o { display: inline-flex; flex-wrap: wrap; gap: 0.25rem; }
+.sx-w-o span { border: 1px solid #DDE4EF; border-radius: 6px; padding: 0.1rem 0.5rem; color: #3A4A63; }
+.sx-w-in { border: 1px solid #DDE4EF; border-radius: 6px; padding: 0.15rem 0.6rem; color: #9AA6B8; min-width: 10rem; }
+.sx-btn { display: inline-block; margin: 0.25rem 0.35rem 0.25rem 0; border: 1px solid #C9D3E3; border-radius: 8px; padding: 0.35rem 0.8rem; font-size: 0.88rem; font-weight: 600; color: #0B1F3A; background: #fff; }
+.sx-foot { max-width: 1240px; margin: 0 auto; padding: 1rem 16px 2rem; font-size: 0.8rem; color: #6B7A90; border-top: 1px solid #DDE4EF; }
+.sx-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.9rem; margin: 0.8rem 0 1.4rem; }
+.sx-card { display: block; border: 1px solid #DDE4EF; border-radius: 14px; padding: 1rem 1.1rem; color: #0B1F3A; text-decoration: none; background: #fff; }
+.sx-card:hover { border-color: #1E5EFF; }
+.sx-card.feature { grid-column: 1 / -1; background: linear-gradient(135deg, #0B1F3A 0%, #1B3358 60%, #1E5EFF 140%); color: #fff; border: 0; }
+.sx-card.feature p { color: #D6E2FA; }
+.sx-card h3 { margin: 0 0 0.3rem; font-size: 1.1rem; color: inherit; } .sx-card p { margin: 0; font-size: 0.9rem; line-height: 1.55; color: #3A4A63; }
+.sx-card .k { font-size: 0.75rem; font-weight: 800; color: #F99E1A; letter-spacing: 0.04em; }
+.sx-ul { line-height: 1.7; padding-left: 1.2rem; }
+@media (max-width: 640px) {
+  .sx-row { flex-direction: column; } .sx-col { flex: 1 1 auto !important; width: 100%; }
+  .sx-tab-h { font-size: 1.2rem; }
+}
+"""
+
+
+def legend() -> str:
+    return ('<div class="sx-legend"><b>배지 뜻</b>'
+            f'{badge("실제 자료", "press")} 공개 출처로 확인한 사실'
+            f'{badge("가정 시뮬레이션", "sim")} 가정값으로 계산한 예측 (실적 아님)'
+            f'{badge("기획 시안", "sim")} 게임에 없는 제안 기능 화면'
+            f'{badge("가설", "hypo")} 검증 전 해석'
+            f'{badge("예시 데이터", "sample")} 시연용 가상 데이터</div>')
+
+
+def page_html(title: str, desc: str, current: str, body: str, toc: list, charts: bool, gen: str) -> str:
+    nav = "".join(f'<a class="{"on" if f == current else ""}" href="{f}">{H.escape(n)}</a>'
+                  for _, f, n, _ in [("index", "index.html", "보고서 첫 화면", "")] + PAGES)
+    toc_html = ("" if not toc else '<nav class="sx-toc"><b>이 페이지 목차</b>'
+                + "".join(f'<a href="#{i}">{H.escape(l)}</a>' for i, l in toc) + "</nav>")
+    note = ("" if current == "index.html" else
+            f'<div class="sx-note"><b>정적 보고서 안내</b> · 이 페이지는 <a href="{LIVE_URL}">원본 Streamlit 앱</a>의 화면을 '
+            f'자동으로 변환한 스냅샷입니다 (생성 {gen}). 탭은 차례대로 펼쳤고, 버튼·슬라이더는 기본값 상태입니다. '
+            '차트 아래 "차트 데이터 표"에 수치가 있습니다. 게임 스크린샷의 다른 플레이어 닉네임은 가림 처리했습니다.</div>')
+    script = '<script src="assets/plotly.min.js"></script>' if charts else ""
+    return (f'<!doctype html><html lang="ko" translate="no"><head><meta charset="utf-8">'
+            f'<meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>{H.escape(title)} · {APP_NAME}</title><meta name="description" content="{H.escape(desc)}">'
+            f'{APP_CSS}<style>{STATIC_CSS}</style>{script}</head><body>'
+            f'<header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div>'
+            f'<nav>{nav}</nav></div></header><main class="sx-main">{note}{legend() if current != "index.html" else ""}{toc_html}{body}</main>'
+            f'<footer class="sx-foot">{APP_NAME} 정적 보고서 · 생성 {gen} · <a href="{LIVE_URL}">원본 앱</a> · '
+            f'<a href="{REPO_URL}">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer>'
+            '</body></html>')
+
+
+def index_html(gen: str) -> str:
+    g = GAMES["overwatch"]
+    cards = [f'<a class="sx-card feature" href="overwatch.html"><div class="k">대표 프로젝트 · 실제 자료 기반</div>'
+             f'<h3>오버워치 · PROJECT RE:START</h3><p>{H.escape(g.get("one_liner", ""))} — 최신 한국어 게임 화면, 검증한 유저 의견, '
+             '공식 업데이트·이용 지표, 개선안 A·B·C 시안, KPI·A/B 테스트·가정 시뮬레이션을 한 페이지에 담았습니다.</p></a>']
+    for pid, f, name, _ in PAGES[1:]:
+        one = GAMES[pid].get("one_liner", "") if pid in GAMES else {
+            "home": "사이트 전체 소개와 게임별 분석 바로가기", "data_lab": "CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)",
+            "assistant": "정리된 분석 내용을 대화형으로 찾아보는 규칙 기반 미리보기"}.get(pid, "")
+        tag = "예시 데이터 기반 분석" if pid in GAMES else "도구 화면"
+        cards.append(f'<a class="sx-card" href="{f}"><div class="k">{tag}</div><h3>{H.escape(name)}</h3><p>{H.escape(one)}</p></a>')
+    body = (f'<div class="gp-hero"><div class="gp-eyebrow">Static Report for Reviewers</div><h1>{APP_NAME} 포트폴리오 보고서</h1>'
+            f'<p>{H.escape(APP_TAGLINE)}</p></div>'
+            '<h2>검토자 안내</h2><ul class="sx-ul">'
+            f'<li>이 보고서는 <a href="{LIVE_URL}">원본 Streamlit 앱</a>을 자동 변환한 정적 HTML입니다. JavaScript 없이도 모든 글자를 읽을 수 있습니다.</li>'
+            '<li><b>오버워치 페이지</b>가 실제 자료 기반 대표 분석입니다. 다른 게임 페이지는 시연용 <b>예시 데이터</b>입니다.</li>'
+            '<li>각 수치·차트에 출처 성격을 배지로 표시했습니다. 아래 배지 뜻을 참고하세요.</li>'
+            '<li>게임 스크린샷은 작성자가 직접 캡처한 최신 한국어 화면이며, 다른 플레이어 닉네임은 가림 처리했습니다.</li>'
+            f'<li>생성 시각 {gen} · 코드: <a href="{REPO_URL}">GitHub 저장소</a></li></ul>'
+            f'{legend()}<h2>페이지</h2><div class="sx-cards">{"".join(cards)}</div>')
+    return page_html("보고서 첫 화면", f"{APP_NAME} 게임 사업PM 포트폴리오 정적 보고서", "index.html", body, [], False, gen)
+
+
+# ----------------------------------------------------------------------
+PII = re.compile(r"[A-Za-z0-9._%+-]+@(gmail|naver|daum|kakao|hanmail|outlook|hotmail)\.|C:\\\\Users|010-?\d{4}-?\d{4}|sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{20,}", re.I)
+
+
+def check(files: list[Path]) -> list[str]:
+    problems = []
+    for f in files:
+        s = f.read_text(encoding="utf-8")
+        if "data:image" in s:
+            problems.append(f"{f.name}: 분리되지 않은 이미지")
+        for src in re.findall(r'src="(assets/[^"]+)"', s):
+            if not (DOCS / src).exists():
+                problems.append(f"{f.name}: 없는 파일 {src}")
+        for href in re.findall(r'href="([a-z_]+\.html)(?:#[^"]*)?"', s):
+            if not (DOCS / href).exists():
+                problems.append(f"{f.name}: 깨진 링크 {href}")
+        m = PII.search(s)
+        if m:
+            problems.append(f"{f.name}: 개인정보·키 의심 문자열 '{m.group(0)}'")
+        if "미지원 요소" in s:
+            problems.append(f"{f.name}: 변환하지 못한 요소 {re.findall(r'미지원 요소: ([a-z_]+)', s)}")
+    return problems
+
+
+def main() -> int:
+    gen = dt.datetime.now(KST).strftime("%Y-%m-%d %H:%M KST")
+    if DOCS.exists():
+        shutil.rmtree(DOCS)
+    IMG_DIR.mkdir(parents=True)
+    (DOCS / ".nojekyll").write_text("", encoding="utf-8")
+    from plotly.offline import get_plotlyjs
+
+    (DOCS / "assets" / "plotly.min.js").write_text(get_plotlyjs(), encoding="utf-8")
+
+    written = []
+    for pid, fname, name, kind in PAGES:
+        ex = Exporter(kind)
+        if pid == "overwatch":
+            ex.tab_extras = overwatch_extras()
+        at = run_page(pid)
+        body = ex.children(at.main, 0)
+        desc = GAMES[pid].get("one_liner", name) if pid in GAMES else name
+        doc = save_images(page_html(name, desc, fname, body, ex.toc, ex.charts > 0, gen))
+        (DOCS / fname).write_text(doc, encoding="utf-8")
+        written.append(DOCS / fname)
+        print(f"  {fname:18} 차트 {ex.charts:2} · {len(doc) / 1024:,.0f} KB")
+        if pid == "overwatch":
+            label = {"real": "실제 자료", "sim": "가정 시뮬레이션", "plan": "기획자 평가", "sample": "예시 데이터"}
+            for k, t in ex.kinds:
+                print(f"      [{label[k]}] {t}")
+    (DOCS / "index.html").write_text(index_html(gen), encoding="utf-8")
+    written.append(DOCS / "index.html")
+
+    imgs = list(IMG_DIR.iterdir())
+    print(f"  이미지 {len(imgs)}개 · {sum(p.stat().st_size for p in imgs) / 1e6:.1f} MB")
+    problems = check(written)
+    if problems:
+        print("[점검 실패]")
+        for p in problems:
+            print("  -", p)
+        return 1
+    print(f"[점검 통과] {len(written)}개 페이지 → {DOCS}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
