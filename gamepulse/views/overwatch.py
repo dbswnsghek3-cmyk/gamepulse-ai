@@ -530,11 +530,12 @@ def _s1_summary(rs: dict, ops: pd.DataFrame, statuses: dict, plan: dict, heroes:
     ret_learning = sum(bool(set(opinion_codes(r)) & LEARNING_CODES) for _, r in ret.iterrows())
     all_learning = sum(bool(set(opinion_codes(r)) & LEARNING_CODES) for _, r in v.iterrows())
     # 상단 카드(문제 → 해결)와 겹치는 문제 정의·결론 박스는 두지 않는다. 해결안 3개 → 의사결정 → 화면 → 근거 순서
-    sub("해결안 3가지", b_mock())
-    core = [x for x in rs["strategies"] if x["core"]]
-    html('<div class="ow-list">' + "".join(
-        f'<div class="ow-list-i"><b>{x["key"]}</b><span><strong>{escape(x["name"])}</strong> · {escape(x["tagline"])}'
-        f' <em>{escape(x.get("phase", ""))}</em></span></div>' for x in core) + "</div>")
+    sub("막히는 지점 3곳 → 해결안 3가지", b_mock())
+    core = sorted([x for x in rs["strategies"] if x["core"]], key=lambda x: x.get("phase", ""))
+    html('<div class="ow-map">' + "".join(
+        f'<div class="ow-map-i"><div class="ow-map-p"><span>문제</span>{escape(x["problem"])}</div><div class="ow-map-a">→</div>'
+        f'<div class="ow-map-s"><span>{x["key"]} · {escape(x.get("phase", ""))}</span><b>{escape(x["name"])}</b>'
+        f'<small>{escape(x["tagline"])}</small></div></div>' for x in core) + "</div>")
 
     sub("PM 의사결정 요약")
     html(_decision_cards(rs, plan))
@@ -583,8 +584,14 @@ def _s2_evidence(rs: dict, kp: dict, steam: pd.DataFrame, pc: pd.DataFrame, ops:
         _steam_chart(steam)                 # 핵심 차트 2 · 실제 자료
     with c2:
         _pc_chart(pc)                       # 핵심 차트 3 · 실제 자료
-    t = st.tabs(["게임 화면", f"유저 의견 {len(v)}건", "공식 업데이트", "지표 원자료"])
+    html('<div class="ow-limits"><b>읽는 법</b>'
+         f'<span>의견 {len(v)}건 = 자발적 게시글 · 비율·이탈 원인 아님</span>'
+         '<span>Steam·PC방 = 시장 반응 참고 · 복귀 이탈과 인과 연결 안 함</span>'
+         '<span>원인 확인은 05의 A/B 테스트로</span></div>')
+    t = st.tabs([f"유저 의견 {len(v)}건", "게임 화면", "공식 업데이트", "지표 원자료"])
     with t[0]:
+        _opinions(rs, ops)
+    with t[1]:
         sub("직접 캡처한 최신 한국어 화면", b_real())
         caps = {"match_select": "제한 시간 안에 영웅 선택", "returning_menu": "변경점 안내가 보이지 않음",
                 "skill_detail": "영웅 1명 = 설명 10개", "mission_screen": "과제 = 경기 횟수",
@@ -600,8 +607,6 @@ def _s2_evidence(rs: dict, kp: dict, steam: pd.DataFrame, pc: pd.DataFrame, ops:
                 shot(b, statuses, lead=caps[b])
         st.caption("파란 상자·번호는 설명용 표시이며 화면은 수정하지 않았습니다.")
         shot_facts(["match_select", "returning_menu", "skill_detail", "mission_screen", "combat_scene"])
-    with t[1]:
-        _opinions(rs, ops)
 
     with t[2]:
         sub("블리자드의 기존 지원")
@@ -642,8 +647,8 @@ def _steam_chart(steam: pd.DataFrame) -> None:
                    kpis=[(f"최고 {pk['month']:%Y년 %m월}", f"{pk['avg_players']:,.0f}명"),
                          (f"최근 {last['month']:%Y년 %m월}", f"{last['avg_players']:,.0f}명"),
                          ("최고치 대비 최근", f"{(last['avg_players'] / pk['avg_players'] - 1) * 100:+.0f}%")],
-                   analysis=f"{pk['month']:%y.%m} 최고 → 최근 {last['avg_players'] / pk['avg_players'] * 100:.0f}% 수준, 유입이 다 남지 않음",
-                   decision="첫 주 정착이 과제 → D7 잔존율로 판단",
+                   analysis=f"{pk['month']:%y.%m} 최고 → 최근 {last['avg_players'] / pk['avg_players'] * 100:.0f}% 수준 · 감소 원인은 이 자료로 알 수 없음",
+                   decision="유입 규모 참고용 · 이탈 원인 근거로 쓰지 않음",
                    basis=f"{first['month']:%y.%m}~{last['month']:%y.%m} 같은 출처 · Steam만 포함",
                    height=300, legend=False, cols=("월", "월평균 동시접속자 (명)"))
 
@@ -690,7 +695,7 @@ def _pc_chart(pc: pd.DataFrame) -> None:
         chart_card(fig, key="pc", kind="real", title=f"한국 PC방 점유율 ({tracker})",
                    unit="% · 회색 = 서비스 전, 파랑 = 후 · 가로선 = 주간",
                    kpis=kp, analysis=analysis,
-                   decision="A 검증 후 PC방 연계(D)를 따로 판단",
+                   decision="시장 반응 참고 · PC방 연계(D)는 A 검증 후 판단",
                    basis=f"같은 집계원·같은 단위(일간)끼리 비교",
                    height=300, cols=("기준일", "PC방 점유율 (%)"), series="집계 단위")
 
@@ -821,23 +826,32 @@ def _s3_hypothesis(rs: dict, ops: pd.DataFrame) -> None:
     p = rs["problem"]
     v = ops[ops["verified"]]
     cnt = code_counts(v) if not v.empty else pd.Series(dtype=int)
-    head("학습 부담 → 이탈은 아직 가설", "", b_hypo())
+    head("학습 부담 → 이탈은 아직 가설", "관찰 → 해석 → 가설 순서로 근거가 약해진다. 단계마다 확인할 지표를 정했다.", b_hypo())
     steps = []
     for i, f in enumerate(p["flow"]):
-        steps.append(f'<div class="ow-step"><div class="ow-step-n">{i + 1}</div><div class="ow-step-t">{escape(f["step"])}</div>'
-                     f'<div class="ow-step-d">{escape(f["desc"])}</div><div class="ow-step-b">{escape(f["basis"])}</div></div>')
+        codes = set(f.get("codes", []))
+        n = sum(bool(set(opinion_codes(r)) & codes) for _, r in v.iterrows()) if codes else 0
+        ev = f"{escape(f['basis'])}" + (f" · 관련 의견 {n}건" if n else "")
+        steps.append(f'<div class="ow-step {f.get("kind", "hypo")}"><div class="ow-step-n">{i + 1} {KIND[f.get("kind", "hypo")]()}</div>'
+                     f'<div class="ow-step-t">{escape(f["step"])}</div>'
+                     f'<div class="ow-step-d">{escape(f["desc"])}</div><div class="ow-step-b">근거 · {ev}</div>'
+                     f'<div class="ow-step-c">검증 · {escape(f.get("check", ""))}</div></div>')
         if i < len(p["flow"]) - 1:
             steps.append('<div class="ow-step-a">→</div>')
     html(f'<div class="ow-flow">{"".join(steps)}</div>')
+    note(p["verify"])
 
-    sub("대안 원인")
+    sub("다른 원인도 함께 확인")
     cards = []
     for a in p["alternatives"]:
-        n = f"관련 의견 {int(cnt.get(a['category'], 0))}건" if a.get("category") else "관련 의견 없음"
+        if a.get("ids"):
+            n = f"관련 의견 {len(a['ids'])}건"
+        else:
+            n = f"관련 의견 {int(cnt.get(a['category'], 0))}건" if a.get("category") else "관련 의견 없음"
         cards.append(f'<div class="ow-alt"><div class="ow-alt-t">{escape(a["cause"])}</div><div class="ow-alt-n">{n}</div>'
                      f'<div class="ow-alt-d">{escape(a["evidence"])}</div><div class="ow-alt-c">확인: {escape(a["check"])}</div></div>')
     html(f'<div class="ow-grid3">{"".join(cards)}</div>')
-    note(p["verify"])
+    note("A/B 테스트는 무작위 배정이라 위 원인들이 두 그룹에 고르게 섞인다 → 기능 효과만 분리된다.")
 
 
 # ======================================================================
@@ -848,7 +862,7 @@ def _spec_cards(rs: dict) -> str:
     for s in [x for x in rs["strategies"] if x["core"]]:
         rows = [("대상", escape(s["target"])), ("해결 문제", escape(s.get("problem", ""))),
                 ("흐름", " → ".join(escape(f) for f in s.get("flow_short", s["flow"][:3]))),
-                ("핵심 지표", escape(s["kpis"][0]))]
+                ("핵심 지표", escape(s["kpis"][0])), ("구현 난이도", escape(s.get("feasibility", "")))]
         extra = '<div class="ow-spec-x"><b>별도 검토</b> 자동 원인 분석은 기술 검증 후</div>' if s.get("deferred") else ""
         out.append(f'<div class="ow-spec k{s["key"]}"><div class="ow-spec-h"><span class="ow-spec-key">{s["key"]}</span>'
                    f'<div><div class="ow-spec-n">{escape(s["name"])} {b_mock()}</div><div class="ow-spec-p">{escape(s.get("phase", ""))}</div></div></div>'
@@ -1207,6 +1221,7 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
          '<div><b>통계적 유의성</b>효과 추정치의 95% 신뢰구간 하한이 0보다 큰가 → 우연이 아닐 가능성</div>'
          f'<div><b>사업적 효과</b>점추정이 MDE(+{r["mde"]["D7"]:.1f}%p) 이상인가, 개발·운영비 대비 추가 잔존 인원이 충분한가</div>'
          '<div><b>판단</b>둘 다 충족하고 안전 지표가 나빠지지 않을 때만 확대. 유의하지만 작으면 조건부 확대</div></div>')
+    note("보수적 기준: 실제 효과가 정확히 MDE면 확대 확률은 약 50%다. 효과 없는 기능을 넓히는 오판을 줄이는 쪽을 택했다.")
     table(["결과", "판단 기준"], [[f"<b>{escape(d['result'])}</b>", escape(d["rule"])] for d in rs["decision_rules"]], badge_html=b_mock())
 
     with st.expander("자세히 보기 · 측정 방법 · 즉시 중단 기준 · 표본 계산기"):
@@ -1424,9 +1439,20 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
 def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
     sc = plan["sched"]
     head(f"A부터 단계 출시 · {sc['decision'] + 2}주 파일럿", "자동 원인 분석·PC방(D)은 결과를 본 뒤 결정", b_mock())
+    sub("우선순위와 이유")
+    rice = pd.DataFrame(rice_table(rs["rice"]["items"], plan["quarter"]["reach"])).sort_values("score", ascending=False)
+    sname = {s["key"]: s for s in rs["strategies"]}
+    order = {"A": "1순위 · 먼저", "C": "2순위", "B": "3순위 · 수동형부터", "D": "보류"}
+    table(["순서", "개선안", "RICE", "이유", "구현 난이도"],
+          [[f"<b>{order.get(x.key, '')}</b>", f"{x.key} {escape(sname[x.key]['name'])}", f"{x.score:,.0f}점",
+            escape(x.why), escape(sname[x.key].get("feasibility", ""))] for x in rice.itertuples()], badge_html=b_sim())
+
     mv = rs["mvp"]
     html(f'<div class="ow-grid2"><div class="ow-card plain"><div class="ow-card-k">MVP 포함</div>{bullets(mv["in"])}</div>'
          f'<div class="ow-card plain"><div class="ow-card-k">이번에는 제외 · 별도 검토</div>{bullets(mv["out"])}</div></div>')
+
+    sub("현실적인 제약과 대응", b_interp())
+    table(["제약·리스크", "대응"], [[escape(x["risk"]), escape(x["response"])] for x in rs["risks"]])
 
     pl = rs["pilot"]
     sub("파일럿 일정", b_mock())
@@ -1438,7 +1464,7 @@ def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
     html('<div class="ow-timeline">' + "".join(
         f'<div class="ow-tl"><div class="ow-tl-d">{escape(p)}</div><div class="ow-tl-b">{escape(w)}</div></div>'
         for p, w in weeks) + "</div>")
-    with st.expander("자세히 보기 · 담당 부서 · 이벤트 로그 · 출시 전 점검 · 롤백 기준"):
+    with st.expander("자세히 보기 · 담당 부서 · 이벤트 로그 · 출시 전 점검 · 롤백 기준"):  # 리스크 표는 위에 표시
         table(["담당", "역할"], [[escape(o["team"]), escape(o["role"])] for o in pl["owners"]], badge_html=b_mock())
         c1, c2 = st.columns(2)
         with c1:
@@ -1452,15 +1478,12 @@ def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
             st.markdown("**롤백 기준**")
             for x in pl["rollback"]:
                 st.markdown(f"- {x}")
-            st.markdown("**주요 리스크와 대응**")
-            for x in rs["risks"]:
-                st.markdown(f"- {x['risk']} → {x['response']}")
 
     r = plan["seg"]["복귀"]
     html(f'<div class="ow-conclusion"><div class="ow-conclusion-k">최종 제안 {b_mock()}</div>'
-         '영웅 선택은 그대로 두고, 복귀 브리핑(A)을 먼저 검증한 뒤 학습 미션(C)과 수동형 학습 카드(B)를 차례로 붙인다. '
-         f'각 실험에서 D7 잔존율이 MDE(+{r["mde"]["D7"]:.1f}%p) 이상 유의하게 오르고 안전 지표가 나빠지지 않을 때만 확대하고, '
-         '자동 원인 분석과 PC방 이벤트(D)는 그 결과를 본 뒤 결정한다.</div>')
+         f'<b>영웅 선택은 그대로, A 복귀 브리핑부터 {sc["decision"] + 2}주 파일럿.</b><br>'
+         f'D7이 MDE(+{r["mde"]["D7"]:.1f}%p) 이상 유의하게 오르고 안전 지표가 괜찮을 때만 C·B로 넓히고, '
+         '자동 원인 분석·PC방(D)은 그 결과를 본 뒤 결정한다.</div>')
 
     sub("한계")
     note(rs["summary"]["limit"])

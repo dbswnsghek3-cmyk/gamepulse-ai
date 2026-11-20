@@ -940,6 +940,44 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 }}
 @media (max-width: 640px) {{ .ow-cover-c {{ font-size: 1.25rem !important; }} }}
 
+/* ---------- 오버워치 v10: 연한 색으로 영역 구분 (문제 #EFF6FF · 해결 #F0F9FF · 근거·검증 #F1F5F9) ---------- */
+.stApp:has(.gp-ow-page), .stApp:has(.gp-ow-page) [data-testid="stAppViewContainer"],
+.stApp:has(.gp-ow-page) [data-testid="stMain"], body:has(.gp-ow-page) {{ background: #F8FAFC !important; }}
+.stApp:has(.gp-ow-page) [data-testid="stExpander"] details, body:has(.gp-ow-page) .sx-exp {{ background: #FFFFFF !important; border-color: #E2E8F0 !important; }}
+[class*="st-key-owc_"], .sx-box, .sx-chart {{ background: #FFFFFF !important; }}
+.ow-cover {{ background: transparent !important; }}
+.ow-hero3 {{ background: #FFFFFF !important; border-color: #E2E8F0 !important; }}
+.ow-hero3 > div {{ border-right-color: #E2E8F0 !important; }}
+.ow-hero3 > div:nth-child(1) {{ background: #EFF6FF; }}
+.ow-hero3 > div:nth-child(2) {{ background: #F0F9FF; }}
+.ow-hero3 > div:nth-child(3) {{ background: #F1F5F9; }} .ow-hero3 > div:nth-child(3) span {{ color: #475569; }}
+/* 문제 → 해결 연결 카드 (01) */
+.ow-map {{ display: grid; gap: 0.5rem; margin: 0.3rem 0 1rem; max-width: 940px; }}
+.ow-map-i {{ display: grid; grid-template-columns: minmax(0, 1fr) 1.6rem minmax(0, 1.15fr); align-items: stretch; gap: 0.4rem; }}
+.ow-map-p, .ow-map-s {{ border-radius: 10px; padding: 0.6rem 0.85rem; font-size: 0.95rem; line-height: 1.45; color: #1E293B; }}
+.ow-map-p {{ background: #EFF6FF; border: 1px solid #DBEAFE; }}
+.ow-map-s {{ background: #F0F9FF; border: 1px solid #BAE6FD; }}
+.ow-map-p span, .ow-map-s span {{ display: block; font-size: 0.72rem; font-weight: 800; color: #2563EB; margin-bottom: 0.1rem; }}
+.ow-map-s b {{ display: block; color: #1E293B; }} .ow-map-s small {{ display: block; color: #64748B; font-size: 0.85rem; }}
+.ow-map-a {{ display: flex; align-items: center; justify-content: center; color: #2563EB; font-weight: 800; }}
+@media (max-width: 640px) {{ .ow-map-i {{ grid-template-columns: 1fr; }} .ow-map-a {{ transform: rotate(90deg); height: 1rem; }} }}
+/* 해결책 영역 */
+.ow-spec, .ow-list-i, .ow-conclusion, .ow-phase-i:first-child {{ background: #F0F9FF !important; border-color: #BAE6FD !important; }}
+/* 근거·검증 영역 */
+.ow-layer, .ow-step, .ow-alt, .ow-sig > div, .ow-defbox > div, .ow-sample-g > div, .ow-chart-f2 > div:not(.pm) {{ background: #F1F5F9 !important; }}
+.ow-layer, .ow-step, .ow-alt, .ow-sig > div {{ border-color: #E2E8F0 !important; }}
+.ow-step.real {{ border-top: 2px solid #2563EB !important; }} .ow-step.interp {{ border-top: 2px solid #94A3B8 !important; }}
+.ow-step.hypo {{ border-top: 2px dashed #94A3B8 !important; background: #F8FAFC !important; }}
+.ow-step-n .gp-badge {{ font-size: 0.68rem; margin-left: 0.3rem; vertical-align: middle; }}
+.ow-step-c {{ margin-top: 0.4rem; font-size: 0.82rem; font-weight: 700; color: #2563EB; }}
+.ow-limits {{ display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; align-items: baseline; max-width: 940px; margin: 0.2rem 0 1rem;
+  padding: 0.6rem 0.9rem; background: #F1F5F9; border: 1px solid #E2E8F0; border-radius: 10px; font-size: 0.88rem; color: #334155; }}
+.ow-limits b {{ color: #1E293B; }} .ow-limits span::before {{ content: "· "; color: #94A3B8; }}
+/* 본문·보조 글자색 */
+.ow-head h3, .ow-sub, .ow-dec-q, .ow-layer-h, .ow-spec-n, .ow-chart-t, .ow-alt-t, .ow-tl-t, .ow-step-t, .ow-phase-t,
+.ow-hero3 b, .ow-cover-c, .ow-conclusion, .ow-kpi-v, .ow-dec-a, .ow-step-d, .ow-alt-d {{ color: #1E293B !important; }}
+.ow-step-b, .ow-alt-c, .ow-head p {{ color: #64748B !important; }}
+
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
 /* 모바일 */
