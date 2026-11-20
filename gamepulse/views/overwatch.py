@@ -492,7 +492,7 @@ def _hero_block(heroes: dict, statuses: dict) -> None:
         st.warning(f"영웅 목록 {n_all}명이 공식 집계 {heroes.get('official_count')}명과 다릅니다. heroes.json 을 확인하세요.")
 
 
-def _decision_cards(rs: dict, plan: dict) -> str:
+def _decision_cards(rs: dict, plan: dict, n_new: int) -> str:
     """PM 의사결정 요약 5개 카드. 비용·효과는 가정값으로 계산하고 배지로 표시."""
     ex, rice = rs["experiment"], {x["key"]: x for x in rs["rice"]["items"]}
     r = plan["seg"]["복귀"]
@@ -502,7 +502,7 @@ def _decision_cards(rs: dict, plan: dict) -> str:
     a_added = q["added_d7"]["A"]          # 분기 복귀 유입 × MDE (05 실험 설계와 같은 가정)
     sc = plan["sched"]
     cards = [
-        ("왜 먼저인가", b_real(), "신규 영웅이 연 10명씩 늘어 변경점이 매 시즌 쌓인다."),
+        ("왜 먼저인가", b_real(), f"2026년 신규 영웅 {n_new}명 출시(실적)에 연 10명 계획(공식 발표) → 변경점이 매 시즌 쌓인다."),
         ("무엇으로 판단", b_mock(), f"복귀 D7 잔존율 · 최소 개선 폭 +{r['mde']['D7']:.1f}%p (배정 기준)."),
         ("비용 대비 효과", b_sim(),
          f"A {a_cost / 1e4:,.0f}만 원 ÷ 분기 추가 D7 {a_added:,.0f}명 ≈ 1명당 {a_cost / a_added:,.0f}원."),
@@ -530,7 +530,7 @@ def _s1_summary(rs: dict, ops: pd.DataFrame, statuses: dict, plan: dict, heroes:
         f'<small>{escape(x["tagline"])}</small></div></div>' for x in core) + "</div>")
 
     sub("PM 의사결정 요약")
-    html(_decision_cards(rs, plan))
+    html(_decision_cards(rs, plan, sum(1 for h in heroes["heroes"] if h.get("new_2026"))))
 
     sub("문제를 보여 주는 화면", b_real())
     _hero_block(heroes, statuses)
@@ -848,18 +848,22 @@ def _s3_hypothesis(rs: dict, ops: pd.DataFrame) -> None:
 # ======================================================================
 # 4 개선안 체험 (A·B·C 기획 시안) + 비교·우선순위
 def _spec_cards(rs: dict) -> str:
-    """A·B·C 사양 카드: 대상 · 해결 문제 · 흐름 · 기대 효과 · 난이도 · 측정 지표."""
+    """A·B·C 사양 카드 (기본 화면): 대상 · 문제 · 핵심 해결책 3줄. 흐름·KPI·난이도는 _spec_detail() 펼쳐보기."""
     out = []
     for s in [x for x in rs["strategies"] if x["core"]]:
-        # 카드당 핵심 3줄 (해결 문제 · 흐름 · 핵심 지표). 대상은 머리줄에, 구현 난이도는 06 우선순위 표에서 본다.
-        rows = [("해결 문제", escape(s.get("problem", ""))),
-                ("흐름", " → ".join(escape(f) for f in s.get("flow_short", s["flow"][:3]))),
-                ("핵심 지표", escape(s["kpis"][0]))]
-        extra = ""
+        rows = [("대상", escape(s["target"])), ("문제", escape(s.get("problem", ""))), ("핵심 해결책", escape(s["tagline"]))]
         out.append(f'<div class="ow-spec k{s["key"]}"><div class="ow-spec-h"><span class="ow-spec-key">{s["key"]}</span>'
-                   f'<div><div class="ow-spec-n">{escape(s["name"])}</div><div class="ow-spec-p">{escape(s.get("phase", ""))} · {escape(s["target"])}</div></div></div>'
-                   + "".join(f'<div class="ow-spec-r"><span>{k}</span><div>{v}</div></div>' for k, v in rows) + extra + "</div>")
+                   f'<div><div class="ow-spec-n">{escape(s["name"])}</div><div class="ow-spec-p">{escape(s.get("phase", ""))}</div></div></div>'
+                   + "".join(f'<div class="ow-spec-r"><span>{k}</span><div>{v}</div></div>' for k, v in rows) + "</div>")
     return f'<div class="ow-specs">{"".join(out)}</div>'
+
+
+def _spec_detail(rs: dict) -> None:
+    """A·B·C 흐름 · 핵심 KPI · 구현 난이도 (접어 두는 상세)."""
+    table(["개선안", "흐름", "핵심 KPI", "구현 난이도"],
+          [[f"<b>{s['key']}</b> {escape(s['name'])}", " → ".join(escape(f) for f in s.get("flow_short", s["flow"][:3])),
+            escape(s["kpis"][0]), escape(s.get("feasibility", ""))]
+           for s in sorted([x for x in rs["strategies"] if x["core"]], key=lambda x: x.get("phase", ""))], badge_html=b_mock())
 
 
 def _phases(plan: dict) -> str:
@@ -876,8 +880,10 @@ def _phases(plan: dict) -> str:
 def _s4_experience(rs: dict, ops: pd.DataFrame, heroes: dict, tl: pd.DataFrame, statuses: dict, plan: dict) -> None:
     head("A 먼저, C·B는 단계적으로", "영웅·밸런스·매칭은 바꾸지 않는다.", b_mock())
     html(_spec_cards(rs))
-    with st.expander("자세히 보기 · 출시 순서 (하나씩 출시해 효과를 따로 측정)"):
+    with st.expander("자세히 보기 · 흐름·핵심 KPI·구현 난이도 · 출시 순서"):
+        _spec_detail(rs)
         html(_phases(plan))
+        st.caption("하나씩 출시해 효과를 따로 측정한다.")
 
     sub("직접 눌러 보기 · 왼쪽 실제 화면 vs 오른쪽 시안")
     t = st.tabs(["A 복귀 브리핑", "B 전투 학습 카드", "C 첫 10경기 미션", "전략 상세·우선순위"])
@@ -1423,7 +1429,7 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
 # 06 실행 계획과 최종 제안
 def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
     sc = plan["sched"]
-    head(f"A부터 단계 출시 · {sc['decision'] + 2}주 파일럿", "", b_mock())
+    head(f"A부터 단계 출시 · {sc['decision'] + 2}주 파일럿 (준비 2주 + 운영 {sc['decision']}주)", "", b_mock())
     sub("우선순위와 이유")
     rice = pd.DataFrame(rice_table(rs["rice"]["items"], plan["quarter"]["reach"])).sort_values("score", ascending=False)
     sname = {s["key"]: s for s in rs["strategies"]}
@@ -1441,7 +1447,7 @@ def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
     table(["제약·리스크", "대응"], [[escape(x["risk"]), escape(x["response"])] for x in rs["risks"]])
 
     pl = rs["pilot"]
-    sub("파일럿 일정", b_mock())
+    sub(f"파일럿 일정 · 준비 2주 → 운영 1~{sc['decision']}주", b_mock())
     weeks = [("준비 (-2~0주)", "이벤트 로그 설계 · 실험 배정 점검 · 기능 스위치 · CS 안내 문구"),
              (f"{sc['e1_assign'][0]}~{sc['e1_assign'][1]}주", "실험 1 · A 복귀 브리핑 배정 (복귀 유저 50:50)"),
              (f"{sc['e2_assign'][0]}~{sc['e2_assign'][1]}주", f"실험 2 · C 학습 미션 배정 (신규 유저) · {sc['e1_d7']}주차 A의 D7 1차 판정"),
@@ -1467,7 +1473,7 @@ def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
 
     r = plan["seg"]["복귀"]
     html(f'<div class="ow-conclusion"><div class="ow-conclusion-k">최종 제안 {b_mock()}</div>'
-         f'<b>영웅 선택은 그대로, A 복귀 브리핑부터 {sc["decision"] + 2}주 파일럿.</b><br>'
+         f'<b>영웅 선택은 그대로, A 복귀 브리핑부터 {sc["decision"] + 2}주 파일럿 (준비 2주 + 운영 {sc["decision"]}주).</b><br>'
          f'D7이 MDE(+{r["mde"]["D7"]:.1f}%p) 이상 유의하게 오르고 안전 지표가 괜찮을 때만 C·B로 넓히고, '
          '자동 원인 분석·PC방(D)은 그 결과를 본 뒤 결정한다.</div>')
 
