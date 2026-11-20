@@ -207,7 +207,7 @@ class Exporter:
             body = "".join("<tr>" + (f"<td>{H.escape(_plain(n))}</td>" if multi else "")
                            + f"<td>{_cat(a)}</td><td>{_cell(b)}</td></tr>" for n, a, b in rows[:cap])
             head = (f"<th>{H.escape(ser_h)}</th>" if multi else "") + f"<th>{H.escape(cat_h)}</th><th>{H.escape(val_h)}</th>"
-            table = (f'<details class="sx-chartdata"><summary>차트 데이터 표 ({min(total, cap)}행{note})</summary>'
+            table = (f'<details class="sx-chartdata"><summary>차트 데이터 표 · {min(total, cap)}행{note} <span class="sx-more">펼쳐보기</span></summary>'
                      f'<div class="gp-table-wrap"><table class="gp-table"><tr>{head}</tr>{body}</table></div></details>')
         self.charts += 1
         # 제목이 없는 차트는 앱의 차트 카드(배지·제목·단위)가 바로 위에 있으므로 캡션을 다시 달지 않는다
@@ -285,7 +285,8 @@ class Exporter:
                 for i, tb in zip(ids, tabs))
             return f'<div class="sx-tabs d{min(depth, 2)}"><nav class="sx-tabnav">{nav}</nav>{secs}</div>'
         if t == "expander":
-            return (f'<details class="sx-exp" open><summary>{H.escape(n.label)}</summary>'
+            # 앱과 같이 접힌 상태로 둔다 (본문은 핵심만). 내용은 HTML 에 그대로 있어 글자만 읽는 도구도 읽을 수 있다.
+            return (f'<details class="sx-exp"><summary>{H.escape(n.label)} <span class="sx-more">펼쳐보기</span></summary>'
                     f'<div class="sx-exp-b">{self.children(n, depth)}</div></details>')
         if t == "column":
             w = getattr(n.proto, "weight", 0) or 1
@@ -340,7 +341,8 @@ def overwatch_extras() -> dict[str, str]:
         return {}
     body = "".join(shots)
     return {"A 복귀 브리핑": (
-        '<details class="sx-exp" open><summary>시안 단계 미리보기 · "3분 요약 보기"를 눌렀을 때 1~3단계 (예시 계정: 2026년 1월 마지막 접속)</summary>'
+        '<details class="sx-exp"><summary>시안 단계 미리보기 · "3분 요약 보기"를 눌렀을 때 1~3단계 (예시 계정: 2026년 1월 마지막 접속) '
+        '<span class="sx-more">펼쳐보기</span></summary>'
         f'<div class="sx-exp-b">{body}</div></details>')}
 
 
@@ -381,6 +383,9 @@ body { margin: 0; background: #fff; color: #0B1F3A; }
 .sx-tab-h span { font-size: 0.7rem; font-weight: 800; color: #fff; background: #1E5EFF; border-radius: 6px; padding: 0.1rem 0.4rem; margin-right: 0.5rem; vertical-align: middle; }
 .sx-exp { border: 1px solid #DDE4EF; border-radius: 12px; margin: 0.6rem 0 1rem; background: #fff; }
 .sx-exp > summary { cursor: pointer; padding: 0.7rem 1rem; font-weight: 700; color: #0B1F3A; }
+.sx-more { display: inline-block; margin-left: 0.4rem; font-size: 0.75rem; font-weight: 700; color: #1E5EFF; background: #EAF1FF;
+  border-radius: 999px; padding: 0.05rem 0.5rem; vertical-align: middle; }
+details[open] > summary .sx-more { display: none; }
 .sx-exp-b { padding: 0 1rem 0.8rem; }
 .sx-row { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0.3rem 0; }
 .sx-col { min-width: 0; }
@@ -445,7 +450,10 @@ def page_html(title: str, desc: str, current: str, body: str, toc: list, charts:
             f'<div class="sx-note"><b>정적 보고서 안내</b> · 이 페이지는 <a href="{LIVE_URL}">원본 Streamlit 앱</a>의 화면을 '
             f'자동으로 변환한 스냅샷입니다 (생성 {gen}). 탭은 차례대로 펼쳤고, 버튼·슬라이더는 기본값 상태입니다. '
             '차트 아래 "차트 데이터 표"에 수치가 있습니다. 게임 스크린샷의 다른 플레이어 닉네임은 가림 처리했습니다.</div>')
-    script = '<script src="assets/plotly.min.js"></script>' if charts else ""
+    # 접힌 펼치기 안의 차트는 숨은 상태로 그려지므로, 펼칠 때 너비를 다시 맞춘다
+    resize = ("<script>document.addEventListener('toggle',function(e){var d=e.target;if(d.tagName==='DETAILS'&&d.open&&window.Plotly){"
+              "d.querySelectorAll('.sx-chart-c').forEach(function(c){Plotly.Plots.resize(c);});}},true);</script>")
+    script = f'<script src="assets/plotly.min.js"></script>{resize}' if charts else ""
     return (f'<!doctype html><html lang="ko" translate="no"><head><meta charset="utf-8">'
             f'<meta name="viewport" content="width=device-width, initial-scale=1">'
             f'<title>{H.escape(title)} · {APP_NAME}</title><meta name="description" content="{H.escape(desc)}">'
@@ -502,7 +510,19 @@ def check(files: list[Path]) -> list[str]:
             problems.append(f"{f.name}: 개인정보·키 의심 문자열 '{m.group(0)}'")
         if "미지원 요소" in s:
             problems.append(f"{f.name}: 변환하지 못한 요소 {re.findall(r'미지원 요소: ([a-z_]+)', s)}")
+        heads = [re.sub(r"<[^>]+>", "", h).strip() for h in re.findall(r"<th[^>]*>(.*?)</th>", s, flags=re.S)]
+        tech = [h for h in heads if h in ("계열", "x", "y", "value", "category", "ID")]
+        if tech:
+            problems.append(f"{f.name}: 기술 변수명 열 제목 {sorted(set(tech))}")
+        if f.name == "overwatch.html":  # RE:START 단일 프로젝트 · 과거(v0.1) 분석이 공개 본문에 다시 들어오면 실패
+            for k in LEGACY_OW:
+                if k in s:
+                    problems.append(f"{f.name}: 과거 분석 문구 '{k}' 노출")
     return problems
+
+
+LEGACY_OW = ["보호 매칭", "역할별 잔존", "그룹 플레이", "North Star", "v0.1", "부록", "보관함", "18%→22%", "18% → 22%",
+             "주력 역할별", "전략 우선순위 매트릭스", "불만 유형 분포 (예시"]
 
 
 def main() -> int:

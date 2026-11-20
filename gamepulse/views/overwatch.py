@@ -744,7 +744,7 @@ def _opinions(rs: dict, ops: pd.DataFrame) -> None:
         st.dataframe(
             t[["opinion_id", "platform", "published_date", "user_type", "sentiment", "issue_category", "issue_tags",
                "summary_ko", "quote_original", "source_url", "collected_date"]]
-            .rename(columns={"opinion_id": "ID", "platform": "플랫폼", "published_date": "작성일", "user_type": "유형",
+            .rename(columns={"opinion_id": "의견 번호", "platform": "플랫폼", "published_date": "작성일", "user_type": "유형",
                              "sentiment": "방향", "issue_category": "주 분류", "issue_tags": "보조 분류", "summary_ko": "요약",
                              "quote_original": "원문 발췌", "source_url": "원문", "collected_date": "확인일"}),
             hide_index=True, column_config={"원문": st.column_config.LinkColumn("원문", display_text="열기")})
