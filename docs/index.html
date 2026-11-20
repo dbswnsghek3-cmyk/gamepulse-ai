@@ -812,6 +812,126 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover { background: r
   .ow-chart-f2 > div { flex-direction: column; gap: 0.1rem; }
 }
 
+/* ---------- 오버워치 v9 (최종): 화이트 + 블루 · 강조는 제목·수치·선택 메뉴만 ---------- */
+/* 팔레트: 배경 #FFFFFF/#F8FAFC · 강조 #2563EB · 글자 #142B4D · 보조 #64748B · 보조 카드 #EFF6FF · 테두리 #E2E8F0 */
+.ow-cover { background: #FFFFFF !important; color: #142B4D !important; border: 0 !important; box-shadow: none !important;
+  padding: 0.4rem 0 0.6rem !important; border-radius: 0 !important; }
+.ow-cover-t { color: #2563EB !important; font-size: 0.78rem !important; letter-spacing: 0.12em; }
+.ow-cover-c { color: #142B4D !important; font-size: 1.55rem !important; margin: 0.2rem 0 0 !important; }
+.ow-cover-s { display: none; }
+.ow-hero3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 0.4rem 0 0.9rem; background: #EFF6FF;
+  border: 1px solid #DBEAFE; border-radius: 12px; overflow: hidden; }
+.ow-hero3 > div { padding: 0.8rem 1rem; border-right: 1px solid #DBEAFE; min-width: 0; }
+.ow-hero3 > div:last-child { border-right: 0; }
+.ow-hero3 span { display: block; font-size: 0.75rem; font-weight: 800; color: #2563EB; letter-spacing: 0.04em; margin-bottom: 0.2rem; }
+.ow-hero3 b { display: block; font-size: 1.08rem; color: #142B4D; line-height: 1.4; }
+.ow-hero3 small { display: block; font-size: 0.85rem; color: #64748B; margin-top: 0.2rem; line-height: 1.45; }
+
+/* 탭: 선택 = 파랑 배경·흰 글씨 · 나머지 = 흰 배경·연한 테두리·남색 글씨 */
+.st-key-ow_tab label[data-testid="stRadioOption"], .ow-tabbar button { background: #FFFFFF !important; border: 1px solid #E2E8F0 !important;
+  box-shadow: none !important; min-height: 2.75rem !important; padding: 0.55rem 0.85rem !important; }
+.st-key-ow_tab label[data-testid="stRadioOption"] p, .ow-tabbar button { color: #142B4D !important; font-size: 0.97rem !important; }
+.st-key-ow_tab label[data-testid="stRadioOption"]:hover, .ow-tabbar button:hover { background: #F8FAFC !important; border-color: #BFDBFE !important; }
+.st-key-ow_tab label[data-testid="stRadioOption"]:has(input:checked), .st-key-ow_tab label[data-testid="stRadioOption"][data-selected],
+.ow-tabbar button[aria-selected="true"] { background: #2563EB !important; border-color: #2563EB !important; }
+.st-key-ow_tab label[data-testid="stRadioOption"]:has(input:checked) p, .ow-tabbar button[aria-selected="true"] { color: #FFFFFF !important; }
+.ow-tabbar button b { color: inherit; }
+
+/* 배지: 파랑·회색 계열 (텍스트·테두리 모양으로 구분) */
+.gp-badge.k-real { background: #2563EB; color: #fff; border: 1px solid #2563EB; }
+.gp-badge.k-interp { background: #fff; color: #142B4D; border: 1px solid #94A3B8; }
+.gp-badge.k-hypo { background: #F8FAFC; color: #475569; border: 1px dashed #94A3B8; }
+.gp-badge.k-mock { background: #EFF6FF; color: #1D4ED8; border: 1px dashed #93C5FD; }
+.gp-badge.k-sim { background: #F1F5F9; color: #334155; border: 1px dotted #64748B; }
+.gp-badge.k-sample { background: #F8FAFC; color: #64748B; border: 1px solid #E2E8F0; }
+.ow-badges { background: transparent !important; padding: 0 !important; margin: 0 0 0.8rem !important; font-size: 0.76rem !important;
+  color: #64748B !important; gap: 0.25rem 0.6rem !important; }
+.ow-badges > b { font-size: 0.76rem !important; color: #64748B !important; }
+.ow-badges .gp-badge { font-size: 0.7rem !important; padding: 0.08rem 0.45rem; }
+
+/* 본문 카드: 흰색 통일 · 결론만 연한 파랑 */
+.ow-head h3, .ow-sub, .ow-statement-t, .ow-dec-q, .ow-layer-h, .ow-spec-n, .ow-chart-t, .ow-alt-t, .ow-tl-t, .ow-step-t, .ow-phase-t { color: #142B4D !important; }
+.ow-head p, .ow-chart-u, .ow-chart-b, .ow-tile-l, .ow-kpi-l, .ow-credits { color: #64748B !important; }
+.ow-line { color: #334155 !important; border-left-color: #93C5FD !important; }
+.ow-statement { background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; border-left: 3px solid #2563EB !important; }
+.ow-statement-k { color: #2563EB !important; }
+.ow-conclusion { background: #EFF6FF !important; color: #142B4D !important; border: 1px solid #DBEAFE !important; box-shadow: none !important; }
+.ow-conclusion-k { color: #2563EB !important; }
+.ow-dec-i, .ow-layer, .ow-why-i, .ow-tile, .ow-alt, .ow-tl, .ow-step, .ow-spec, .ow-list-i, .ow-kpi, .ow-strat, .ow-card, .ow-quote,
+.ow-mission, .ow-sample-g > div { background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; box-shadow: none !important; }
+.ow-dec-i { border-top: 2px solid #2563EB !important; }
+.ow-layer.real { border-top: 2px solid #2563EB !important; } .ow-layer.hypo { border-top: 2px dashed #94A3B8 !important; }
+.ow-alt, .ow-tl, .ow-step { border-top: 2px solid #CBD5E1 !important; }
+.ow-tl-d, .ow-step-n, .ow-alt-n, .ow-strat-k { color: #2563EB !important; }
+.ow-list-i b, .ow-spec-key { background: #2563EB !important; }
+.ow-list-i em, .ow-spec-p { color: #2563EB !important; }
+.ow-spec.kA, .ow-spec.kB, .ow-spec.kC { border-top: 2px solid #2563EB !important; }
+.ow-strat.ext { border-top-color: #CBD5E1 !important; }
+.ow-kpi-v { color: #142B4D !important; } .ow-kpi-v b, .ow-tile-v b { color: #2563EB !important; }
+.ow-kpi-v em { background: #2563EB !important; }
+.ow-count > div { background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; }
+.ow-count > div:first-child { background: #EFF6FF !important; border-color: #DBEAFE !important; color: #142B4D !important; }
+.ow-count > div:first-child .ow-count-v { color: #2563EB !important; } .ow-count > div:first-child .ow-count-l { color: #64748B !important; }
+.ow-phase-i { background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; }
+.ow-phase-i:first-child { background: #EFF6FF !important; border-color: #BFDBFE !important; }
+.ow-phase-i.hold { background: #F8FAFC !important; border-style: dashed !important; }
+.ow-rules { background: #F8FAFC !important; border: 1px solid #E2E8F0 !important; } .ow-rules b { color: #142B4D !important; }
+.ow-defer { background: #F8FAFC !important; border: 1px dashed #CBD5E1 !important; }
+.ow-defbox > div { background: #F8FAFC !important; } .ow-defbox .ow-defbox-n { background: #EFF6FF !important; color: #142B4D !important; }
+.ow-sig > div { background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; color: #334155 !important; }
+.ow-sig > div:last-child { background: #EFF6FF !important; border-color: #DBEAFE !important; color: #142B4D !important; }
+.ow-sig > div:last-child b { color: #2563EB !important; }
+.ow-vs > div { background: #F8FAFC !important; } .ow-vs > div:last-child { background: #EFF6FF !important; }
+.ow-colh.mock { color: #2563EB !important; }
+.ow-key .k-mock::before { background: #EFF6FF !important; border-color: #93C5FD !important; }
+.ow-hero.new { background: #2563EB !important; border-color: #2563EB !important; color: #fff !important; }
+.ow-hero.recent { background: #EFF6FF !important; }
+
+/* 실제 화면 프레임: 흰 바 + 연한 테두리 · 주석 상자는 파랑 */
+.ow-shot { background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; box-shadow: none !important; border-radius: 10px !important; }
+.ow-shot-bar { background: #FFFFFF !important; color: #142B4D !important; border-bottom: 1px solid #E2E8F0; }
+.ow-shot-tag { background: #EFF6FF !important; color: #2563EB !important; } .ow-shot-tag::before { display: none !important; }
+.ow-shot.hero { max-width: 860px !important; } .ow-shot.wide { max-width: 760px !important; }
+.ow-shot figcaption { color: #142B4D !important; font-weight: 600; }
+.ow-mark { border-color: #2563EB !important; box-shadow: 0 0 0 1px rgba(255,255,255,0.7) !important; }
+.ow-mark > span { background: #2563EB !important; color: #fff !important; }
+.ow-mark > span i { background: #fff !important; color: #2563EB !important; }
+.ow-zoom { border: 1px solid #E2E8F0 !important; background: #fff !important; } .ow-zoom-h { color: #142B4D !important; }
+.ow-journey-n { background: #2563EB !important; color: #fff !important; }
+
+/* 기획 시안: 어두운 패널 → 연한 파랑 + 점선 (게임에 없는 기능임을 유지) */
+.ow-proto, .ow-proto.dark { background: #F8FAFC !important; color: #142B4D !important; border: 1.5px dashed #93C5FD !important; box-shadow: none !important; }
+.ow-proto::after { background: #EFF6FF !important; color: #1D4ED8 !important; border: 1px solid #BFDBFE; }
+.ow-proto-bar { color: #2563EB !important; }
+.ow-proto-h, .ow-skill-n { color: #142B4D !important; }
+.ow-proto-s, .ow-skill-d, .ow-mission-i, .ow-proto small, .ow-mission-i small, .ow-proto .ow-proto-card-s { color: #475569 !important; }
+.ow-proto-s b { color: #2563EB !important; }
+.ow-proto-chips span { background: #FFFFFF !important; border: 1px solid #DBEAFE !important; color: #142B4D !important; }
+.ow-skill-icon { border-color: #BFDBFE !important; color: #64748B !important; }
+.ow-skill-tip { background: #EFF6FF !important; border-left-color: #2563EB !important; color: #142B4D !important; }
+.ow-progress span { background: #E2E8F0 !important; color: #64748B !important; } .ow-progress span.on { background: #2563EB !important; color: #fff !important; }
+.ow-mission { color: #142B4D !important; } .ow-mission.active { border-color: #2563EB !important; }
+.ow-mission.done { background: #EFF6FF !important; } .ow-mission-h span { color: #2563EB !important; }
+.ow-proto-card { border-left-color: #2563EB !important; } .ow-proto-card.mock { border-color: #93C5FD !important; }
+
+/* 차트 카드 · 일정표 (너무 넓적해지지 않게 최대 폭 제한) */
+[class*="st-key-owc_"] { border-color: #E2E8F0 !important; box-shadow: none !important; max-width: 940px; }
+.st-key-owc_op, .st-key-owc_sim { max-width: 860px; }
+.ow-chart-f2 > div { background: #F8FAFC !important; color: #142B4D !important; }
+.ow-chart-f2 > div.pm { background: #EFF6FF !important; color: #142B4D !important; }
+.ow-chart-f2 > div b, .ow-chart-f2 > div.pm b { color: #2563EB !important; }
+.ow-gantt td.assign { background: #2563EB; } .ow-gantt td.d7 { background: #60A5FA; } .ow-gantt td.d30 { background: #1D4ED8; }
+.ow-gantt td.m10 { background: #BFDBFE; color: #142B4D; } .ow-gantt td.small { background: #DBEAFE; color: #142B4D; }
+.ow-gantt td.dec { background: #142B4D; color: #fff; }
+.ow-table th { background: #F1F5F9 !important; color: #142B4D !important; border-bottom: 1px solid #E2E8F0; }
+.ow-table tr:nth-child(odd) td { background: #FFFFFF !important; } .ow-table tr:nth-child(even) td { background: #F8FAFC !important; }
+.ow-tag { background: #EFF6FF !important; color: #2563EB !important; }
+@media (max-width: 900px) {
+  .ow-hero3 { grid-template-columns: 1fr; }
+  .ow-hero3 > div { border-right: 0; border-bottom: 1px solid #DBEAFE; } .ow-hero3 > div:last-child { border-bottom: 0; }
+}
+@media (max-width: 640px) { .ow-cover-c { font-size: 1.25rem !important; } }
+
 .gp-footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #DDE4EF; font-size: 0.8rem; color: #6B7A90; }
 
 /* 모바일 */
@@ -869,7 +989,13 @@ details[open] > summary .sx-more { display: none; }
 .sx-chart.bare { border: 0; padding: 0; margin: 0.3rem 0 0.6rem; }
 .sx-pane-h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .ow-pane[hidden] { display: none !important; }
-.sx-box { border: 1px solid #DDE4EF; border-radius: 16px; padding: 1rem 1rem 0.8rem; margin: 0.6rem 0 1.4rem; background: #fff; }
+.sx-box { border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.9rem 0.9rem 0.7rem; margin: 0.6rem 0 1.2rem; background: #fff; max-width: 940px; }
+.sx-top { background: #FFFFFF !important; color: #142B4D !important; border-bottom: 1px solid #E2E8F0; }
+.sx-top .gp-brand, .sx-top .gp-brand a { color: #142B4D !important; } .sx-top .gp-brand span { color: #2563EB !important; }
+.sx-top nav a { color: #475569 !important; } .sx-top nav a.on, .sx-top nav a:hover { background: #EFF6FF !important; color: #2563EB !important; }
+.sx-note { background: transparent !important; border: 0 !important; padding: 0 !important; font-size: 0.76rem !important; color: #94A3B8 !important; margin-bottom: 0.4rem !important; }
+.sx-note b { color: #64748B; font-weight: 600; }
+body { background: #FFFFFF; }
 .sx-box > div > .sx-md, .sx-box .sx-chart.bare { margin: 0; }
 html { scroll-behavior: smooth; }
 .ow-sec, .ow-nav { scroll-margin-top: 4.5rem; }
@@ -899,4 +1025,4 @@ html { scroll-behavior: smooth; }
   .sx-row { flex-direction: column; } .sx-col { flex: 1 1 auto !important; width: 100%; }
   .sx-tab-h { font-size: 1.2rem; }
 }
-</style></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="on" href="index.html">보고서 첫 화면</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="pubg.html">PUBG: 배틀그라운드</a><a class="" href="fconline.html">FC 온라인</a><a class="" href="dnf.html">던전앤파이터</a><a class="" href="lol.html">리그 오브 레전드</a><a class="" href="data_lab.html">데이터 랩 (CSV 분석)</a><a class="" href="assistant.html">PM 어시스턴트 (미리보기)</a></nav></div></header><main class="sx-main"><div class="gp-hero"><div class="gp-eyebrow">Static Report for Reviewers</div><h1>GamePulse AI 포트폴리오 보고서</h1><p>게임 이용자 문제를 데이터로 정의하고, 사업PM 관점의 개선 전략과 KPI를 설계합니다.</p></div><h2>검토자 안내</h2><ul class="sx-ul"><li>이 보고서는 <a href="https://gamepulse-ai1.streamlit.app/">원본 Streamlit 앱</a>을 자동 변환한 정적 HTML입니다. JavaScript 없이도 모든 글자를 읽을 수 있습니다.</li><li><b>오버워치 페이지</b>가 실제 자료 기반 대표 분석입니다. 다른 게임 페이지는 시연용 <b>예시 데이터</b>입니다.</li><li>각 수치·차트에 출처 성격을 배지로 표시했습니다. 아래 배지 뜻을 참고하세요.</li><li>게임 스크린샷은 작성자가 직접 캡처한 최신 한국어 화면이며, 다른 플레이어 닉네임은 가림 처리했습니다.</li><li>생성 시각 2026-11-20 09:27 KST · 코드: <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a></li></ul><div class="sx-legend"><b>배지 뜻</b><span class="gp-badge k-real">실제 자료</span> 공개 출처·직접 캡처로 확인<span class="gp-badge k-interp">분석자 해석</span> 자료를 바탕으로 한 판단<span class="gp-badge k-hypo">검증 전 가설</span> 아직 입증되지 않음<span class="gp-badge k-mock">기획 시안</span> 게임에 없는 제안·계획<span class="gp-badge k-sim">가정 시뮬레이션</span> 가정값으로 계산 (실적 아님)<span class="gp-badge k-sample">예시 데이터</span> 시연용 가상 데이터</div><h2>페이지</h2><div class="sx-cards"><a class="sx-card feature" href="overwatch.html"><div class="k">대표 프로젝트 · 실제 자료 기반</div><h3>오버워치 · PROJECT RE:START</h3><p><b>복귀 유저는 바뀐 영웅·스킬·시스템을 실전에서 이해하고 대응하기 어렵다</b> — 영웅 풀·밸런스는 건드리지 않고, 개인별 변경점 브리핑과 학습 중심 미션으로 복귀 첫 주 적응을 돕는다. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a><a class="sx-card" href="home.html"><div class="k">도구 화면</div><h3>사이트 홈 · 개요</h3><p>사이트 전체 소개와 게임별 분석 바로가기</p></a><a class="sx-card" href="pubg.html"><div class="k">예시 데이터 기반 분석</div><h3>PUBG: 배틀그라운드</h3><p>한 번 맞으면 끝나는 게임에서, 신규 이용자는 언제 &#x27;배울 기회&#x27;를 얻는가?</p></a><a class="sx-card" href="fconline.html"><div class="k">예시 데이터 기반 분석</div><h3>FC 온라인</h3><p>내 구단의 &#x27;가치&#x27;가 떨어질 때, 이용자는 무엇을 잃었다고 느끼는가?</p></a><a class="sx-card" href="dnf.html"><div class="k">예시 데이터 기반 분석</div><h3>던전앤파이터</h3><p>새 시즌은 &#x27;새 목표&#x27;인가, &#x27;지난 노력의 초기화&#x27;인가?</p></a><a class="sx-card" href="lol.html"><div class="k">예시 데이터 기반 분석</div><h3>리그 오브 레전드</h3><p>트롤을 더 세게 막는 것만큼, 피해를 본 사람이 다시 큐를 돌리게 만드는 것도 중요하다.</p></a><a class="sx-card" href="data_lab.html"><div class="k">도구 화면</div><h3>데이터 랩 (CSV 분석)</h3><p>CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)</p></a><a class="sx-card" href="assistant.html"><div class="k">도구 화면</div><h3>PM 어시스턴트 (미리보기)</h3><p>정리된 분석 내용을 대화형으로 찾아보는 규칙 기반 미리보기</p></a></div></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-20 09:27 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>
+</style></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="on" href="index.html">보고서 첫 화면</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="pubg.html">PUBG: 배틀그라운드</a><a class="" href="fconline.html">FC 온라인</a><a class="" href="dnf.html">던전앤파이터</a><a class="" href="lol.html">리그 오브 레전드</a><a class="" href="data_lab.html">데이터 랩 (CSV 분석)</a><a class="" href="assistant.html">PM 어시스턴트 (미리보기)</a></nav></div></header><main class="sx-main"><div class="gp-hero"><div class="gp-eyebrow">Static Report for Reviewers</div><h1>GamePulse AI 포트폴리오 보고서</h1><p>게임 이용자 문제를 데이터로 정의하고, 사업PM 관점의 개선 전략과 KPI를 설계합니다.</p></div><h2>검토자 안내</h2><ul class="sx-ul"><li>이 보고서는 <a href="https://gamepulse-ai1.streamlit.app/">원본 Streamlit 앱</a>을 자동 변환한 정적 HTML입니다. JavaScript 없이도 모든 글자를 읽을 수 있습니다.</li><li><b>오버워치 페이지</b>가 실제 자료 기반 대표 분석입니다. 다른 게임 페이지는 시연용 <b>예시 데이터</b>입니다.</li><li>각 수치·차트에 출처 성격을 배지로 표시했습니다. 아래 배지 뜻을 참고하세요.</li><li>게임 스크린샷은 작성자가 직접 캡처한 최신 한국어 화면이며, 다른 플레이어 닉네임은 가림 처리했습니다.</li><li>생성 시각 2026-11-20 11:40 KST · 코드: <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a></li></ul><div class="sx-legend"><b>배지 뜻</b><span class="gp-badge k-real">실제 자료</span> 공개 출처·직접 캡처로 확인<span class="gp-badge k-interp">분석자 해석</span> 자료를 바탕으로 한 판단<span class="gp-badge k-hypo">검증 전 가설</span> 아직 입증되지 않음<span class="gp-badge k-mock">기획 시안</span> 게임에 없는 제안·계획<span class="gp-badge k-sim">가정 시뮬레이션</span> 가정값으로 계산 (실적 아님)<span class="gp-badge k-sample">예시 데이터</span> 시연용 가상 데이터</div><h2>페이지</h2><div class="sx-cards"><a class="sx-card feature" href="overwatch.html"><div class="k">대표 프로젝트 · 실제 자료 기반</div><h3>오버워치 · PROJECT RE:START</h3><p><b>복귀 후 달라진 전투에 적응하기 어렵다</b> — 놓친 변경점 브리핑 + 학습 순서 미션. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a><a class="sx-card" href="home.html"><div class="k">도구 화면</div><h3>사이트 홈 · 개요</h3><p>사이트 전체 소개와 게임별 분석 바로가기</p></a><a class="sx-card" href="pubg.html"><div class="k">예시 데이터 기반 분석</div><h3>PUBG: 배틀그라운드</h3><p>한 번 맞으면 끝나는 게임에서, 신규 이용자는 언제 &#x27;배울 기회&#x27;를 얻는가?</p></a><a class="sx-card" href="fconline.html"><div class="k">예시 데이터 기반 분석</div><h3>FC 온라인</h3><p>내 구단의 &#x27;가치&#x27;가 떨어질 때, 이용자는 무엇을 잃었다고 느끼는가?</p></a><a class="sx-card" href="dnf.html"><div class="k">예시 데이터 기반 분석</div><h3>던전앤파이터</h3><p>새 시즌은 &#x27;새 목표&#x27;인가, &#x27;지난 노력의 초기화&#x27;인가?</p></a><a class="sx-card" href="lol.html"><div class="k">예시 데이터 기반 분석</div><h3>리그 오브 레전드</h3><p>트롤을 더 세게 막는 것만큼, 피해를 본 사람이 다시 큐를 돌리게 만드는 것도 중요하다.</p></a><a class="sx-card" href="data_lab.html"><div class="k">도구 화면</div><h3>데이터 랩 (CSV 분석)</h3><p>CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)</p></a><a class="sx-card" href="assistant.html"><div class="k">도구 화면</div><h3>PM 어시스턴트 (미리보기)</h3><p>정리된 분석 내용을 대화형으로 찾아보는 규칙 기반 미리보기</p></a></div></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-20 11:40 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>

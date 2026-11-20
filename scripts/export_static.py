@@ -451,7 +451,13 @@ details[open] > summary .sx-more { display: none; }
 .sx-chart.bare { border: 0; padding: 0; margin: 0.3rem 0 0.6rem; }
 .sx-pane-h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .ow-pane[hidden] { display: none !important; }
-.sx-box { border: 1px solid #DDE4EF; border-radius: 16px; padding: 1rem 1rem 0.8rem; margin: 0.6rem 0 1.4rem; background: #fff; }
+.sx-box { border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.9rem 0.9rem 0.7rem; margin: 0.6rem 0 1.2rem; background: #fff; max-width: 940px; }
+.sx-top { background: #FFFFFF !important; color: #142B4D !important; border-bottom: 1px solid #E2E8F0; }
+.sx-top .gp-brand, .sx-top .gp-brand a { color: #142B4D !important; } .sx-top .gp-brand span { color: #2563EB !important; }
+.sx-top nav a { color: #475569 !important; } .sx-top nav a.on, .sx-top nav a:hover { background: #EFF6FF !important; color: #2563EB !important; }
+.sx-note { background: transparent !important; border: 0 !important; padding: 0 !important; font-size: 0.76rem !important; color: #94A3B8 !important; margin-bottom: 0.4rem !important; }
+.sx-note b { color: #64748B; font-weight: 600; }
+body { background: #FFFFFF; }
 .sx-box > div > .sx-md, .sx-box .sx-chart.bare { margin: 0; }
 html { scroll-behavior: smooth; }
 .ow-sec, .ow-nav { scroll-margin-top: 4.5rem; }

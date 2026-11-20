@@ -820,6 +820,126 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
   .ow-chart-f2 > div {{ flex-direction: column; gap: 0.1rem; }}
 }}
 
+/* ---------- 오버워치 v9 (최종): 화이트 + 블루 · 강조는 제목·수치·선택 메뉴만 ---------- */
+/* 팔레트: 배경 #FFFFFF/#F8FAFC · 강조 #2563EB · 글자 #142B4D · 보조 #64748B · 보조 카드 #EFF6FF · 테두리 #E2E8F0 */
+.ow-cover {{ background: #FFFFFF !important; color: #142B4D !important; border: 0 !important; box-shadow: none !important;
+  padding: 0.4rem 0 0.6rem !important; border-radius: 0 !important; }}
+.ow-cover-t {{ color: #2563EB !important; font-size: 0.78rem !important; letter-spacing: 0.12em; }}
+.ow-cover-c {{ color: #142B4D !important; font-size: 1.55rem !important; margin: 0.2rem 0 0 !important; }}
+.ow-cover-s {{ display: none; }}
+.ow-hero3 {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 0.4rem 0 0.9rem; background: #EFF6FF;
+  border: 1px solid #DBEAFE; border-radius: 12px; overflow: hidden; }}
+.ow-hero3 > div {{ padding: 0.8rem 1rem; border-right: 1px solid #DBEAFE; min-width: 0; }}
+.ow-hero3 > div:last-child {{ border-right: 0; }}
+.ow-hero3 span {{ display: block; font-size: 0.75rem; font-weight: 800; color: #2563EB; letter-spacing: 0.04em; margin-bottom: 0.2rem; }}
+.ow-hero3 b {{ display: block; font-size: 1.08rem; color: #142B4D; line-height: 1.4; }}
+.ow-hero3 small {{ display: block; font-size: 0.85rem; color: #64748B; margin-top: 0.2rem; line-height: 1.45; }}
+
+/* 탭: 선택 = 파랑 배경·흰 글씨 · 나머지 = 흰 배경·연한 테두리·남색 글씨 */
+.st-key-ow_tab label[data-testid="stRadioOption"], .ow-tabbar button {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important;
+  box-shadow: none !important; min-height: 2.75rem !important; padding: 0.55rem 0.85rem !important; }}
+.st-key-ow_tab label[data-testid="stRadioOption"] p, .ow-tabbar button {{ color: #142B4D !important; font-size: 0.97rem !important; }}
+.st-key-ow_tab label[data-testid="stRadioOption"]:hover, .ow-tabbar button:hover {{ background: #F8FAFC !important; border-color: #BFDBFE !important; }}
+.st-key-ow_tab label[data-testid="stRadioOption"]:has(input:checked), .st-key-ow_tab label[data-testid="stRadioOption"][data-selected],
+.ow-tabbar button[aria-selected="true"] {{ background: #2563EB !important; border-color: #2563EB !important; }}
+.st-key-ow_tab label[data-testid="stRadioOption"]:has(input:checked) p, .ow-tabbar button[aria-selected="true"] {{ color: #FFFFFF !important; }}
+.ow-tabbar button b {{ color: inherit; }}
+
+/* 배지: 파랑·회색 계열 (텍스트·테두리 모양으로 구분) */
+.gp-badge.k-real {{ background: #2563EB; color: #fff; border: 1px solid #2563EB; }}
+.gp-badge.k-interp {{ background: #fff; color: #142B4D; border: 1px solid #94A3B8; }}
+.gp-badge.k-hypo {{ background: #F8FAFC; color: #475569; border: 1px dashed #94A3B8; }}
+.gp-badge.k-mock {{ background: #EFF6FF; color: #1D4ED8; border: 1px dashed #93C5FD; }}
+.gp-badge.k-sim {{ background: #F1F5F9; color: #334155; border: 1px dotted #64748B; }}
+.gp-badge.k-sample {{ background: #F8FAFC; color: #64748B; border: 1px solid #E2E8F0; }}
+.ow-badges {{ background: transparent !important; padding: 0 !important; margin: 0 0 0.8rem !important; font-size: 0.76rem !important;
+  color: #64748B !important; gap: 0.25rem 0.6rem !important; }}
+.ow-badges > b {{ font-size: 0.76rem !important; color: #64748B !important; }}
+.ow-badges .gp-badge {{ font-size: 0.7rem !important; padding: 0.08rem 0.45rem; }}
+
+/* 본문 카드: 흰색 통일 · 결론만 연한 파랑 */
+.ow-head h3, .ow-sub, .ow-statement-t, .ow-dec-q, .ow-layer-h, .ow-spec-n, .ow-chart-t, .ow-alt-t, .ow-tl-t, .ow-step-t, .ow-phase-t {{ color: #142B4D !important; }}
+.ow-head p, .ow-chart-u, .ow-chart-b, .ow-tile-l, .ow-kpi-l, .ow-credits {{ color: #64748B !important; }}
+.ow-line {{ color: #334155 !important; border-left-color: #93C5FD !important; }}
+.ow-statement {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; border-left: 3px solid #2563EB !important; }}
+.ow-statement-k {{ color: #2563EB !important; }}
+.ow-conclusion {{ background: #EFF6FF !important; color: #142B4D !important; border: 1px solid #DBEAFE !important; box-shadow: none !important; }}
+.ow-conclusion-k {{ color: #2563EB !important; }}
+.ow-dec-i, .ow-layer, .ow-why-i, .ow-tile, .ow-alt, .ow-tl, .ow-step, .ow-spec, .ow-list-i, .ow-kpi, .ow-strat, .ow-card, .ow-quote,
+.ow-mission, .ow-sample-g > div {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; box-shadow: none !important; }}
+.ow-dec-i {{ border-top: 2px solid #2563EB !important; }}
+.ow-layer.real {{ border-top: 2px solid #2563EB !important; }} .ow-layer.hypo {{ border-top: 2px dashed #94A3B8 !important; }}
+.ow-alt, .ow-tl, .ow-step {{ border-top: 2px solid #CBD5E1 !important; }}
+.ow-tl-d, .ow-step-n, .ow-alt-n, .ow-strat-k {{ color: #2563EB !important; }}
+.ow-list-i b, .ow-spec-key {{ background: #2563EB !important; }}
+.ow-list-i em, .ow-spec-p {{ color: #2563EB !important; }}
+.ow-spec.kA, .ow-spec.kB, .ow-spec.kC {{ border-top: 2px solid #2563EB !important; }}
+.ow-strat.ext {{ border-top-color: #CBD5E1 !important; }}
+.ow-kpi-v {{ color: #142B4D !important; }} .ow-kpi-v b, .ow-tile-v b {{ color: #2563EB !important; }}
+.ow-kpi-v em {{ background: #2563EB !important; }}
+.ow-count > div {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; }}
+.ow-count > div:first-child {{ background: #EFF6FF !important; border-color: #DBEAFE !important; color: #142B4D !important; }}
+.ow-count > div:first-child .ow-count-v {{ color: #2563EB !important; }} .ow-count > div:first-child .ow-count-l {{ color: #64748B !important; }}
+.ow-phase-i {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; }}
+.ow-phase-i:first-child {{ background: #EFF6FF !important; border-color: #BFDBFE !important; }}
+.ow-phase-i.hold {{ background: #F8FAFC !important; border-style: dashed !important; }}
+.ow-rules {{ background: #F8FAFC !important; border: 1px solid #E2E8F0 !important; }} .ow-rules b {{ color: #142B4D !important; }}
+.ow-defer {{ background: #F8FAFC !important; border: 1px dashed #CBD5E1 !important; }}
+.ow-defbox > div {{ background: #F8FAFC !important; }} .ow-defbox .ow-defbox-n {{ background: #EFF6FF !important; color: #142B4D !important; }}
+.ow-sig > div {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; color: #334155 !important; }}
+.ow-sig > div:last-child {{ background: #EFF6FF !important; border-color: #DBEAFE !important; color: #142B4D !important; }}
+.ow-sig > div:last-child b {{ color: #2563EB !important; }}
+.ow-vs > div {{ background: #F8FAFC !important; }} .ow-vs > div:last-child {{ background: #EFF6FF !important; }}
+.ow-colh.mock {{ color: #2563EB !important; }}
+.ow-key .k-mock::before {{ background: #EFF6FF !important; border-color: #93C5FD !important; }}
+.ow-hero.new {{ background: #2563EB !important; border-color: #2563EB !important; color: #fff !important; }}
+.ow-hero.recent {{ background: #EFF6FF !important; }}
+
+/* 실제 화면 프레임: 흰 바 + 연한 테두리 · 주석 상자는 파랑 */
+.ow-shot {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important; box-shadow: none !important; border-radius: 10px !important; }}
+.ow-shot-bar {{ background: #FFFFFF !important; color: #142B4D !important; border-bottom: 1px solid #E2E8F0; }}
+.ow-shot-tag {{ background: #EFF6FF !important; color: #2563EB !important; }} .ow-shot-tag::before {{ display: none !important; }}
+.ow-shot.hero {{ max-width: 860px !important; }} .ow-shot.wide {{ max-width: 760px !important; }}
+.ow-shot figcaption {{ color: #142B4D !important; font-weight: 600; }}
+.ow-mark {{ border-color: #2563EB !important; box-shadow: 0 0 0 1px rgba(255,255,255,0.7) !important; }}
+.ow-mark > span {{ background: #2563EB !important; color: #fff !important; }}
+.ow-mark > span i {{ background: #fff !important; color: #2563EB !important; }}
+.ow-zoom {{ border: 1px solid #E2E8F0 !important; background: #fff !important; }} .ow-zoom-h {{ color: #142B4D !important; }}
+.ow-journey-n {{ background: #2563EB !important; color: #fff !important; }}
+
+/* 기획 시안: 어두운 패널 → 연한 파랑 + 점선 (게임에 없는 기능임을 유지) */
+.ow-proto, .ow-proto.dark {{ background: #F8FAFC !important; color: #142B4D !important; border: 1.5px dashed #93C5FD !important; box-shadow: none !important; }}
+.ow-proto::after {{ background: #EFF6FF !important; color: #1D4ED8 !important; border: 1px solid #BFDBFE; }}
+.ow-proto-bar {{ color: #2563EB !important; }}
+.ow-proto-h, .ow-skill-n {{ color: #142B4D !important; }}
+.ow-proto-s, .ow-skill-d, .ow-mission-i, .ow-proto small, .ow-mission-i small, .ow-proto .ow-proto-card-s {{ color: #475569 !important; }}
+.ow-proto-s b {{ color: #2563EB !important; }}
+.ow-proto-chips span {{ background: #FFFFFF !important; border: 1px solid #DBEAFE !important; color: #142B4D !important; }}
+.ow-skill-icon {{ border-color: #BFDBFE !important; color: #64748B !important; }}
+.ow-skill-tip {{ background: #EFF6FF !important; border-left-color: #2563EB !important; color: #142B4D !important; }}
+.ow-progress span {{ background: #E2E8F0 !important; color: #64748B !important; }} .ow-progress span.on {{ background: #2563EB !important; color: #fff !important; }}
+.ow-mission {{ color: #142B4D !important; }} .ow-mission.active {{ border-color: #2563EB !important; }}
+.ow-mission.done {{ background: #EFF6FF !important; }} .ow-mission-h span {{ color: #2563EB !important; }}
+.ow-proto-card {{ border-left-color: #2563EB !important; }} .ow-proto-card.mock {{ border-color: #93C5FD !important; }}
+
+/* 차트 카드 · 일정표 (너무 넓적해지지 않게 최대 폭 제한) */
+[class*="st-key-owc_"] {{ border-color: #E2E8F0 !important; box-shadow: none !important; max-width: 940px; }}
+.st-key-owc_op, .st-key-owc_sim {{ max-width: 860px; }}
+.ow-chart-f2 > div {{ background: #F8FAFC !important; color: #142B4D !important; }}
+.ow-chart-f2 > div.pm {{ background: #EFF6FF !important; color: #142B4D !important; }}
+.ow-chart-f2 > div b, .ow-chart-f2 > div.pm b {{ color: #2563EB !important; }}
+.ow-gantt td.assign {{ background: #2563EB; }} .ow-gantt td.d7 {{ background: #60A5FA; }} .ow-gantt td.d30 {{ background: #1D4ED8; }}
+.ow-gantt td.m10 {{ background: #BFDBFE; color: #142B4D; }} .ow-gantt td.small {{ background: #DBEAFE; color: #142B4D; }}
+.ow-gantt td.dec {{ background: #142B4D; color: #fff; }}
+.ow-table th {{ background: #F1F5F9 !important; color: #142B4D !important; border-bottom: 1px solid #E2E8F0; }}
+.ow-table tr:nth-child(odd) td {{ background: #FFFFFF !important; }} .ow-table tr:nth-child(even) td {{ background: #F8FAFC !important; }}
+.ow-tag {{ background: #EFF6FF !important; color: #2563EB !important; }}
+@media (max-width: 900px) {{
+  .ow-hero3 {{ grid-template-columns: 1fr; }}
+  .ow-hero3 > div {{ border-right: 0; border-bottom: 1px solid #DBEAFE; }} .ow-hero3 > div:last-child {{ border-bottom: 0; }}
+}}
+@media (max-width: 640px) {{ .ow-cover-c {{ font-size: 1.25rem !important; }} }}
+
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
 /* 모바일 */

@@ -48,7 +48,7 @@ with st.sidebar:
          f'<div class="gp-brand-sub">게임 사업PM 분석 대시보드 · {APP_VERSION}</div>')
     st.radio("메뉴", list(PAGES), format_func=PAGES.get, key="page", label_visibility="collapsed", on_change=_sync_page_param)
     st.markdown("---")
-    st.caption("모든 수치·그래프는 예시 데이터입니다. 원인 분석은 검증 전 가설입니다.")
+    st.caption("'실제 자료' 배지가 없는 수치·그래프는 예시·가정 데이터입니다. 원인 분석은 검증 전 가설입니다.")
     if not _translate_guard_applied():
         st.warning("자동 번역 방지 패치가 적용되지 않았습니다. 터미널에서 `python scripts/patch_streamlit_html.py` 실행 후 서버를 다시 시작하세요.")
 
