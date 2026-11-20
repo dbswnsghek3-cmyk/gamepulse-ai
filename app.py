@@ -7,25 +7,25 @@ import streamlit as st
 
 st.set_page_config(page_title="GamePulse AI", page_icon="📊", layout="wide", initial_sidebar_state="auto")
 
-# 브라우저 자동 번역 방지
-# Streamlit 기본 HTML 이 lang="en" 이면 Chrome 이 한국어 화면을 번역하며 React DOM 과 충돌('removeChild' 오류)할 수 있다.
-# 이전에는 실행 후 스크립트로 <html> 속성을 바꿨지만, DOM 직접 조작을 피하기 위해 제거하고
-# scripts/patch_streamlit_html.py 로 처음 전송되는 HTML 자체를 lang="ko" translate="no" 로 고정한다.
-def _translate_guard_applied() -> bool:
-    try:
-        from pathlib import Path
-
-        idx = Path(st.__file__).parent / "static" / "index.html"
-        return 'translate="no"' in idx.read_text(encoding="utf-8")
-    except Exception:
-        return True  # 확인할 수 없으면 경고하지 않음
-
 from gamepulse.config import APP_VERSION  # noqa: E402
 from gamepulse.content.games import GAME_ORDER, GAMES  # noqa: E402
 from gamepulse.ui.components import footer, html  # noqa: E402
 from gamepulse.ui.styles import inject_css  # noqa: E402
+from gamepulse.ui.translate_guard import ensure as ensure_translate_guard  # noqa: E402
 from gamepulse.views import assistant, data_lab, game_page, home, overwatch  # noqa: E402
 
+
+@st.cache_resource(show_spinner=False)
+def _translate_guard() -> tuple[bool, str]:
+    """브라우저 자동 번역 방지 (lang="ko" translate="no"). 서버 프로세스당 1회 자동 적용.
+
+    Streamlit Cloud 처럼 배포 때마다 패키지가 새로 설치되는 환경에서도 수동 실행 없이 적용된다.
+    실패해도 앱은 그대로 실행되고, 원인은 서버 로그에만 남긴다 (방문자 화면에 개발용 경고를 띄우지 않음).
+    """
+    return ensure_translate_guard()
+
+
+_translate_guard()
 inject_css()
 
 PAGES = {"home": "홈 · 개요"}
@@ -49,8 +49,6 @@ with st.sidebar:
     st.radio("메뉴", list(PAGES), format_func=PAGES.get, key="page", label_visibility="collapsed", on_change=_sync_page_param)
     st.markdown("---")
     st.caption("'실제 자료' 배지가 없는 수치·그래프는 예시·가정 데이터입니다. 원인 분석은 검증 전 가설입니다.")
-    if not _translate_guard_applied():
-        st.warning("자동 번역 방지 패치가 적용되지 않았습니다. 터미널에서 `python scripts/patch_streamlit_html.py` 실행 후 서버를 다시 시작하세요.")
 
 page = st.session_state["page"]
 if page == "home":

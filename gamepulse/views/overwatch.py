@@ -937,7 +937,7 @@ def _proto_a_body(heroes: dict, tl: pd.DataFrame) -> None:
     total = len(new) + len(changed) + len(sys_rows)
     step = st.session_state.get("ow_a_step", 0)
 
-    html(f'<div class="ow-proto"><div class="ow-proto-bar"><span>RE:START 복귀 브리핑</span>{b_mock()}</div>'
+    html(f'<div class="ow-proto coral"><div class="ow-proto-bar"><span>RE:START 복귀 브리핑</span>{b_mock()}</div>'
          f'<div class="ow-proto-h">다시 오신 것을 환영합니다</div>'
          f'<div class="ow-proto-s">마지막 접속 이후 <b>{total}개</b>가 바뀌었습니다 · 예상 3분</div>'
          f'<div class="ow-proto-chips"><span>신규 영웅 {len(new)}</span><span>바뀐 영웅 {len(changed)}</span><span>새 시스템 {len(sys_rows)}</span></div></div>')
@@ -960,7 +960,7 @@ def _proto_a_body(heroes: dict, tl: pd.DataFrame) -> None:
         }
         if step <= 3:
             title, body = cards[step]
-            html(f'<div class="ow-proto-card mock"><div class="ow-proto-card-t">{title}</div><div class="ow-heroes small">{body}</div>'
+            html(f'<div class="ow-proto-card mock coral"><div class="ow-proto-card-t">{title}</div><div class="ow-heroes small">{body}</div>'
                  f'<div class="ow-proto-card-s">출처: 공식 패치노트·공식 영웅 페이지</div></div>')
             c1, c2, c3 = st.columns(3)
             c1.button("이전", key="ow_a_prev", on_click=_a_set, args=(max(step - 1, 0),), width="stretch")

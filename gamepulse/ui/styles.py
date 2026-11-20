@@ -978,6 +978,38 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .ow-hero3 b, .ow-cover-c, .ow-conclusion, .ow-kpi-v, .ow-dec-a, .ow-step-d, .ow-alt-d {{ color: #1E293B !important; }}
 .ow-step-b, .ow-alt-c, .ow-head p {{ color: #64748B !important; }}
 
+/* ---------- 오버워치 v11 (최종): 코랄 보조 강조 · 글자 대비 · 크기 위계 · 모서리 통일 ---------- */
+/* 블루 = 데이터·실제 기능 · 코랄(#FFF1EF 배경 · #E97870 선 · #B4433B 글자) = 핵심 문제·개선 제안에만 */
+.ow-hero3 > div:nth-child(1) {{ background: #FFF1EF !important; }}
+.ow-hero3 > div:nth-child(1) span {{ color: #B4433B !important; }}
+.ow-map-p {{ background: #FFF1EF !important; border-color: #F6C7C1 !important; }}
+.ow-map-p span {{ color: #B4433B !important; }}
+.ow-proto.coral {{ background: #FFF1EF !important; border: 1.5px solid #E97870 !important; }}
+.ow-proto.coral::after {{ background: #FFFFFF !important; color: #B4433B !important; border: 1px solid #E97870 !important; }}
+.ow-proto.coral .ow-proto-bar, .ow-proto.coral .ow-proto-s b {{ color: #B4433B !important; }}
+.ow-proto.coral .ow-proto-chips span {{ border-color: #F6C7C1 !important; }}
+.ow-proto-card.coral {{ border: 1px solid #F6C7C1 !important; border-left: 4px solid #E97870 !important; background: #FFFFFF !important; }}
+.ow-conclusion {{ background: #FFF1EF !important; border: 1px solid #F6C7C1 !important; border-left: 4px solid #E97870 !important; }}
+.ow-conclusion-k {{ color: #B4433B !important; }}
+/* 크기·굵기 위계: 섹션 제목 > 소제목 > 본문 > 보조 */
+.ow-head h3 {{ font-size: 1.3rem !important; font-weight: 800 !important; line-height: 1.35 !important; }}
+.ow-sub {{ font-size: 1.06rem !important; font-weight: 800 !important; margin-top: 1.1rem !important; }}
+.ow-head p {{ font-size: 0.95rem !important; }}
+/* 보조 글자 대비 강화: 흐린 회색 → #475569 (흰 배경 대비 약 7.5:1) */
+.ow-hero3 small, .ow-map-s small, .ow-chart-u, .ow-chart-b, .ow-tile-l, .ow-tile-s, .ow-kpi-l, .ow-credits, .ow-step-b,
+.ow-alt-c, .ow-head p, .ow-badges, .ow-badges > b, .ow-shot figcaption, .ow-proto-card-s, .ow-legend-t {{ color: #475569 !important; }}
+.ow-hero3 > div:nth-child(3) span {{ color: #334155 !important; }}
+.sx-note {{ color: #64748B !important; }}
+/* 일정표: 흰 글자가 읽히도록 진한 파랑 단계 */
+.ow-gantt td.d7 {{ background: #1D4ED8 !important; color: #fff; }} .ow-gantt td.d30 {{ background: #1E3A8A !important; color: #fff; }}
+.ow-gantt td.dec {{ background: #0F172A !important; }}
+/* 모서리·여백 통일 (카드 12px · 칩 999px 유지) */
+.ow-hero3, .ow-map-p, .ow-map-s, .ow-dec-i, .ow-layer, .ow-step, .ow-alt, .ow-tl, .ow-spec, .ow-tile, .ow-kpi, .ow-strat, .ow-card,
+.ow-quote, .ow-mission, .ow-conclusion, .ow-proto, .ow-proto-card, .ow-phase-i, .ow-limits, .ow-sig > div, .ow-defbox > div,
+.ow-shot, .ow-zoom, .ow-vs > div, .ow-rules, .ow-defer, .ow-sample-g > div, [class*="st-key-owc_"] {{ border-radius: 12px !important; }}
+/* 표가 화면 끝까지 넓적해지지 않게 */
+.gp-table-wrap:has(.ow-table) {{ max-width: 1040px; }}
+
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
 /* 모바일 */
