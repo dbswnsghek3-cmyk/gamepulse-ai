@@ -1,0 +1,148 @@
+"""PUBG: NEW START 계산 모듈 (UI 와 분리 · 단위 테스트 가능).
+
+1) 확률형 상자 비용 계산 (독립 시행 + 스크랩 교환 '천장')
+   - n회 안에 1번 이상 획득할 확률 = 1 − (1 − p)^n
+   - 천장 K = ceil((교환 스크랩 − 보유 스크랩) ÷ 1회당 스크랩)  → K회째에는 교환으로 반드시 확보
+   - 기대 개봉 수(천장 포함) = E[min(G, K)] = (1 − (1 − p)^K) ÷ p   (G = 첫 획득까지 시도 수, 기하분포)
+   - q% 도달 개봉 수 = min(ceil(ln(1 − q) ÷ ln(1 − p)), K)
+2) 성장형 스킨 재료: 공식 '분해 환급표'를 누적 투입량으로 가정한 추정 (레벨별 필요량은 공식 미공개)
+3) 실험 설계: 우월성(두 비율 차이) · 비열등성(한쪽 검정) 표본 수, 배정 주수, 판정 주차
+4) BM 시나리오: 방문자 × 전환율 × ARPPU (+ 재구매) — 비관·낙관 범위
+"""
+
+from __future__ import annotations
+
+import math
+from statistics import NormalDist
+
+from gamepulse.sim.restart_sim import sample_size_two_proportions
+
+
+# ----------------------------------------------------------------------
+# 1) 확률형 상자
+def crate_cap(exchange_scrap: int, owned_scrap: int, scrap_per_open: int) -> int | None:
+    """스크랩 교환으로 반드시 확보되는 개봉 수 K. 교환 불가(1회당 스크랩 0)면 None."""
+    if scrap_per_open <= 0 or exchange_scrap <= 0:
+        return None
+    return max(0, math.ceil((exchange_scrap - owned_scrap) / scrap_per_open))
+
+
+def prob_within(n: int, p: float, cap: int | None = None) -> float:
+    """n회 이내 확보 확률 (0~1). 천장 K 이상이면 1."""
+    if cap is not None and n >= cap:
+        return 1.0
+    if p <= 0:
+        return 0.0
+    return 1 - (1 - min(p, 1.0)) ** max(n, 0)
+
+
+def expected_opens(p: float, cap: int | None = None) -> float:
+    """첫 확보까지 기대 개봉 수. 천장이 있으면 E[min(G, K)]."""
+    if cap is not None and cap == 0:
+        return 0.0
+    if p <= 0:
+        return float(cap) if cap is not None else math.inf
+    if cap is None:
+        return 1 / p
+    return (1 - (1 - p) ** cap) / p
+
+
+def opens_for(q: float, p: float, cap: int | None = None) -> int | None:
+    """확보 확률 q(0~1)에 도달하는 최소 개봉 수 (천장 반영)."""
+    if p <= 0:
+        return cap
+    n = math.ceil(math.log(1 - q) / math.log(1 - min(p, 0.999999)))
+    return min(n, cap) if cap is not None else n
+
+
+def crate_summary(price: float, p_pct: float, scrap_per_open: int, exchange_scrap: int, owned_scrap: int = 0,
+                  n: int = 100) -> dict:
+    p = p_pct / 100
+    cap = crate_cap(exchange_scrap, owned_scrap, scrap_per_open)
+    e_no = 1 / p if p > 0 else math.inf
+    e_cap = expected_opens(p, cap)
+    o50, o90 = opens_for(0.5, p, cap), opens_for(0.9, p, cap)
+    return {"p": p, "cap": cap, "within_n": prob_within(n, p, cap), "within_n_nocap": prob_within(n, p),
+            "exp_opens": e_cap, "exp_cost": e_cap * price, "exp_cost_nocap": e_no * price,
+            "o50": o50, "o90": o90, "c50": None if o50 is None else o50 * price, "c90": None if o90 is None else o90 * price,
+            "cap_cost": None if cap is None else cap * price}
+
+
+def crate_curve(p_pct: float, cap: int | None, max_n: int) -> list[tuple[int, float, float]]:
+    """(개봉 수, 천장 없는 확보 확률 %, 천장 포함 확보 확률 %)."""
+    p = p_pct / 100
+    return [(n, prob_within(n, p) * 100, prob_within(n, p, cap) * 100) for n in range(0, max_n + 1)]
+
+
+# ----------------------------------------------------------------------
+# 2) 성장형 스킨 재료 (추정)
+def upgrade_need(salvage: list[list[int]], cur: int, target: int, polymer: int, schematic: int) -> dict:
+    """분해 환급표[level] = 그 레벨까지 누적 투입량이라고 가정해, cur → target 에 필요한 재료와 부족분을 계산."""
+    tab = {lv: (pol, sch) for lv, pol, sch in salvage}
+    cur, target = max(1, cur), max(1, target)
+    if target <= cur:
+        return {"polymer": 0, "schematic": 0, "short_polymer": 0, "short_schematic": 0, "steps": []}
+    need_p = tab[target][0] - tab[cur][0]
+    need_s = tab[target][1] - tab[cur][1]
+    steps = [(lv, tab[lv][0] - tab[lv - 1][0], tab[lv][1] - tab[lv - 1][1]) for lv in range(cur + 1, target + 1)]
+    return {"polymer": need_p, "schematic": need_s, "short_polymer": max(0, need_p - polymer),
+            "short_schematic": max(0, need_s - schematic), "steps": steps}
+
+
+# ----------------------------------------------------------------------
+# 3) 실험 설계
+def sample_size_noninferiority(p: float, margin: float, alpha: float = 0.05, power: float = 0.8) -> int | None:
+    """비열등성(한쪽 검정, 실제 차이 0 가정) 그룹당 표본. p·margin 은 0~1."""
+    if not (0 < p < 1) or margin <= 0:
+        return None
+    nd = NormalDist()
+    za, zb = nd.inv_cdf(1 - alpha), nd.inv_cdf(power)
+    return math.ceil((za + zb) ** 2 * 2 * p * (1 - p) / margin ** 2)
+
+
+def plan(cfg: dict) -> dict:
+    """newstart.json 'experiment' → 두 실험의 MDE·표본·배정 주수·판정 주차 (모든 화면이 이 값을 공유)."""
+    a, b = cfg["A"], cfg["B"]
+    alpha, power = cfg["alpha"], cfg["power"]
+    mde = a["participation"] / 100 * a["uplift_viewer"]                       # 배정 기준(ITT) 효과
+    n_a = sample_size_two_proportions(a["base_d7"] / 100, (a["base_d7"] + mde) / 100, alpha, power)
+    wk_a = math.ceil(2 * n_a / a["weekly"])
+    m10_mde = a["participation"] / 100 * a["uplift_m10_viewer"]
+    n_b = sample_size_noninferiority(b["base_conv"] / 100, b["ni_margin"] / 100, alpha, power)
+    wk_b = math.ceil(2 * n_b / b["weekly"])
+    win = math.ceil(b["window_days"] / 7)
+    sched = {"a_assign": (1, wk_a), "a_d7": wk_a + 1, "a_d30": math.ceil((wk_a * 7 + 30) / 7),
+             "b_assign": (1, wk_b), "b_conv": wk_b + win, "b_repurchase": wk_b + 2 * win}
+    sched["decision"] = max(sched["a_d30"], sched["b_repurchase"]) + 1
+    q = cfg["quarter_new"]
+    added = q * mde / 100
+    c = cfg["cost"]
+    a1_cost = c["A1_effort"] * c["monthly_cost_per_person"]
+    return {"A": {"mde": mde, "n": n_a, "assign_weeks": wk_a, "m10_mde": m10_mde},
+            "B": {"n": n_b, "assign_weeks": wk_b},
+            "sched": sched, "quarter_added_d7": added, "a1_cost": a1_cost,
+            "a1_cost_per_added": a1_cost / added if added else float("nan"),
+            "b1_cost": c["B1_effort"] * c["monthly_cost_per_person"]}
+
+
+# ----------------------------------------------------------------------
+# 4) BM 시나리오
+def scenario_revenue(visitors: int, conv: float, arppu: float, repurchase: float, rep_ratio: float) -> dict:
+    """60일 매출 = 첫 30일(방문자 × 전환율 × ARPPU) + 다음 30일(구매자 × 재구매율 × ARPPU × 재구매 금액 비율)."""
+    buyers = visitors * conv / 100
+    first = buyers * arppu
+    second = buyers * repurchase / 100 * arppu * rep_ratio
+    return {"buyers": buyers, "first": first, "second": second, "total": first + second}
+
+
+def scenarios(cfg: dict) -> list[dict]:
+    out = []
+    for s in cfg["items"]:
+        lo = scenario_revenue(cfg["visitors"], s["conv"][0], s["arppu"][0], s["repurchase"][0], cfg["repurchase_arppu_ratio"])
+        hi = scenario_revenue(cfg["visitors"], s["conv"][1], s["arppu"][1], s["repurchase"][1], cfg["repurchase_arppu_ratio"])
+        out.append({**s, "low": lo, "high": hi})
+    base = out[0]["low"]["total"]
+    for s in out:
+        s["low_pct"] = (s["low"]["total"] / base - 1) * 100
+        s["high_pct"] = (s["high"]["total"] / base - 1) * 100
+    return out

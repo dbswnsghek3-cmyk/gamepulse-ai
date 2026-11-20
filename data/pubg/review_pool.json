@@ -1,0 +1,19 @@
+{
+  "collected_at": "2026-11-20",
+  "source": "Steam 커뮤니티 PUBG 리뷰 '최신순' (언어 필터: 한국어 · 영어)",
+  "url": "https://steamcommunity.com/app/578080/reviews/?browsefilter=mostrecent",
+  "pool": {
+    "한국어": 500,
+    "영어 필터": 500
+  },
+  "period": {
+    "한국어": "2026-11-01~11-20",
+    "영어 필터": "2026-11-07~11-20"
+  },
+  "recommend_rate": {
+    "한국어": 77,
+    "영어 필터": 70
+  },
+  "cheat_keyword_reviews": 73,
+  "coded": 45
+}

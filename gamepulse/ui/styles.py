@@ -726,19 +726,19 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 
 /* ---------- 오버워치 v8: 탭 전환 · 전체 크기 축소 · 짧은 글 ---------- */
 /* 01~06 탭 (Streamlit: 가로 라디오를 버튼처럼) · 3열×2행 · 선택 = 파랑, 나머지 = 차분한 남색 */
-.st-key-ow_tab, .st-key-ow_tab [data-testid="stRadio"], .st-key-ow_tab [data-testid="stRadioGroup"] {{ width: 100% !important; max-width: none !important; }}
-.st-key-ow_tab [data-testid="stRadioGroup"] {{ display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
+:is(.st-key-ow_tab, .st-key-pg_tab), :is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadio"], :is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"] {{ width: 100% !important; max-width: none !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"] {{ display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
   width: 100%; }}
-.st-key-ow_tab [data-testid="stRadioGroup"] > div {{ width: 100%; margin: 0 !important; padding: 0 !important; }}
-.st-key-ow_tab label[data-testid="stRadioOption"] {{ margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
+:is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"] > div {{ width: 100%; margin: 0 !important; padding: 0 !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] {{ margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
   background: #1B3358; display: flex; align-items: center; cursor: pointer; width: 100%; transition: background 0.15s ease, box-shadow 0.15s ease; }}
-.st-key-ow_tab label[data-testid="stRadioOption"] > div {{ width: 100%; }}
-.st-key-ow_tab label[data-testid="stRadioOption"] > div > div:first-child {{ display: none !important; }}  /* 라디오 동그라미 숨김 */
-.st-key-ow_tab label[data-testid="stRadioOption"] p {{ color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] > div {{ width: 100%; }}
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] > div > div:first-child {{ display: none !important; }}  /* 라디오 동그라미 숨김 */
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] p {{ color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
   overflow: hidden; text-overflow: ellipsis; }}
-.st-key-ow_tab label[data-testid="stRadioOption"]:hover {{ background: #24426F; }}
-.st-key-ow_tab label[data-testid="stRadioOption"]:has(input:checked),
-.st-key-ow_tab label[data-testid="stRadioOption"][data-selected] {{ background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }}
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:hover {{ background: #24426F; }}
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:has(input:checked),
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"][data-selected] {{ background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }}
 /* 정적 보고서용 같은 모양의 탭 버튼 */
 .ow-tabbar {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 0.8rem; }}
 .ow-tabbar button {{ font: inherit; text-align: left; border: 0; padding: 0.7rem 0.9rem; min-height: 3.1rem; border-radius: 10px;
@@ -812,9 +812,9 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .ow-credits ul {{ margin: 0.25rem 0 0; padding-left: 1.1rem; }} .ow-credits li {{ line-height: 1.6; }}
 
 @media (max-width: 640px) {{
-  .st-key-ow_tab [data-testid="stRadioGroup"], .ow-tabbar {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }}
-  .st-key-ow_tab label[data-testid="stRadioOption"], .ow-tabbar button {{ padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }}
-  .st-key-ow_tab label[data-testid="stRadioOption"] p, .ow-tabbar button {{ font-size: 0.92rem; }}
+  :is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"], .ow-tabbar {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }}
+  :is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"], .ow-tabbar button {{ padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }}
+  :is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button {{ font-size: 0.92rem; }}
   .ow-cover-c {{ font-size: 1.3rem !important; }}
   .ow-pcard-t {{ font-size: 1.05rem; }}
   .ow-chart-f2 > div {{ flex-direction: column; gap: 0.1rem; }}
@@ -836,13 +836,13 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .ow-hero3 small {{ display: block; font-size: 0.85rem; color: #64748B; margin-top: 0.2rem; line-height: 1.45; }}
 
 /* 탭: 선택 = 파랑 배경·흰 글씨 · 나머지 = 흰 배경·연한 테두리·남색 글씨 */
-.st-key-ow_tab label[data-testid="stRadioOption"], .ow-tabbar button {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important;
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"], .ow-tabbar button {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important;
   box-shadow: none !important; min-height: 2.75rem !important; padding: 0.55rem 0.85rem !important; }}
-.st-key-ow_tab label[data-testid="stRadioOption"] p, .ow-tabbar button {{ color: #142B4D !important; font-size: 0.97rem !important; }}
-.st-key-ow_tab label[data-testid="stRadioOption"]:hover, .ow-tabbar button:hover {{ background: #F8FAFC !important; border-color: #BFDBFE !important; }}
-.st-key-ow_tab label[data-testid="stRadioOption"]:has(input:checked), .st-key-ow_tab label[data-testid="stRadioOption"][data-selected],
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button {{ color: #142B4D !important; font-size: 0.97rem !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:hover, .ow-tabbar button:hover {{ background: #F8FAFC !important; border-color: #BFDBFE !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:has(input:checked), :is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"][data-selected],
 .ow-tabbar button[aria-selected="true"] {{ background: #2563EB !important; border-color: #2563EB !important; }}
-.st-key-ow_tab label[data-testid="stRadioOption"]:has(input:checked) p, .ow-tabbar button[aria-selected="true"] {{ color: #FFFFFF !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:has(input:checked) p, .ow-tabbar button[aria-selected="true"] {{ color: #FFFFFF !important; }}
 .ow-tabbar button b {{ color: inherit; }}
 
 /* 배지: 파랑·회색 계열 (텍스트·테두리 모양으로 구분) */
@@ -1027,6 +1027,40 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 /* 배지 범례: 한 줄 */
 .ow-badges {{ display: flex !important; flex-wrap: wrap; gap: 0.3rem 1rem !important; font-size: 0.85rem !important; color: #475569 !important; }}
 .ow-badges .gp-badge {{ font-size: 0.72rem !important; }}
+/* ---------- PUBG: NEW START (오버워치 디자인 재사용 · TRACK A = 블루, TRACK B = 코랄) ---------- */
+.ow-hero3.pg-hero > div:nth-child(1) {{ background: #EFF6FF !important; }} .ow-hero3.pg-hero > div:nth-child(1) span {{ color: #1D4ED8 !important; }}
+.ow-hero3.pg-hero > div:nth-child(2) {{ background: #FFF1EF !important; }} .ow-hero3.pg-hero > div:nth-child(2) span {{ color: #B4433B !important; }}
+.ow-hero3.pg-hero > div:nth-child(3) {{ background: #F0F9FF !important; }} .ow-hero3.pg-hero > div:nth-child(3) span {{ color: #1D4ED8 !important; }}
+.ow-map-i.pg-a .ow-map-p {{ background: #EFF6FF !important; border-color: #BFDBFE !important; }} .ow-map-i.pg-a .ow-map-p span {{ color: #1D4ED8 !important; }}
+.ow-map-i.pg-b .ow-map-p {{ background: #FFF1EF !important; border-color: #F6C7C1 !important; }}
+.ow-map-i.pg-b .ow-map-s {{ border-color: #F6C7C1 !important; }} .ow-map-i.pg-b .ow-map-s span {{ color: #B4433B !important; }}
+.pg-tr {{ display: inline-block; font-size: 0.72rem; font-weight: 800; border-radius: 999px; padding: 0.08rem 0.5rem; margin-right: 0.3rem; vertical-align: middle; }}
+.pg-tr.a {{ background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }} .pg-tr.b {{ background: #FFF1EF; color: #B4433B; border: 1px solid #F6C7C1; }}
+.pg-tr.c {{ background: #F1F5F9; color: #334155; border: 1px solid #E2E8F0; }}
+.pg-cards {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.6rem; margin: 0.3rem 0 1rem; max-width: 1040px; }}
+.pg-card {{ background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.8rem 0.95rem; color: #1E293B; font-size: 1rem; line-height: 1.55; }}
+.pg-card.a {{ border-top: 3px solid #2563EB; }} .pg-card.b {{ border-top: 3px solid #E97870; }} .pg-card.mvp {{ box-shadow: 0 0 0 2px #2563EB inset; }}
+.pg-card.b.mvp {{ box-shadow: 0 0 0 2px #E97870 inset; }}
+.pg-card h4 {{ margin: 0 0 0.3rem; font-size: 1.06rem; color: #1E293B; }} .pg-card .k {{ font-size: 0.8rem; font-weight: 800; color: #475569; margin-bottom: 0.2rem; }}
+.pg-card ul {{ margin: 0.2rem 0 0; padding-left: 1.1rem; }} .pg-card li {{ margin: 0.1rem 0; }}
+.pg-card .row {{ display: grid; grid-template-columns: 5.2rem 1fr; gap: 0.4rem; font-size: 0.95rem; padding: 0.15rem 0; }}
+.pg-card .row span {{ color: #475569; font-weight: 700; font-size: 0.85rem; }}
+.pg-demo {{ background: #F8FAFC; border: 1.5px dashed #93C5FD; border-radius: 12px; padding: 0.9rem 1rem; position: relative; margin-top: 0.9rem; }}
+.pg-demo.b {{ background: #FFF1EF; border: 1.5px solid #E97870; }}
+.pg-demo::after {{ content: "기획 시안 · 실제 게임에 없음"; position: absolute; top: -0.7rem; right: 0.9rem; font-size: 0.72rem; font-weight: 800;
+  background: #FFFFFF; color: #1D4ED8; border: 1px solid #BFDBFE; border-radius: 999px; padding: 0.1rem 0.55rem; }}
+.pg-demo.b::after {{ color: #B4433B; border-color: #E97870; }}
+.pg-demo h4 {{ margin: 0 0 0.4rem; font-size: 1.08rem; color: #1E293B; }}
+.pg-demo .big {{ font-size: 1.5rem; font-weight: 800; color: #1D4ED8; }} .pg-demo.b .big {{ color: #B4433B; }}
+.pg-demo .act {{ background: #FFFFFF; border-left: 4px solid #2563EB; border-radius: 8px; padding: 0.5rem 0.7rem; margin: 0.5rem 0; font-weight: 700; }}
+.pg-demo .src {{ font-size: 0.85rem; color: #475569; margin-top: 0.4rem; }}
+.pg-slot {{ border: 1.5px dashed #CBD5E1; border-radius: 12px; background: #F8FAFC; padding: 1.2rem 1rem; text-align: center; color: #475569;
+  aspect-ratio: 16 / 9; display: flex; flex-direction: column; justify-content: center; gap: 0.3rem; max-width: 640px; }}
+.pg-slot b {{ color: #1E293B; }}
+.pg-metric {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem; margin: 0.5rem 0; }}
+.pg-metric > div {{ background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.5rem 0.65rem; }}
+.pg-metric b {{ display: block; font-size: 1.2rem; color: #1E293B; }} .pg-metric small {{ color: #475569; font-size: 0.82rem; }}
+.pg-metric em {{ font-style: normal; font-size: 0.8rem; font-weight: 800; color: #1D4ED8; margin-left: 0.25rem; }}
 /* 실제 화면 이미지는 조금 크게 */
 .ow-shot.hero {{ max-width: 940px !important; }} .ow-shot.wide {{ max-width: 860px !important; }}
 

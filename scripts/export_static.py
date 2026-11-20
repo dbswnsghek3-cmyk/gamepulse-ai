@@ -42,6 +42,7 @@ from gamepulse.content.games import GAME_ORDER, GAMES  # noqa: E402
 from gamepulse.ui.components import badge  # noqa: E402
 from gamepulse.ui.styles import CSS as APP_CSS  # noqa: E402
 from gamepulse.views.overwatch import TAB_LABELS as OW_TABS  # noqa: E402
+from gamepulse.views.pubg import TAB_LABELS as PG_TABS  # noqa: E402
 
 DOCS = ROOT / "docs"
 IMG_DIR = DOCS / "assets" / "img"
@@ -51,9 +52,9 @@ SITE_URL = "https://dbswnsghek3-cmyk.github.io/gamepulse-ai/"
 KST = dt.timezone(dt.timedelta(hours=9))
 
 # (앱 페이지 id, 파일명, 메뉴 이름, 차트 기본 분류)
-PAGES = [("overwatch", "overwatch.html", "오버워치 · PROJECT RE:START", "real")]
+PAGES = [("overwatch", "overwatch.html", "오버워치 · PROJECT RE:START", "real"), ("pubg", "pubg.html", "PUBG · NEW START", "real")]
 PAGES += [("home", "home.html", "사이트 홈 · 개요", "sample")]
-PAGES += [(g, f"{g}.html", GAMES[g]["name"], "sample") for g in GAME_ORDER if g != "overwatch"]
+PAGES += [(g, f"{g}.html", GAMES[g]["name"], "sample") for g in GAME_ORDER if g not in ("overwatch", "pubg")]
 PAGES += [("data_lab", "data_lab.html", "데이터 랩 (CSV 분석)", "sample"),
           ("assistant", "assistant.html", "PM 어시스턴트 (미리보기)", "sample")]
 
@@ -322,11 +323,11 @@ class Exporter:
 
 
 # ----------------------------------------------------------------------
-def run_page(page: str, tab: str | None = None) -> AppTest:
+def run_page(page: str, tab: str | None = None, tab_key: str = "ow_tab") -> AppTest:
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180)
     at.session_state["page"] = page
     if tab:
-        at.session_state["ow_tab"] = tab
+        at.session_state[tab_key] = tab
     at.run()
     if at.exception:
         raise RuntimeError(f"{page} 페이지 실행 오류: {[e.value for e in at.exception]}")
@@ -368,15 +369,24 @@ TAB_JS = """<script>(function(){
 
 
 def overwatch_body(kind: str) -> tuple[str, int]:
-    """오버워치: 6개 탭을 각각 실행해 모은 뒤, 탭 버튼 + 패널(선택한 1개만 표시) + JS 로 합친다.
+    return tabbed_body("overwatch", OW_TABS, "ow_tab", kind, overwatch_extras())
+
+
+def pubg_body(kind: str) -> tuple[str, int]:
+    from pubg_static_demos import demos   # 정적 페이지용 JS 시연 (같은 newstart.json 값 사용)
+    return tabbed_body("pubg", PG_TABS, "pg_tab", kind, demos(ROOT))
+
+
+def tabbed_body(pid: str, labels: list[str], tab_key: str, kind: str, extras: dict) -> tuple[str, int]:
+    """6개 탭을 각각 실행해 모은 뒤, 탭 버튼 + 패널(선택한 1개만 표시) + JS 로 합친다.
     숨은 패널의 내용도 HTML 에 그대로 있어 글자만 읽는 도구는 모든 탭을 읽을 수 있다. 주소 #t04 로 바로 열 수 있다."""
-    extras = overwatch_extras()
+    OW_TABS_ = labels
     prefix, panes, charts = None, [], 0
-    for i, label in enumerate(OW_TABS):
+    for i, label in enumerate(OW_TABS_):
         n = label[:2]
         ex = Exporter(kind, id_prefix=f"p{n}_")
         ex.tab_extras = extras if i == 3 else {}
-        at = run_page("overwatch", tab=label)
+        at = run_page(pid, tab=label, tab_key=tab_key)
         body = ex.children(at.main, 0)
         pre, mark, rest = body.partition('<div class="ow-pane-mark"')
         if not mark:
@@ -389,7 +399,7 @@ def overwatch_body(kind: str) -> tuple[str, int]:
     tabbar = ('<div class="ow-tabbar" role="tablist" aria-label="섹션">' + "".join(
         f'<button type="button" role="tab" id="tb-{lab[:2]}" aria-controls="pane-{lab[:2]}" data-tab="{lab[:2]}" '
         f'aria-selected="{"true" if j == 0 else "false"}"><b>{lab[:2]}</b>{H.escape(lab[3:])}</button>'
-        for j, lab in enumerate(OW_TABS)) + "</div>")
+        for j, lab in enumerate(OW_TABS_)) + "</div>")
     return prefix.replace("<!--OW_TABBAR-->", tabbar) + "".join(panes) + TAB_JS, charts
 
 
@@ -505,7 +515,7 @@ def page_html(title: str, desc: str, current: str, body: str, toc: list, charts:
                   for _, f, n, _ in [("index", "index.html", "보고서 첫 화면", "")] + PAGES)
     toc_html = ("" if not toc else '<nav class="sx-toc"><b>이 페이지 목차</b>'
                 + "".join(f'<a href="#{i}">{H.escape(l)}</a>' for i, l in toc) + "</nav>")
-    own_legend = current == "overwatch.html"   # 오버워치는 앱이 배지 설명을 직접 표시
+    own_legend = current in ("overwatch.html", "pubg.html")   # 탭형 프로젝트는 앱이 배지 설명을 직접 표시
     note = ("" if current == "index.html" else
             f'<div class="sx-note"><b>정적 보고서</b> · <a href="{LIVE_URL}">원본 앱</a> 스냅샷 ({gen}) · '
             + ("01~06 탭으로 섹션 전환 · " if own_legend else "")
@@ -520,7 +530,7 @@ def page_html(title: str, desc: str, current: str, body: str, toc: list, charts:
             f'{APP_CSS}<style>{STATIC_CSS}</style>{script}</head><body>'
             f'<header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div>'
             f'<nav>{nav}</nav></div></header><main class="sx-main">{note}'
-            f'{legend() if current not in ("index.html", "overwatch.html") else ""}{toc_html}{body}</main>'
+            f'{legend() if current not in ("index.html", "overwatch.html", "pubg.html") else ""}{toc_html}{body}</main>'
             f'<footer class="sx-foot">{APP_NAME} 정적 보고서 · 생성 {gen} · <a href="{LIVE_URL}">원본 앱</a> · '
             f'<a href="{REPO_URL}">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer>'
             '</body></html>')
@@ -531,8 +541,12 @@ def index_html(gen: str) -> str:
     cards = [f'<a class="sx-card feature" href="overwatch.html"><div class="k">대표 프로젝트 · 실제 자료 기반</div>'
              f'<h3>오버워치 · PROJECT RE:START</h3><p><b>{H.escape(rs["summary"]["headline"])}</b> — '
              f'{H.escape(rs["cover"]["solution_sub"])}. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 '
-             '개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a>']
-    for pid, f, name, _ in PAGES[1:]:
+             '개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a>',
+             '<a class="sx-card feature" href="pubg.html"><div class="k">두 번째 프로젝트 · 실제 자료 기반</div>'
+             '<h3>PUBG · NEW START</h3><p><b>첫 전투의 좌절은 줄이고, 성장의 재미는 남긴다</b> — 공식 패치노트·상점 공지 10건과 '
+             'Steam 최신 리뷰 1,000건 중 직접 분류한 45건을 근거로, 신규 유저 정착(첫 실전 피드백)과 성장형 스킨 BM(구매 전 총비용 안내) '
+             'MVP 2개와 A/B 테스트·비용 시뮬레이터를 설계했습니다.</p></a>']
+    for pid, f, name, _ in PAGES[2:]:
         one = GAMES[pid].get("one_liner", "") if pid in GAMES else {
             "home": "사이트 전체 소개와 게임별 분석 바로가기", "data_lab": "CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)",
             "assistant": "정리된 분석 내용을 대화형으로 찾아보는 규칙 기반 미리보기"}.get(pid, "")
@@ -542,7 +556,7 @@ def index_html(gen: str) -> str:
             f'<p>{H.escape(APP_TAGLINE)}</p></div>'
             '<h2>검토자 안내</h2><ul class="sx-ul">'
             f'<li>이 보고서는 <a href="{LIVE_URL}">원본 Streamlit 앱</a>을 자동 변환한 정적 HTML입니다. JavaScript 없이도 모든 글자를 읽을 수 있습니다.</li>'
-            '<li><b>오버워치 페이지</b>가 실제 자료 기반 대표 분석입니다. 다른 게임 페이지는 시연용 <b>예시 데이터</b>입니다.</li>'
+            '<li><b>오버워치·PUBG 페이지</b>가 실제 자료 기반 분석입니다. 다른 게임 페이지는 시연용 <b>예시 데이터</b>입니다.</li>'
             '<li>각 수치·차트에 출처 성격을 배지로 표시했습니다. 아래 배지 뜻을 참고하세요.</li>'
             '<li>게임 스크린샷은 작성자가 직접 캡처한 최신 한국어 화면이며, 다른 플레이어 닉네임은 가림 처리했습니다.</li>'
             f'<li>생성 시각 {gen} · 코드: <a href="{REPO_URL}">GitHub 저장소</a></li></ul>'
@@ -579,9 +593,14 @@ def check(files: list[Path]) -> list[str]:
             for k in LEGACY_OW:
                 if k in s:
                     problems.append(f"{f.name}: 과거 분석 문구 '{k}' 노출")
+        if f.name == "pubg.html":       # NEW START 단일 프로젝트 · v0.1 예시 분석이 섞이면 실패
+            for k in LEGACY_PG:
+                if k in s:
+                    problems.append(f"{f.name}: 과거 예시 분석 문구 '{k}' 노출")
     return problems
 
 
+LEGACY_PG = ["첫 5판", "파티 유형", "신규 보호 장치", "조기 탈락·학습 불가", "솔로 vs 스쿼드", "숙련자–신규 이용자"]
 LEGACY_OW = ["보호 매칭", "역할별 잔존", "그룹 플레이", "North Star", "v0.1", "부록", "보관함", "18%→22%", "18% → 22%",
              "주력 역할별", "전략 우선순위 매트릭스", "불만 유형 분포 (예시"]
 
@@ -598,12 +617,13 @@ def main() -> int:
 
     written = []
     for pid, fname, name, kind in PAGES:
-        if pid == "overwatch":
-            body, n_charts = overwatch_body(kind)
-            doc = save_images(page_html(name, GAMES[pid].get("theme", name), fname, body, [], n_charts > 0, gen))
+        if pid in ("overwatch", "pubg"):
+            body, n_charts = overwatch_body(kind) if pid == "overwatch" else pubg_body(kind)
+            desc = GAMES[pid].get("theme", name) if pid == "overwatch" else "신규 유저 정착 및 성장형 스킨 BM 개선 전략"
+            doc = save_images(page_html(name, desc, fname, body, [], n_charts > 0, gen))
             (DOCS / fname).write_text(doc, encoding="utf-8")
             written.append(DOCS / fname)
-            print(f"  {fname:18} 차트 {n_charts:2} · {len(doc) / 1024:,.0f} KB · 탭 {len(OW_TABS)}개")
+            print(f"  {fname:18} 차트 {n_charts:2} · {len(doc) / 1024:,.0f} KB · 탭 6개")
             continue
         ex = Exporter(kind)
         at = run_page(pid)

@@ -12,7 +12,7 @@ from gamepulse.content.games import GAME_ORDER, GAMES  # noqa: E402
 from gamepulse.ui.components import footer, html  # noqa: E402
 from gamepulse.ui.styles import inject_css  # noqa: E402
 from gamepulse.ui.translate_guard import ensure as ensure_translate_guard  # noqa: E402
-from gamepulse.views import assistant, data_lab, game_page, home, overwatch  # noqa: E402
+from gamepulse.views import assistant, data_lab, game_page, home, overwatch, pubg  # noqa: E402
 
 
 @st.cache_resource(show_spinner=False)
@@ -30,6 +30,7 @@ inject_css()
 
 PAGES = {"home": "홈 · 개요"}
 PAGES.update({gid: f"{GAMES[gid]['name']}" for gid in GAME_ORDER})
+PAGES["pubg"] = "PUBG: NEW START"
 PAGES.update({"data_lab": "데이터 랩 (CSV 분석)", "assistant": "PM 어시스턴트 (미리보기)"})
 
 if st.session_state.get("page") not in PAGES:
@@ -40,7 +41,7 @@ if st.session_state.get("page") not in PAGES:
 
 def _sync_page_param() -> None:
     st.query_params["page"] = st.session_state["page"]
-    if st.session_state["page"] != "overwatch":
+    if st.session_state["page"] not in ("overwatch", "pubg"):
         st.query_params.pop("tab", None)
 
 with st.sidebar:
@@ -59,6 +60,8 @@ elif page == "assistant":
     assistant.render()
 elif page == "overwatch":
     overwatch.render()  # PROJECT RE:START 전용 페이지 (v0.1 분석은 페이지 내 부록 탭으로 유지)
+elif page == "pubg":
+    pubg.render()       # PUBG: NEW START (v0.1 예시 분석은 game_page·games.py 에 보관, 메뉴에서는 제외)
 else:
     game_page.render(page)
 
