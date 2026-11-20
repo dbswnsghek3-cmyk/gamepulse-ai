@@ -33,12 +33,20 @@ PAGES.update({gid: f"{GAMES[gid]['name']}" for gid in GAME_ORDER})
 PAGES.update({"data_lab": "데이터 랩 (CSV 분석)", "assistant": "PM 어시스턴트 (미리보기)"})
 
 if st.session_state.get("page") not in PAGES:
-    st.session_state["page"] = "home"
+    # 첫 접속 시 주소의 ?page= 로 바로 들어갈 수 있게 (예: ?page=overwatch&tab=04)
+    qp = st.query_params.get("page")
+    st.session_state["page"] = qp if qp in PAGES else "home"
+
+
+def _sync_page_param() -> None:
+    st.query_params["page"] = st.session_state["page"]
+    if st.session_state["page"] != "overwatch":
+        st.query_params.pop("tab", None)
 
 with st.sidebar:
     html('<div class="gp-brand">Game<span>Pulse</span> AI</div>'
          f'<div class="gp-brand-sub">게임 사업PM 분석 대시보드 · {APP_VERSION}</div>')
-    st.radio("메뉴", list(PAGES), format_func=PAGES.get, key="page", label_visibility="collapsed")
+    st.radio("메뉴", list(PAGES), format_func=PAGES.get, key="page", label_visibility="collapsed", on_change=_sync_page_param)
     st.markdown("---")
     st.caption("모든 수치·그래프는 예시 데이터입니다. 원인 분석은 검증 전 가설입니다.")
     if not _translate_guard_applied():

@@ -716,6 +716,102 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover { background: r
   .ow-spec-r { grid-template-columns: 1fr; gap: 0.1rem; }
 }
 
+/* ---------- 오버워치 v8: 탭 전환 · 전체 크기 축소 · 짧은 글 ---------- */
+/* 01~06 탭 (Streamlit: 가로 라디오를 버튼처럼) · 3열×2행 · 선택 = 파랑, 나머지 = 차분한 남색 */
+.st-key-ow_tab, .st-key-ow_tab [data-testid="stRadio"], .st-key-ow_tab [data-testid="stRadioGroup"] { width: 100% !important; max-width: none !important; }
+.st-key-ow_tab [data-testid="stRadioGroup"] { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
+  width: 100%; }
+.st-key-ow_tab [data-testid="stRadioGroup"] > div { width: 100%; margin: 0 !important; padding: 0 !important; }
+.st-key-ow_tab label[data-testid="stRadioOption"] { margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
+  background: #1B3358; display: flex; align-items: center; cursor: pointer; width: 100%; transition: background 0.15s ease, box-shadow 0.15s ease; }
+.st-key-ow_tab label[data-testid="stRadioOption"] > div { width: 100%; }
+.st-key-ow_tab label[data-testid="stRadioOption"] > div > div:first-child { display: none !important; }  /* 라디오 동그라미 숨김 */
+.st-key-ow_tab label[data-testid="stRadioOption"] p { color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; }
+.st-key-ow_tab label[data-testid="stRadioOption"]:hover { background: #24426F; }
+.st-key-ow_tab label[data-testid="stRadioOption"]:has(input:checked),
+.st-key-ow_tab label[data-testid="stRadioOption"][data-selected] { background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }
+/* 정적 보고서용 같은 모양의 탭 버튼 */
+.ow-tabbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 0.8rem; }
+.ow-tabbar button { font: inherit; text-align: left; border: 0; padding: 0.7rem 0.9rem; min-height: 3.1rem; border-radius: 10px;
+  background: #1B3358; color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; transition: background 0.15s ease; }
+.ow-tabbar button b { font-weight: 900; margin-right: 0.45rem; opacity: 0.9; }
+.ow-tabbar button:hover { background: #24426F; }
+.ow-tabbar button[aria-selected="true"] { background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }
+
+/* 전체 축소 (20~30%) · 본문 최소 0.9rem 유지 */
+.ow-cover { padding: 1.3rem 1.5rem 1.2rem !important; margin-bottom: 0.7rem !important; border-radius: 14px; }
+.ow-cover-t { font-size: 0.8rem !important; }
+.ow-cover-c { font-size: 1.65rem !important; margin: 0.35rem 0 0.25rem !important; }
+.ow-cover-s { font-size: 0.95rem !important; }
+.ow-ps2 { margin: 0.5rem 0 0.9rem; gap: 0.6rem; }
+.ow-pcard, .ow-scard { padding: 0.95rem 1.15rem; border-radius: 14px; box-shadow: 0 4px 14px rgba(11,31,58,0.14); }
+.ow-pcard-k { font-size: 0.75rem; margin-bottom: 0.4rem; }
+.ow-pcard-t { font-size: 1.2rem; }
+.ow-pcard-d { font-size: 0.92rem; margin-top: 0.4rem; }
+.ow-parrow span { width: 2.5rem; height: 2.5rem; font-size: 1.25rem; }
+.ow-badges { font-size: 0.8rem; padding: 0.45rem 0.7rem; margin: 0 0 0.9rem; gap: 0.3rem 0.8rem; }
+.ow-head { margin: 1rem 0 0.5rem !important; }
+.ow-head h3 { font-size: 1.3rem !important; }
+.ow-head p { font-size: 0.92rem !important; margin-top: 0.15rem !important; }
+.ow-sub { font-size: 1.05rem !important; margin: 1.3rem 0 0.5rem !important; }
+.ow-line { font-size: 0.95rem !important; margin: 0.2rem 0 0.8rem !important; }
+.ow-statement { padding: 0.8rem 1rem; margin: 0.6rem 0 0.5rem; }
+.ow-statement-t { font-size: 1.15rem; }
+.ow-statement-d { font-size: 0.93rem; margin-top: 0.3rem; }
+.ow-conclusion { padding: 0.85rem 1.05rem !important; font-size: 1rem !important; margin: 0.5rem 0 !important; border-radius: 12px !important; }
+.ow-list { gap: 0.4rem !important; margin: 0.3rem 0 0.8rem !important; }
+.ow-list-i { padding: 0.55rem 0.8rem !important; font-size: 0.95rem; }
+.ow-dec { gap: 0.55rem; }
+.ow-dec-i { padding: 0.7rem 0.8rem; }
+.ow-dec-q { font-size: 0.95rem; margin-bottom: 0.3rem; }
+.ow-dec-a { font-size: 0.9rem; line-height: 1.55; }
+.ow-tiles { gap: 0.6rem !important; margin: 0.3rem 0 0.8rem !important; }
+.ow-tile { padding: 0.7rem 0.85rem !important; }
+.ow-tile-v { font-size: 1.3rem !important; }
+.ow-count { gap: 0.5rem; margin-bottom: 0.8rem; }
+.ow-count > div { padding: 0.55rem 0.75rem; }
+.ow-count-v { font-size: 1.7rem; } .ow-count > div:first-child .ow-count-v { font-size: 2.1rem; }
+.ow-shot { margin: 0.4rem 0 0.8rem; border-width: 1.5px; box-shadow: 0 3px 12px rgba(11,31,58,0.12); }
+.ow-shot.hero { max-width: 960px; margin-left: auto; margin-right: auto; border-width: 2px; }
+.ow-shot.wide { max-width: 860px; }
+.ow-shot-bar, .ow-shot.hero .ow-shot-bar { font-size: 0.82rem; padding: 0.4rem 0.75rem; }
+.ow-shot figcaption { padding: 0.45rem 0.8rem; font-size: 0.92rem; font-weight: 600; color: #1F2D44; }
+.ow-layers { gap: 0.55rem; } .ow-layer { padding: 0.7rem 0.85rem; } .ow-layer li { font-size: 0.92rem; }
+.ow-specs { gap: 0.6rem; } .ow-spec { padding: 0.8rem 0.9rem; gap: 0.35rem; } .ow-spec-n { font-size: 1rem; }
+.ow-spec-key { width: 2rem; height: 2rem; font-size: 1rem; }
+.ow-spec-r { font-size: 0.9rem; }
+.ow-phase-i { padding: 0.6rem 0.75rem; }
+.ow-kpi { padding: 0.5rem 0.7rem; } .ow-kpi-v { font-size: 1.2rem; } .ow-kpi-l { font-size: 0.8rem; }
+.ow-chart-t { font-size: 1rem; } .ow-chart-u { font-size: 0.8rem; }
+[class*="st-key-owc_"] { margin: 0.4rem 0 1rem; }
+.ow-proto { padding: 0.9rem 1.05rem; } .ow-proto-h { font-size: 1.25rem; }
+/* 차트 아래: 핵심 수치 → 사업PM 판단 (한 줄씩) */
+.ow-chart-f2 { display: grid; gap: 0.3rem; margin-top: 0.2rem; }
+.ow-chart-f2 > div { display: flex; gap: 0.6rem; align-items: baseline; font-size: 0.93rem; line-height: 1.5; color: #1F2D44;
+  padding: 0.45rem 0.7rem; border-radius: 8px; background: #F4F7FC; }
+.ow-chart-f2 > div b { flex: 0 0 auto; font-size: 0.78rem; color: #1E5EFF; min-width: 5.2rem; }
+.ow-chart-f2 > div.pm { background: #0B1F3A; color: #fff; } .ow-chart-f2 > div.pm b { color: #8DB3FF; }
+.ow-chart-b { font-size: 0.78rem; margin-top: 0.35rem; }
+/* 화면별 관찰 사실 · 이미지 출처 (탭 하단 1회) */
+.ow-facts { margin: 0 0 0.7rem; font-size: 0.92rem; line-height: 1.55; color: #1F2D44; }
+.ow-facts b { display: block; color: #0B1F3A; margin-bottom: 0.15rem; }
+.ow-facts span { display: inline-block; margin-right: 0.8rem; color: #55657D; font-size: 0.86rem; }
+.ow-facts ul { margin: 0.2rem 0 0; padding-left: 1.1rem; }
+.ow-credits { margin: 1.6rem 0 0.4rem; padding-top: 0.7rem; border-top: 1px solid #DDE4EF; font-size: 0.8rem; color: #55657D; }
+.ow-credits b { color: #3A4A63; font-size: 0.82rem; }
+.ow-credits ul { margin: 0.25rem 0 0; padding-left: 1.1rem; } .ow-credits li { line-height: 1.6; }
+
+@media (max-width: 640px) {
+  .st-key-ow_tab [data-testid="stRadioGroup"], .ow-tabbar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
+  .st-key-ow_tab label[data-testid="stRadioOption"], .ow-tabbar button { padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }
+  .st-key-ow_tab label[data-testid="stRadioOption"] p, .ow-tabbar button { font-size: 0.92rem; }
+  .ow-cover-c { font-size: 1.3rem !important; }
+  .ow-pcard-t { font-size: 1.05rem; }
+  .ow-chart-f2 > div { flex-direction: column; gap: 0.1rem; }
+}
+
 .gp-footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #DDE4EF; font-size: 0.8rem; color: #6B7A90; }
 
 /* 모바일 */
@@ -771,6 +867,8 @@ details[open] > summary .sx-more { display: none; }
 .sx-chart-h { font-weight: 700; font-size: 0.95rem; padding: 0.1rem 0.3rem 0.4rem; }
 .sx-chart-c { width: 100%; }
 .sx-chart.bare { border: 0; padding: 0; margin: 0.3rem 0 0.6rem; }
+.sx-pane-h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ow-pane[hidden] { display: none !important; }
 .sx-box { border: 1px solid #DDE4EF; border-radius: 16px; padding: 1rem 1rem 0.8rem; margin: 0.6rem 0 1.4rem; background: #fff; }
 .sx-box > div > .sx-md, .sx-box .sx-chart.bare { margin: 0; }
 html { scroll-behavior: smooth; }
@@ -794,7 +892,11 @@ html { scroll-behavior: smooth; }
 .sx-card .k { font-size: 0.75rem; font-weight: 800; color: #F99E1A; letter-spacing: 0.04em; }
 .sx-ul { line-height: 1.7; padding-left: 1.2rem; }
 @media (max-width: 640px) {
+  .sx-top-in { padding: 0.45rem 12px; }
+  .sx-top nav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; padding-bottom: 0.15rem; }
+  .sx-top nav a { white-space: nowrap; font-size: 0.8rem; }
+  .sx-note { font-size: 0.82rem; padding: 0.5rem 0.7rem; }
   .sx-row { flex-direction: column; } .sx-col { flex: 1 1 auto !important; width: 100%; }
   .sx-tab-h { font-size: 1.2rem; }
 }
-</style></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="" href="index.html">보고서 첫 화면</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="pubg.html">PUBG: 배틀그라운드</a><a class="" href="fconline.html">FC 온라인</a><a class="" href="dnf.html">던전앤파이터</a><a class="" href="lol.html">리그 오브 레전드</a><a class="on" href="data_lab.html">데이터 랩 (CSV 분석)</a><a class="" href="assistant.html">PM 어시스턴트 (미리보기)</a></nav></div></header><main class="sx-main"><div class="sx-note"><b>정적 보고서 안내</b> · 이 페이지는 <a href="https://gamepulse-ai1.streamlit.app/">원본 Streamlit 앱</a>의 화면을 자동으로 변환한 스냅샷입니다 (생성 2026-11-20 09:02 KST). 탭은 차례대로 펼쳤고, 버튼·슬라이더는 기본값 상태입니다. 차트 아래 "차트 데이터 표"에 수치가 있습니다. 게임 스크린샷의 다른 플레이어 닉네임은 가림 처리했습니다.</div><div class="sx-legend"><b>배지 뜻</b><span class="gp-badge k-real">실제 자료</span> 공개 출처·직접 캡처로 확인<span class="gp-badge k-interp">분석자 해석</span> 자료를 바탕으로 한 판단<span class="gp-badge k-hypo">검증 전 가설</span> 아직 입증되지 않음<span class="gp-badge k-mock">기획 시안</span> 게임에 없는 제안·계획<span class="gp-badge k-sim">가정 시뮬레이션</span> 가정값으로 계산 (실적 아님)<span class="gp-badge k-sample">예시 데이터</span> 시연용 가상 데이터</div><div class="gp-hero"><div class="gp-eyebrow">Data Lab</div><h1>댓글 CSV 분석</h1><p>직접 수집한 댓글 CSV 를 올리면 표준 스키마로 검증하고, 불만 유형·감성을 분류해 시각화합니다.</p></div><div class="gp-notice">현재 분류 방식: <b>규칙 기반(키워드)</b> · 업로드한 파일은 이 컴퓨터에서 실행 중인 앱 안에서만 처리되며 외부로 전송되지 않습니다. 개인정보(닉네임, 계정 ID 등)는 CSV 에 넣지 않는 것을 권장합니다.</div><div class="gp-section"><h3>1. CSV 형식 (표준 스키마) </h3></div><div class="gp-table-wrap sx-df"><table class="gp-table"><tr><th>컬럼</th><th>필수</th><th>형식</th><th>설명</th><th>예시</th></tr><tr><td>comment_id</td><td>필수</td><td>str</td><td>댓글 고유 ID (중복 불가)</td><td>c_000123</td></tr><tr><td>game_id</td><td>필수</td><td>str</td><td>게임 ID 또는 게임 이름 (overwatch / pubg / fconline / dnf / lol, &#x27;오버워치&#x27; 등 한글명도 허용)</td><td>lol</td></tr><tr><td>source</td><td>필수</td><td>str</td><td>수집 출처 (커뮤니티, 앱 리뷰, SNS, 설문 등)</td><td>커뮤니티</td></tr><tr><td>posted_at</td><td>필수</td><td>date</td><td>작성 일시 (YYYY-MM-DD 또는 YYYY-MM-DD HH:MM)</td><td>2026-10-01</td></tr><tr><td>text</td><td>필수</td><td>str</td><td>댓글 본문</td><td>연패 오니까 솔랭은 너무 스트레스라 칼바람만 해요</td></tr><tr><td>rating</td><td>선택</td><td>float</td><td>별점 등 수치 평가 (1~5, 없으면 비움)</td><td>2</td></tr><tr><td>user_segment</td><td>선택</td><td>str</td><td>이용자 구분 (신규 / 기존 / 복귀 등, 알 수 있을 때만)</td><td>기존</td></tr><tr><td>category</td><td>선택</td><td>str</td><td>사람이 직접 붙인 불만 유형 라벨 (있으면 분류기 결과와 비교 가능)</td><td>연패 스트레스·경쟁 피로</td></tr><tr><td>sentiment</td><td>선택</td><td>str</td><td>사람이 직접 붙인 감성 라벨 (부정 / 중립 / 긍정)</td><td>부정</td></tr><tr><td>url</td><td>선택</td><td>str</td><td>원문 링크 (선택)</td><td></td></tr></table></div><div class="sx-cap">표 10행 · 원본 앱에서는 정렬·검색 가능</div><span class="sx-btn">CSV 템플릿 내려받기</span><div class="gp-section"><h3>2. 파일 업로드 </h3></div><div class="sx-w"><span class="sx-w-l">댓글 CSV 파일 (UTF-8 또는 엑셀 CSV)</span><span class="sx-w-in">파일 업로드는 원본 앱에서</span></div><div class="sx-alert info">파일을 올리면 분석 결과가 이 아래에 표시됩니다. 연습용으로 <code>data/sample_comments_example.csv</code> 를 올려 보세요.</div><div class="gp-footer">GamePulse AI · 게임 사업PM 포트폴리오 프로젝트 · 모든 수치와 시뮬레이션은 예시 데이터이며, 언급된 게임 및 상표는 각 권리자에게 있습니다. 본 사이트는 해당 게임사와 관련이 없는 개인 분석물입니다.</div></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-20 09:02 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>
+</style></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="" href="index.html">보고서 첫 화면</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="pubg.html">PUBG: 배틀그라운드</a><a class="" href="fconline.html">FC 온라인</a><a class="" href="dnf.html">던전앤파이터</a><a class="" href="lol.html">리그 오브 레전드</a><a class="on" href="data_lab.html">데이터 랩 (CSV 분석)</a><a class="" href="assistant.html">PM 어시스턴트 (미리보기)</a></nav></div></header><main class="sx-main"><div class="sx-note"><b>정적 보고서</b> · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> 스냅샷 (2026-11-20 09:27 KST) · 버튼·슬라이더는 기본값 · 차트 수치는 "차트 데이터 표"에</div><div class="sx-legend"><b>배지 뜻</b><span class="gp-badge k-real">실제 자료</span> 공개 출처·직접 캡처로 확인<span class="gp-badge k-interp">분석자 해석</span> 자료를 바탕으로 한 판단<span class="gp-badge k-hypo">검증 전 가설</span> 아직 입증되지 않음<span class="gp-badge k-mock">기획 시안</span> 게임에 없는 제안·계획<span class="gp-badge k-sim">가정 시뮬레이션</span> 가정값으로 계산 (실적 아님)<span class="gp-badge k-sample">예시 데이터</span> 시연용 가상 데이터</div><div class="gp-hero"><div class="gp-eyebrow">Data Lab</div><h1>댓글 CSV 분석</h1><p>직접 수집한 댓글 CSV 를 올리면 표준 스키마로 검증하고, 불만 유형·감성을 분류해 시각화합니다.</p></div><div class="gp-notice">현재 분류 방식: <b>규칙 기반(키워드)</b> · 업로드한 파일은 이 컴퓨터에서 실행 중인 앱 안에서만 처리되며 외부로 전송되지 않습니다. 개인정보(닉네임, 계정 ID 등)는 CSV 에 넣지 않는 것을 권장합니다.</div><div class="gp-section"><h3>1. CSV 형식 (표준 스키마) </h3></div><div class="gp-table-wrap sx-df"><table class="gp-table"><tr><th>컬럼</th><th>필수</th><th>형식</th><th>설명</th><th>예시</th></tr><tr><td>comment_id</td><td>필수</td><td>str</td><td>댓글 고유 ID (중복 불가)</td><td>c_000123</td></tr><tr><td>game_id</td><td>필수</td><td>str</td><td>게임 ID 또는 게임 이름 (overwatch / pubg / fconline / dnf / lol, &#x27;오버워치&#x27; 등 한글명도 허용)</td><td>lol</td></tr><tr><td>source</td><td>필수</td><td>str</td><td>수집 출처 (커뮤니티, 앱 리뷰, SNS, 설문 등)</td><td>커뮤니티</td></tr><tr><td>posted_at</td><td>필수</td><td>date</td><td>작성 일시 (YYYY-MM-DD 또는 YYYY-MM-DD HH:MM)</td><td>2026-10-01</td></tr><tr><td>text</td><td>필수</td><td>str</td><td>댓글 본문</td><td>연패 오니까 솔랭은 너무 스트레스라 칼바람만 해요</td></tr><tr><td>rating</td><td>선택</td><td>float</td><td>별점 등 수치 평가 (1~5, 없으면 비움)</td><td>2</td></tr><tr><td>user_segment</td><td>선택</td><td>str</td><td>이용자 구분 (신규 / 기존 / 복귀 등, 알 수 있을 때만)</td><td>기존</td></tr><tr><td>category</td><td>선택</td><td>str</td><td>사람이 직접 붙인 불만 유형 라벨 (있으면 분류기 결과와 비교 가능)</td><td>연패 스트레스·경쟁 피로</td></tr><tr><td>sentiment</td><td>선택</td><td>str</td><td>사람이 직접 붙인 감성 라벨 (부정 / 중립 / 긍정)</td><td>부정</td></tr><tr><td>url</td><td>선택</td><td>str</td><td>원문 링크 (선택)</td><td></td></tr></table></div><div class="sx-cap">표 10행 · 원본 앱에서는 정렬·검색 가능</div><span class="sx-btn">CSV 템플릿 내려받기</span><div class="gp-section"><h3>2. 파일 업로드 </h3></div><div class="sx-w"><span class="sx-w-l">댓글 CSV 파일 (UTF-8 또는 엑셀 CSV)</span><span class="sx-w-in">파일 업로드는 원본 앱에서</span></div><div class="sx-alert info">파일을 올리면 분석 결과가 이 아래에 표시됩니다. 연습용으로 <code>data/sample_comments_example.csv</code> 를 올려 보세요.</div><div class="gp-footer">GamePulse AI · 게임 사업PM 포트폴리오 프로젝트 · 모든 수치와 시뮬레이션은 예시 데이터이며, 언급된 게임 및 상표는 각 권리자에게 있습니다. 본 사이트는 해당 게임사와 관련이 없는 개인 분석물입니다.</div></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-20 09:27 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>

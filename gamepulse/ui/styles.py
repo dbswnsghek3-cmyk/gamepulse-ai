@@ -724,6 +724,102 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
   .ow-spec-r {{ grid-template-columns: 1fr; gap: 0.1rem; }}
 }}
 
+/* ---------- 오버워치 v8: 탭 전환 · 전체 크기 축소 · 짧은 글 ---------- */
+/* 01~06 탭 (Streamlit: 가로 라디오를 버튼처럼) · 3열×2행 · 선택 = 파랑, 나머지 = 차분한 남색 */
+.st-key-ow_tab, .st-key-ow_tab [data-testid="stRadio"], .st-key-ow_tab [data-testid="stRadioGroup"] {{ width: 100% !important; max-width: none !important; }}
+.st-key-ow_tab [data-testid="stRadioGroup"] {{ display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
+  width: 100%; }}
+.st-key-ow_tab [data-testid="stRadioGroup"] > div {{ width: 100%; margin: 0 !important; padding: 0 !important; }}
+.st-key-ow_tab label[data-testid="stRadioOption"] {{ margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
+  background: #1B3358; display: flex; align-items: center; cursor: pointer; width: 100%; transition: background 0.15s ease, box-shadow 0.15s ease; }}
+.st-key-ow_tab label[data-testid="stRadioOption"] > div {{ width: 100%; }}
+.st-key-ow_tab label[data-testid="stRadioOption"] > div > div:first-child {{ display: none !important; }}  /* 라디오 동그라미 숨김 */
+.st-key-ow_tab label[data-testid="stRadioOption"] p {{ color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; }}
+.st-key-ow_tab label[data-testid="stRadioOption"]:hover {{ background: #24426F; }}
+.st-key-ow_tab label[data-testid="stRadioOption"]:has(input:checked),
+.st-key-ow_tab label[data-testid="stRadioOption"][data-selected] {{ background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }}
+/* 정적 보고서용 같은 모양의 탭 버튼 */
+.ow-tabbar {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 0.8rem; }}
+.ow-tabbar button {{ font: inherit; text-align: left; border: 0; padding: 0.7rem 0.9rem; min-height: 3.1rem; border-radius: 10px;
+  background: #1B3358; color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; transition: background 0.15s ease; }}
+.ow-tabbar button b {{ font-weight: 900; margin-right: 0.45rem; opacity: 0.9; }}
+.ow-tabbar button:hover {{ background: #24426F; }}
+.ow-tabbar button[aria-selected="true"] {{ background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }}
+
+/* 전체 축소 (20~30%) · 본문 최소 0.9rem 유지 */
+.ow-cover {{ padding: 1.3rem 1.5rem 1.2rem !important; margin-bottom: 0.7rem !important; border-radius: 14px; }}
+.ow-cover-t {{ font-size: 0.8rem !important; }}
+.ow-cover-c {{ font-size: 1.65rem !important; margin: 0.35rem 0 0.25rem !important; }}
+.ow-cover-s {{ font-size: 0.95rem !important; }}
+.ow-ps2 {{ margin: 0.5rem 0 0.9rem; gap: 0.6rem; }}
+.ow-pcard, .ow-scard {{ padding: 0.95rem 1.15rem; border-radius: 14px; box-shadow: 0 4px 14px rgba(11,31,58,0.14); }}
+.ow-pcard-k {{ font-size: 0.75rem; margin-bottom: 0.4rem; }}
+.ow-pcard-t {{ font-size: 1.2rem; }}
+.ow-pcard-d {{ font-size: 0.92rem; margin-top: 0.4rem; }}
+.ow-parrow span {{ width: 2.5rem; height: 2.5rem; font-size: 1.25rem; }}
+.ow-badges {{ font-size: 0.8rem; padding: 0.45rem 0.7rem; margin: 0 0 0.9rem; gap: 0.3rem 0.8rem; }}
+.ow-head {{ margin: 1rem 0 0.5rem !important; }}
+.ow-head h3 {{ font-size: 1.3rem !important; }}
+.ow-head p {{ font-size: 0.92rem !important; margin-top: 0.15rem !important; }}
+.ow-sub {{ font-size: 1.05rem !important; margin: 1.3rem 0 0.5rem !important; }}
+.ow-line {{ font-size: 0.95rem !important; margin: 0.2rem 0 0.8rem !important; }}
+.ow-statement {{ padding: 0.8rem 1rem; margin: 0.6rem 0 0.5rem; }}
+.ow-statement-t {{ font-size: 1.15rem; }}
+.ow-statement-d {{ font-size: 0.93rem; margin-top: 0.3rem; }}
+.ow-conclusion {{ padding: 0.85rem 1.05rem !important; font-size: 1rem !important; margin: 0.5rem 0 !important; border-radius: 12px !important; }}
+.ow-list {{ gap: 0.4rem !important; margin: 0.3rem 0 0.8rem !important; }}
+.ow-list-i {{ padding: 0.55rem 0.8rem !important; font-size: 0.95rem; }}
+.ow-dec {{ gap: 0.55rem; }}
+.ow-dec-i {{ padding: 0.7rem 0.8rem; }}
+.ow-dec-q {{ font-size: 0.95rem; margin-bottom: 0.3rem; }}
+.ow-dec-a {{ font-size: 0.9rem; line-height: 1.55; }}
+.ow-tiles {{ gap: 0.6rem !important; margin: 0.3rem 0 0.8rem !important; }}
+.ow-tile {{ padding: 0.7rem 0.85rem !important; }}
+.ow-tile-v {{ font-size: 1.3rem !important; }}
+.ow-count {{ gap: 0.5rem; margin-bottom: 0.8rem; }}
+.ow-count > div {{ padding: 0.55rem 0.75rem; }}
+.ow-count-v {{ font-size: 1.7rem; }} .ow-count > div:first-child .ow-count-v {{ font-size: 2.1rem; }}
+.ow-shot {{ margin: 0.4rem 0 0.8rem; border-width: 1.5px; box-shadow: 0 3px 12px rgba(11,31,58,0.12); }}
+.ow-shot.hero {{ max-width: 960px; margin-left: auto; margin-right: auto; border-width: 2px; }}
+.ow-shot.wide {{ max-width: 860px; }}
+.ow-shot-bar, .ow-shot.hero .ow-shot-bar {{ font-size: 0.82rem; padding: 0.4rem 0.75rem; }}
+.ow-shot figcaption {{ padding: 0.45rem 0.8rem; font-size: 0.92rem; font-weight: 600; color: #1F2D44; }}
+.ow-layers {{ gap: 0.55rem; }} .ow-layer {{ padding: 0.7rem 0.85rem; }} .ow-layer li {{ font-size: 0.92rem; }}
+.ow-specs {{ gap: 0.6rem; }} .ow-spec {{ padding: 0.8rem 0.9rem; gap: 0.35rem; }} .ow-spec-n {{ font-size: 1rem; }}
+.ow-spec-key {{ width: 2rem; height: 2rem; font-size: 1rem; }}
+.ow-spec-r {{ font-size: 0.9rem; }}
+.ow-phase-i {{ padding: 0.6rem 0.75rem; }}
+.ow-kpi {{ padding: 0.5rem 0.7rem; }} .ow-kpi-v {{ font-size: 1.2rem; }} .ow-kpi-l {{ font-size: 0.8rem; }}
+.ow-chart-t {{ font-size: 1rem; }} .ow-chart-u {{ font-size: 0.8rem; }}
+[class*="st-key-owc_"] {{ margin: 0.4rem 0 1rem; }}
+.ow-proto {{ padding: 0.9rem 1.05rem; }} .ow-proto-h {{ font-size: 1.25rem; }}
+/* 차트 아래: 핵심 수치 → 사업PM 판단 (한 줄씩) */
+.ow-chart-f2 {{ display: grid; gap: 0.3rem; margin-top: 0.2rem; }}
+.ow-chart-f2 > div {{ display: flex; gap: 0.6rem; align-items: baseline; font-size: 0.93rem; line-height: 1.5; color: #1F2D44;
+  padding: 0.45rem 0.7rem; border-radius: 8px; background: #F4F7FC; }}
+.ow-chart-f2 > div b {{ flex: 0 0 auto; font-size: 0.78rem; color: #1E5EFF; min-width: 5.2rem; }}
+.ow-chart-f2 > div.pm {{ background: #0B1F3A; color: #fff; }} .ow-chart-f2 > div.pm b {{ color: #8DB3FF; }}
+.ow-chart-b {{ font-size: 0.78rem; margin-top: 0.35rem; }}
+/* 화면별 관찰 사실 · 이미지 출처 (탭 하단 1회) */
+.ow-facts {{ margin: 0 0 0.7rem; font-size: 0.92rem; line-height: 1.55; color: #1F2D44; }}
+.ow-facts b {{ display: block; color: {C['navy']}; margin-bottom: 0.15rem; }}
+.ow-facts span {{ display: inline-block; margin-right: 0.8rem; color: #55657D; font-size: 0.86rem; }}
+.ow-facts ul {{ margin: 0.2rem 0 0; padding-left: 1.1rem; }}
+.ow-credits {{ margin: 1.6rem 0 0.4rem; padding-top: 0.7rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: #55657D; }}
+.ow-credits b {{ color: #3A4A63; font-size: 0.82rem; }}
+.ow-credits ul {{ margin: 0.25rem 0 0; padding-left: 1.1rem; }} .ow-credits li {{ line-height: 1.6; }}
+
+@media (max-width: 640px) {{
+  .st-key-ow_tab [data-testid="stRadioGroup"], .ow-tabbar {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }}
+  .st-key-ow_tab label[data-testid="stRadioOption"], .ow-tabbar button {{ padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }}
+  .st-key-ow_tab label[data-testid="stRadioOption"] p, .ow-tabbar button {{ font-size: 0.92rem; }}
+  .ow-cover-c {{ font-size: 1.3rem !important; }}
+  .ow-pcard-t {{ font-size: 1.05rem; }}
+  .ow-chart-f2 > div {{ flex-direction: column; gap: 0.1rem; }}
+}}
+
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
 /* 모바일 */

@@ -716,6 +716,102 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover { background: r
   .ow-spec-r { grid-template-columns: 1fr; gap: 0.1rem; }
 }
 
+/* ---------- 오버워치 v8: 탭 전환 · 전체 크기 축소 · 짧은 글 ---------- */
+/* 01~06 탭 (Streamlit: 가로 라디오를 버튼처럼) · 3열×2행 · 선택 = 파랑, 나머지 = 차분한 남색 */
+.st-key-ow_tab, .st-key-ow_tab [data-testid="stRadio"], .st-key-ow_tab [data-testid="stRadioGroup"] { width: 100% !important; max-width: none !important; }
+.st-key-ow_tab [data-testid="stRadioGroup"] { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
+  width: 100%; }
+.st-key-ow_tab [data-testid="stRadioGroup"] > div { width: 100%; margin: 0 !important; padding: 0 !important; }
+.st-key-ow_tab label[data-testid="stRadioOption"] { margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
+  background: #1B3358; display: flex; align-items: center; cursor: pointer; width: 100%; transition: background 0.15s ease, box-shadow 0.15s ease; }
+.st-key-ow_tab label[data-testid="stRadioOption"] > div { width: 100%; }
+.st-key-ow_tab label[data-testid="stRadioOption"] > div > div:first-child { display: none !important; }  /* 라디오 동그라미 숨김 */
+.st-key-ow_tab label[data-testid="stRadioOption"] p { color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; }
+.st-key-ow_tab label[data-testid="stRadioOption"]:hover { background: #24426F; }
+.st-key-ow_tab label[data-testid="stRadioOption"]:has(input:checked),
+.st-key-ow_tab label[data-testid="stRadioOption"][data-selected] { background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }
+/* 정적 보고서용 같은 모양의 탭 버튼 */
+.ow-tabbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 0.8rem; }
+.ow-tabbar button { font: inherit; text-align: left; border: 0; padding: 0.7rem 0.9rem; min-height: 3.1rem; border-radius: 10px;
+  background: #1B3358; color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; transition: background 0.15s ease; }
+.ow-tabbar button b { font-weight: 900; margin-right: 0.45rem; opacity: 0.9; }
+.ow-tabbar button:hover { background: #24426F; }
+.ow-tabbar button[aria-selected="true"] { background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }
+
+/* 전체 축소 (20~30%) · 본문 최소 0.9rem 유지 */
+.ow-cover { padding: 1.3rem 1.5rem 1.2rem !important; margin-bottom: 0.7rem !important; border-radius: 14px; }
+.ow-cover-t { font-size: 0.8rem !important; }
+.ow-cover-c { font-size: 1.65rem !important; margin: 0.35rem 0 0.25rem !important; }
+.ow-cover-s { font-size: 0.95rem !important; }
+.ow-ps2 { margin: 0.5rem 0 0.9rem; gap: 0.6rem; }
+.ow-pcard, .ow-scard { padding: 0.95rem 1.15rem; border-radius: 14px; box-shadow: 0 4px 14px rgba(11,31,58,0.14); }
+.ow-pcard-k { font-size: 0.75rem; margin-bottom: 0.4rem; }
+.ow-pcard-t { font-size: 1.2rem; }
+.ow-pcard-d { font-size: 0.92rem; margin-top: 0.4rem; }
+.ow-parrow span { width: 2.5rem; height: 2.5rem; font-size: 1.25rem; }
+.ow-badges { font-size: 0.8rem; padding: 0.45rem 0.7rem; margin: 0 0 0.9rem; gap: 0.3rem 0.8rem; }
+.ow-head { margin: 1rem 0 0.5rem !important; }
+.ow-head h3 { font-size: 1.3rem !important; }
+.ow-head p { font-size: 0.92rem !important; margin-top: 0.15rem !important; }
+.ow-sub { font-size: 1.05rem !important; margin: 1.3rem 0 0.5rem !important; }
+.ow-line { font-size: 0.95rem !important; margin: 0.2rem 0 0.8rem !important; }
+.ow-statement { padding: 0.8rem 1rem; margin: 0.6rem 0 0.5rem; }
+.ow-statement-t { font-size: 1.15rem; }
+.ow-statement-d { font-size: 0.93rem; margin-top: 0.3rem; }
+.ow-conclusion { padding: 0.85rem 1.05rem !important; font-size: 1rem !important; margin: 0.5rem 0 !important; border-radius: 12px !important; }
+.ow-list { gap: 0.4rem !important; margin: 0.3rem 0 0.8rem !important; }
+.ow-list-i { padding: 0.55rem 0.8rem !important; font-size: 0.95rem; }
+.ow-dec { gap: 0.55rem; }
+.ow-dec-i { padding: 0.7rem 0.8rem; }
+.ow-dec-q { font-size: 0.95rem; margin-bottom: 0.3rem; }
+.ow-dec-a { font-size: 0.9rem; line-height: 1.55; }
+.ow-tiles { gap: 0.6rem !important; margin: 0.3rem 0 0.8rem !important; }
+.ow-tile { padding: 0.7rem 0.85rem !important; }
+.ow-tile-v { font-size: 1.3rem !important; }
+.ow-count { gap: 0.5rem; margin-bottom: 0.8rem; }
+.ow-count > div { padding: 0.55rem 0.75rem; }
+.ow-count-v { font-size: 1.7rem; } .ow-count > div:first-child .ow-count-v { font-size: 2.1rem; }
+.ow-shot { margin: 0.4rem 0 0.8rem; border-width: 1.5px; box-shadow: 0 3px 12px rgba(11,31,58,0.12); }
+.ow-shot.hero { max-width: 960px; margin-left: auto; margin-right: auto; border-width: 2px; }
+.ow-shot.wide { max-width: 860px; }
+.ow-shot-bar, .ow-shot.hero .ow-shot-bar { font-size: 0.82rem; padding: 0.4rem 0.75rem; }
+.ow-shot figcaption { padding: 0.45rem 0.8rem; font-size: 0.92rem; font-weight: 600; color: #1F2D44; }
+.ow-layers { gap: 0.55rem; } .ow-layer { padding: 0.7rem 0.85rem; } .ow-layer li { font-size: 0.92rem; }
+.ow-specs { gap: 0.6rem; } .ow-spec { padding: 0.8rem 0.9rem; gap: 0.35rem; } .ow-spec-n { font-size: 1rem; }
+.ow-spec-key { width: 2rem; height: 2rem; font-size: 1rem; }
+.ow-spec-r { font-size: 0.9rem; }
+.ow-phase-i { padding: 0.6rem 0.75rem; }
+.ow-kpi { padding: 0.5rem 0.7rem; } .ow-kpi-v { font-size: 1.2rem; } .ow-kpi-l { font-size: 0.8rem; }
+.ow-chart-t { font-size: 1rem; } .ow-chart-u { font-size: 0.8rem; }
+[class*="st-key-owc_"] { margin: 0.4rem 0 1rem; }
+.ow-proto { padding: 0.9rem 1.05rem; } .ow-proto-h { font-size: 1.25rem; }
+/* 차트 아래: 핵심 수치 → 사업PM 판단 (한 줄씩) */
+.ow-chart-f2 { display: grid; gap: 0.3rem; margin-top: 0.2rem; }
+.ow-chart-f2 > div { display: flex; gap: 0.6rem; align-items: baseline; font-size: 0.93rem; line-height: 1.5; color: #1F2D44;
+  padding: 0.45rem 0.7rem; border-radius: 8px; background: #F4F7FC; }
+.ow-chart-f2 > div b { flex: 0 0 auto; font-size: 0.78rem; color: #1E5EFF; min-width: 5.2rem; }
+.ow-chart-f2 > div.pm { background: #0B1F3A; color: #fff; } .ow-chart-f2 > div.pm b { color: #8DB3FF; }
+.ow-chart-b { font-size: 0.78rem; margin-top: 0.35rem; }
+/* 화면별 관찰 사실 · 이미지 출처 (탭 하단 1회) */
+.ow-facts { margin: 0 0 0.7rem; font-size: 0.92rem; line-height: 1.55; color: #1F2D44; }
+.ow-facts b { display: block; color: #0B1F3A; margin-bottom: 0.15rem; }
+.ow-facts span { display: inline-block; margin-right: 0.8rem; color: #55657D; font-size: 0.86rem; }
+.ow-facts ul { margin: 0.2rem 0 0; padding-left: 1.1rem; }
+.ow-credits { margin: 1.6rem 0 0.4rem; padding-top: 0.7rem; border-top: 1px solid #DDE4EF; font-size: 0.8rem; color: #55657D; }
+.ow-credits b { color: #3A4A63; font-size: 0.82rem; }
+.ow-credits ul { margin: 0.25rem 0 0; padding-left: 1.1rem; } .ow-credits li { line-height: 1.6; }
+
+@media (max-width: 640px) {
+  .st-key-ow_tab [data-testid="stRadioGroup"], .ow-tabbar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
+  .st-key-ow_tab label[data-testid="stRadioOption"], .ow-tabbar button { padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }
+  .st-key-ow_tab label[data-testid="stRadioOption"] p, .ow-tabbar button { font-size: 0.92rem; }
+  .ow-cover-c { font-size: 1.3rem !important; }
+  .ow-pcard-t { font-size: 1.05rem; }
+  .ow-chart-f2 > div { flex-direction: column; gap: 0.1rem; }
+}
+
 .gp-footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #DDE4EF; font-size: 0.8rem; color: #6B7A90; }
 
 /* 모바일 */
@@ -771,6 +867,8 @@ details[open] > summary .sx-more { display: none; }
 .sx-chart-h { font-weight: 700; font-size: 0.95rem; padding: 0.1rem 0.3rem 0.4rem; }
 .sx-chart-c { width: 100%; }
 .sx-chart.bare { border: 0; padding: 0; margin: 0.3rem 0 0.6rem; }
+.sx-pane-h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ow-pane[hidden] { display: none !important; }
 .sx-box { border: 1px solid #DDE4EF; border-radius: 16px; padding: 1rem 1rem 0.8rem; margin: 0.6rem 0 1.4rem; background: #fff; }
 .sx-box > div > .sx-md, .sx-box .sx-chart.bare { margin: 0; }
 html { scroll-behavior: smooth; }
@@ -794,7 +892,11 @@ html { scroll-behavior: smooth; }
 .sx-card .k { font-size: 0.75rem; font-weight: 800; color: #F99E1A; letter-spacing: 0.04em; }
 .sx-ul { line-height: 1.7; padding-left: 1.2rem; }
 @media (max-width: 640px) {
+  .sx-top-in { padding: 0.45rem 12px; }
+  .sx-top nav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; padding-bottom: 0.15rem; }
+  .sx-top nav a { white-space: nowrap; font-size: 0.8rem; }
+  .sx-note { font-size: 0.82rem; padding: 0.5rem 0.7rem; }
   .sx-row { flex-direction: column; } .sx-col { flex: 1 1 auto !important; width: 100%; }
   .sx-tab-h { font-size: 1.2rem; }
 }
-</style></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="on" href="index.html">보고서 첫 화면</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="pubg.html">PUBG: 배틀그라운드</a><a class="" href="fconline.html">FC 온라인</a><a class="" href="dnf.html">던전앤파이터</a><a class="" href="lol.html">리그 오브 레전드</a><a class="" href="data_lab.html">데이터 랩 (CSV 분석)</a><a class="" href="assistant.html">PM 어시스턴트 (미리보기)</a></nav></div></header><main class="sx-main"><div class="gp-hero"><div class="gp-eyebrow">Static Report for Reviewers</div><h1>GamePulse AI 포트폴리오 보고서</h1><p>게임 이용자 문제를 데이터로 정의하고, 사업PM 관점의 개선 전략과 KPI를 설계합니다.</p></div><h2>검토자 안내</h2><ul class="sx-ul"><li>이 보고서는 <a href="https://gamepulse-ai1.streamlit.app/">원본 Streamlit 앱</a>을 자동 변환한 정적 HTML입니다. JavaScript 없이도 모든 글자를 읽을 수 있습니다.</li><li><b>오버워치 페이지</b>가 실제 자료 기반 대표 분석입니다. 다른 게임 페이지는 시연용 <b>예시 데이터</b>입니다.</li><li>각 수치·차트에 출처 성격을 배지로 표시했습니다. 아래 배지 뜻을 참고하세요.</li><li>게임 스크린샷은 작성자가 직접 캡처한 최신 한국어 화면이며, 다른 플레이어 닉네임은 가림 처리했습니다.</li><li>생성 시각 2026-11-20 09:02 KST · 코드: <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a></li></ul><div class="sx-legend"><b>배지 뜻</b><span class="gp-badge k-real">실제 자료</span> 공개 출처·직접 캡처로 확인<span class="gp-badge k-interp">분석자 해석</span> 자료를 바탕으로 한 판단<span class="gp-badge k-hypo">검증 전 가설</span> 아직 입증되지 않음<span class="gp-badge k-mock">기획 시안</span> 게임에 없는 제안·계획<span class="gp-badge k-sim">가정 시뮬레이션</span> 가정값으로 계산 (실적 아님)<span class="gp-badge k-sample">예시 데이터</span> 시연용 가상 데이터</div><h2>페이지</h2><div class="sx-cards"><a class="sx-card feature" href="overwatch.html"><div class="k">대표 프로젝트 · 실제 자료 기반</div><h3>오버워치 · PROJECT RE:START</h3><p><b>복귀 유저는 바뀐 영웅·스킬·시스템을 실전에서 이해하고 대응하기 어렵다</b> — 영웅 풀·밸런스는 건드리지 않고, 개인별 변경점 브리핑과 학습 중심 미션으로 복귀 첫 주 적응을 돕는다. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a><a class="sx-card" href="home.html"><div class="k">도구 화면</div><h3>사이트 홈 · 개요</h3><p>사이트 전체 소개와 게임별 분석 바로가기</p></a><a class="sx-card" href="pubg.html"><div class="k">예시 데이터 기반 분석</div><h3>PUBG: 배틀그라운드</h3><p>한 번 맞으면 끝나는 게임에서, 신규 이용자는 언제 &#x27;배울 기회&#x27;를 얻는가?</p></a><a class="sx-card" href="fconline.html"><div class="k">예시 데이터 기반 분석</div><h3>FC 온라인</h3><p>내 구단의 &#x27;가치&#x27;가 떨어질 때, 이용자는 무엇을 잃었다고 느끼는가?</p></a><a class="sx-card" href="dnf.html"><div class="k">예시 데이터 기반 분석</div><h3>던전앤파이터</h3><p>새 시즌은 &#x27;새 목표&#x27;인가, &#x27;지난 노력의 초기화&#x27;인가?</p></a><a class="sx-card" href="lol.html"><div class="k">예시 데이터 기반 분석</div><h3>리그 오브 레전드</h3><p>트롤을 더 세게 막는 것만큼, 피해를 본 사람이 다시 큐를 돌리게 만드는 것도 중요하다.</p></a><a class="sx-card" href="data_lab.html"><div class="k">도구 화면</div><h3>데이터 랩 (CSV 분석)</h3><p>CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)</p></a><a class="sx-card" href="assistant.html"><div class="k">도구 화면</div><h3>PM 어시스턴트 (미리보기)</h3><p>정리된 분석 내용을 대화형으로 찾아보는 규칙 기반 미리보기</p></a></div></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-20 09:02 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>
+</style></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="on" href="index.html">보고서 첫 화면</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="pubg.html">PUBG: 배틀그라운드</a><a class="" href="fconline.html">FC 온라인</a><a class="" href="dnf.html">던전앤파이터</a><a class="" href="lol.html">리그 오브 레전드</a><a class="" href="data_lab.html">데이터 랩 (CSV 분석)</a><a class="" href="assistant.html">PM 어시스턴트 (미리보기)</a></nav></div></header><main class="sx-main"><div class="gp-hero"><div class="gp-eyebrow">Static Report for Reviewers</div><h1>GamePulse AI 포트폴리오 보고서</h1><p>게임 이용자 문제를 데이터로 정의하고, 사업PM 관점의 개선 전략과 KPI를 설계합니다.</p></div><h2>검토자 안내</h2><ul class="sx-ul"><li>이 보고서는 <a href="https://gamepulse-ai1.streamlit.app/">원본 Streamlit 앱</a>을 자동 변환한 정적 HTML입니다. JavaScript 없이도 모든 글자를 읽을 수 있습니다.</li><li><b>오버워치 페이지</b>가 실제 자료 기반 대표 분석입니다. 다른 게임 페이지는 시연용 <b>예시 데이터</b>입니다.</li><li>각 수치·차트에 출처 성격을 배지로 표시했습니다. 아래 배지 뜻을 참고하세요.</li><li>게임 스크린샷은 작성자가 직접 캡처한 최신 한국어 화면이며, 다른 플레이어 닉네임은 가림 처리했습니다.</li><li>생성 시각 2026-11-20 09:27 KST · 코드: <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a></li></ul><div class="sx-legend"><b>배지 뜻</b><span class="gp-badge k-real">실제 자료</span> 공개 출처·직접 캡처로 확인<span class="gp-badge k-interp">분석자 해석</span> 자료를 바탕으로 한 판단<span class="gp-badge k-hypo">검증 전 가설</span> 아직 입증되지 않음<span class="gp-badge k-mock">기획 시안</span> 게임에 없는 제안·계획<span class="gp-badge k-sim">가정 시뮬레이션</span> 가정값으로 계산 (실적 아님)<span class="gp-badge k-sample">예시 데이터</span> 시연용 가상 데이터</div><h2>페이지</h2><div class="sx-cards"><a class="sx-card feature" href="overwatch.html"><div class="k">대표 프로젝트 · 실제 자료 기반</div><h3>오버워치 · PROJECT RE:START</h3><p><b>복귀 유저는 바뀐 영웅·스킬·시스템을 실전에서 이해하고 대응하기 어렵다</b> — 영웅 풀·밸런스는 건드리지 않고, 개인별 변경점 브리핑과 학습 중심 미션으로 복귀 첫 주 적응을 돕는다. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a><a class="sx-card" href="home.html"><div class="k">도구 화면</div><h3>사이트 홈 · 개요</h3><p>사이트 전체 소개와 게임별 분석 바로가기</p></a><a class="sx-card" href="pubg.html"><div class="k">예시 데이터 기반 분석</div><h3>PUBG: 배틀그라운드</h3><p>한 번 맞으면 끝나는 게임에서, 신규 이용자는 언제 &#x27;배울 기회&#x27;를 얻는가?</p></a><a class="sx-card" href="fconline.html"><div class="k">예시 데이터 기반 분석</div><h3>FC 온라인</h3><p>내 구단의 &#x27;가치&#x27;가 떨어질 때, 이용자는 무엇을 잃었다고 느끼는가?</p></a><a class="sx-card" href="dnf.html"><div class="k">예시 데이터 기반 분석</div><h3>던전앤파이터</h3><p>새 시즌은 &#x27;새 목표&#x27;인가, &#x27;지난 노력의 초기화&#x27;인가?</p></a><a class="sx-card" href="lol.html"><div class="k">예시 데이터 기반 분석</div><h3>리그 오브 레전드</h3><p>트롤을 더 세게 막는 것만큼, 피해를 본 사람이 다시 큐를 돌리게 만드는 것도 중요하다.</p></a><a class="sx-card" href="data_lab.html"><div class="k">도구 화면</div><h3>데이터 랩 (CSV 분석)</h3><p>CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)</p></a><a class="sx-card" href="assistant.html"><div class="k">도구 화면</div><h3>PM 어시스턴트 (미리보기)</h3><p>정리된 분석 내용을 대화형으로 찾아보는 규칙 기반 미리보기</p></a></div></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-20 09:27 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>

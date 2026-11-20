@@ -41,6 +41,7 @@ from gamepulse.config import APP_NAME, APP_TAGLINE  # noqa: E402
 from gamepulse.content.games import GAME_ORDER, GAMES  # noqa: E402
 from gamepulse.ui.components import badge  # noqa: E402
 from gamepulse.ui.styles import CSS as APP_CSS  # noqa: E402
+from gamepulse.views.overwatch import TAB_LABELS as OW_TABS  # noqa: E402
 
 DOCS = ROOT / "docs"
 IMG_DIR = DOCS / "assets" / "img"
@@ -153,8 +154,9 @@ def _title(obj) -> str:
 
 
 class Exporter:
-    def __init__(self, page_kind: str):
+    def __init__(self, page_kind: str, id_prefix: str = ""):
         self.page_kind = page_kind
+        self.id_prefix = id_prefix  # 탭별로 따로 변환할 때 차트·내부 탭 id 가 겹치지 않게
         self.n_chart = 0
         self.n_tabs = 0
         self.toc: list[tuple[str, str]] = []
@@ -178,7 +180,7 @@ class Exporter:
         layout.setdefault("font", {}).setdefault("family", "Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif")
         h = int(layout.get("height") or 380)
         self.n_chart += 1
-        cid = f"chart{self.n_chart}"
+        cid = f"chart{self.id_prefix}{self.n_chart}"
         payload = json.dumps({"data": spec.get("data", []), "layout": layout}, ensure_ascii=False).replace("</", "<\\/")
 
         # 글자만 읽는 도구를 위한 숫자 표 · 열 제목은 차트가 알려 준 의미(layout.meta.table) → 축 제목 → 일반 이름 순
@@ -220,6 +222,8 @@ class Exporter:
     # ---------------- 위젯 스냅샷
     def widget(self, n) -> str:
         t, label = n.type, H.escape(str(getattr(n, "label", "") or ""))
+        if t == "radio" and label == "섹션 선택":   # 오버워치 01~06 탭 선택 → 정적 탭 바로 교체
+            return "<!--OW_TABBAR-->"
         if t in ("radio", "selectbox", "multiselect", "select_slider"):
             opts = [str(o) for o in (getattr(n, "options", None) or [])]
             val = n.value
@@ -275,7 +279,7 @@ class Exporter:
         if t == "tab_container":
             tabs = [c for _, c in sorted(n.children.items())]
             self.n_tabs += 1
-            ids = [f"t{self.n_tabs}-{i}" for i in range(len(tabs))]
+            ids = [f"t{self.id_prefix}{self.n_tabs}-{i}" for i in range(len(tabs))]
             if depth == 0 and not self.toc:
                 self.toc = [(i, tb.label) for i, tb in zip(ids, tabs)]
             nav = "".join(f'<a href="#{i}">{H.escape(tb.label)}</a>' for i, tb in zip(ids, tabs))
@@ -318,9 +322,11 @@ class Exporter:
 
 
 # ----------------------------------------------------------------------
-def run_page(page: str) -> AppTest:
+def run_page(page: str, tab: str | None = None) -> AppTest:
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180)
     at.session_state["page"] = page
+    if tab:
+        at.session_state["ow_tab"] = tab
     at.run()
     if at.exception:
         raise RuntimeError(f"{page} 페이지 실행 오류: {[e.value for e in at.exception]}")
@@ -329,7 +335,7 @@ def run_page(page: str) -> AppTest:
 
 def overwatch_extras() -> dict[str, str]:
     """기본 화면에 안 보이는 시안 단계(A 복귀 브리핑 1~3단계)를 클릭해 얻은 화면을 탭 끝에 덧붙인다."""
-    at = run_page("overwatch")
+    at = run_page("overwatch", tab=OW_TABS[3])
     shots = []
     at.button(key="ow_a_start").click().run()
     for step in range(1, 4):
@@ -344,6 +350,47 @@ def overwatch_extras() -> dict[str, str]:
         '<details class="sx-exp"><summary>시안 단계 미리보기 · "3분 요약 보기"를 눌렀을 때 1~3단계 (예시 계정: 2026년 1월 마지막 접속) '
         '<span class="sx-more">펼쳐보기</span></summary>'
         f'<div class="sx-exp-b">{body}</div></details>')}
+
+
+TAB_JS = """<script>(function(){
+  var bar=document.querySelector('.ow-tabbar'); if(!bar) return;
+  function show(n, write){
+    document.querySelectorAll('.ow-pane').forEach(function(p){ p.hidden = p.getAttribute('data-tab')!==n; });
+    bar.querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-selected', String(b.getAttribute('data-tab')===n)); });
+    if (write) history.replaceState(null, '', '#t'+n);   /* 해시만 바꾸고 스크롤은 그대로 */
+    if (window.Plotly) document.querySelectorAll('#pane-'+n+' .sx-chart-c').forEach(function(c){
+      if (!c.closest('details:not([open])')) Plotly.Plots.resize(c); });
+  }
+  bar.querySelectorAll('button').forEach(function(b){ b.addEventListener('click', function(){ show(b.getAttribute('data-tab'), true); }); });
+  function fromHash(){ var m=(location.hash||'').match(/^#t?(0[1-6])$/); show(m?m[1]:'01', false); }
+  window.addEventListener('hashchange', fromHash); fromHash();
+})();</script>"""
+
+
+def overwatch_body(kind: str) -> tuple[str, int]:
+    """오버워치: 6개 탭을 각각 실행해 모은 뒤, 탭 버튼 + 패널(선택한 1개만 표시) + JS 로 합친다.
+    숨은 패널의 내용도 HTML 에 그대로 있어 글자만 읽는 도구는 모든 탭을 읽을 수 있다. 주소 #t04 로 바로 열 수 있다."""
+    extras = overwatch_extras()
+    prefix, panes, charts = None, [], 0
+    for i, label in enumerate(OW_TABS):
+        n = label[:2]
+        ex = Exporter(kind, id_prefix=f"p{n}_")
+        ex.tab_extras = extras if i == 3 else {}
+        at = run_page("overwatch", tab=label)
+        body = ex.children(at.main, 0)
+        pre, mark, rest = body.partition('<div class="ow-pane-mark"')
+        if not mark:
+            raise RuntimeError(f"탭 {label}: 탭 경계 표식을 찾지 못함")
+        pane = rest.split("</div>", 1)[1]
+        prefix = prefix if prefix is not None else pre
+        panes.append(f'<section class="ow-pane" id="pane-{n}" role="tabpanel" aria-labelledby="tb-{n}" data-tab="{n}"{"" if i == 0 else " hidden"}>'
+                     f'<h2 class="sx-pane-h">{H.escape(label)}</h2>{pane}</section>')
+        charts += ex.charts
+    tabbar = ('<div class="ow-tabbar" role="tablist" aria-label="섹션">' + "".join(
+        f'<button type="button" role="tab" id="tb-{lab[:2]}" aria-controls="pane-{lab[:2]}" data-tab="{lab[:2]}" '
+        f'aria-selected="{"true" if j == 0 else "false"}"><b>{lab[:2]}</b>{H.escape(lab[3:])}</button>'
+        for j, lab in enumerate(OW_TABS)) + "</div>")
+    return prefix.replace("<!--OW_TABBAR-->", tabbar) + "".join(panes) + TAB_JS, charts
 
 
 def save_images(doc: str) -> str:
@@ -402,6 +449,8 @@ details[open] > summary .sx-more { display: none; }
 .sx-chart-h { font-weight: 700; font-size: 0.95rem; padding: 0.1rem 0.3rem 0.4rem; }
 .sx-chart-c { width: 100%; }
 .sx-chart.bare { border: 0; padding: 0; margin: 0.3rem 0 0.6rem; }
+.sx-pane-h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ow-pane[hidden] { display: none !important; }
 .sx-box { border: 1px solid #DDE4EF; border-radius: 16px; padding: 1rem 1rem 0.8rem; margin: 0.6rem 0 1.4rem; background: #fff; }
 .sx-box > div > .sx-md, .sx-box .sx-chart.bare { margin: 0; }
 html { scroll-behavior: smooth; }
@@ -425,6 +474,10 @@ html { scroll-behavior: smooth; }
 .sx-card .k { font-size: 0.75rem; font-weight: 800; color: #F99E1A; letter-spacing: 0.04em; }
 .sx-ul { line-height: 1.7; padding-left: 1.2rem; }
 @media (max-width: 640px) {
+  .sx-top-in { padding: 0.45rem 12px; }
+  .sx-top nav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; padding-bottom: 0.15rem; }
+  .sx-top nav a { white-space: nowrap; font-size: 0.8rem; }
+  .sx-note { font-size: 0.82rem; padding: 0.5rem 0.7rem; }
   .sx-row { flex-direction: column; } .sx-col { flex: 1 1 auto !important; width: 100%; }
   .sx-tab-h { font-size: 1.2rem; }
 }
@@ -446,10 +499,11 @@ def page_html(title: str, desc: str, current: str, body: str, toc: list, charts:
                   for _, f, n, _ in [("index", "index.html", "보고서 첫 화면", "")] + PAGES)
     toc_html = ("" if not toc else '<nav class="sx-toc"><b>이 페이지 목차</b>'
                 + "".join(f'<a href="#{i}">{H.escape(l)}</a>' for i, l in toc) + "</nav>")
+    own_legend = current == "overwatch.html"   # 오버워치는 앱이 배지 설명을 직접 표시
     note = ("" if current == "index.html" else
-            f'<div class="sx-note"><b>정적 보고서 안내</b> · 이 페이지는 <a href="{LIVE_URL}">원본 Streamlit 앱</a>의 화면을 '
-            f'자동으로 변환한 스냅샷입니다 (생성 {gen}). 탭은 차례대로 펼쳤고, 버튼·슬라이더는 기본값 상태입니다. '
-            '차트 아래 "차트 데이터 표"에 수치가 있습니다. 게임 스크린샷의 다른 플레이어 닉네임은 가림 처리했습니다.</div>')
+            f'<div class="sx-note"><b>정적 보고서</b> · <a href="{LIVE_URL}">원본 앱</a> 스냅샷 ({gen}) · '
+            + ("01~06 탭으로 섹션 전환 · " if own_legend else "")
+            + '버튼·슬라이더는 기본값 · 차트 수치는 "차트 데이터 표"에</div>')
     # 접힌 펼치기 안의 차트는 숨은 상태로 그려지므로, 펼칠 때 너비를 다시 맞춘다
     resize = ("<script>document.addEventListener('toggle',function(e){var d=e.target;if(d.tagName==='DETAILS'&&d.open&&window.Plotly){"
               "d.querySelectorAll('.sx-chart-c').forEach(function(c){Plotly.Plots.resize(c);});}},true);</script>")
@@ -459,7 +513,8 @@ def page_html(title: str, desc: str, current: str, body: str, toc: list, charts:
             f'<title>{H.escape(title)} · {APP_NAME}</title><meta name="description" content="{H.escape(desc)}">'
             f'{APP_CSS}<style>{STATIC_CSS}</style>{script}</head><body>'
             f'<header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div>'
-            f'<nav>{nav}</nav></div></header><main class="sx-main">{note}{legend() if current != "index.html" else ""}{toc_html}{body}</main>'
+            f'<nav>{nav}</nav></div></header><main class="sx-main">{note}'
+            f'{legend() if current not in ("index.html", "overwatch.html") else ""}{toc_html}{body}</main>'
             f'<footer class="sx-foot">{APP_NAME} 정적 보고서 · 생성 {gen} · <a href="{LIVE_URL}">원본 앱</a> · '
             f'<a href="{REPO_URL}">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer>'
             '</body></html>')
@@ -537,13 +592,18 @@ def main() -> int:
 
     written = []
     for pid, fname, name, kind in PAGES:
-        ex = Exporter(kind)
         if pid == "overwatch":
-            ex.tab_extras = overwatch_extras()
+            body, n_charts = overwatch_body(kind)
+            doc = save_images(page_html(name, GAMES[pid].get("theme", name), fname, body, [], n_charts > 0, gen))
+            (DOCS / fname).write_text(doc, encoding="utf-8")
+            written.append(DOCS / fname)
+            print(f"  {fname:18} 차트 {n_charts:2} · {len(doc) / 1024:,.0f} KB · 탭 {len(OW_TABS)}개")
+            continue
+        ex = Exporter(kind)
         at = run_page(pid)
         body = ex.children(at.main, 0)
         desc = GAMES[pid].get("one_liner", name) if pid in GAMES else name
-        toc = [] if 'class="ow-nav"' in body else ex.toc  # 페이지에 01~06 이동 메뉴가 있으면 별도 목차 생략
+        toc = ex.toc
         doc = save_images(page_html(name, desc, fname, body, toc, ex.charts > 0, gen))
         (DOCS / fname).write_text(doc, encoding="utf-8")
         written.append(DOCS / fname)
