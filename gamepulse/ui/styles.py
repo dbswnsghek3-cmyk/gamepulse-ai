@@ -1010,6 +1010,26 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 /* 표가 화면 끝까지 넓적해지지 않게 */
 .gp-table-wrap:has(.ow-table) {{ max-width: 1040px; }}
 
+/* ---------- 오버워치 v12: 정보량 축소 후 글자 1~2px 확대 · 보조 글자 대비 ---------- */
+.ow-dec-a, .ow-step-d, .ow-alt-d, .ow-map-p, .ow-quote-t, .ow-line, .ow-tl-b, .ow-spec-r, .ow-layer li, .ow-why-i,
+.ow-vs > div, .ow-mission-i, .ow-limits, .ow-sig > div, .ow-defbox > div, .ow-card li, .ow-rules li, .ow-defer, .ow-tl-t,
+.ow-phase-d, .ow-strat-t, .ow-proto-card li, .ow-proto-card p {{ font-size: 1rem !important; line-height: 1.6 !important; }}
+.ow-table td, .ow-table th {{ font-size: 0.97rem !important; }}
+.ow-map-s b, .ow-dec-q, .ow-spec-n, .ow-alt-t, .ow-step-t {{ font-size: 1.08rem !important; }}
+.ow-hero3 b {{ font-size: 1.15rem !important; }}
+.ow-hero3 small, .ow-map-s small, .ow-spec-p, .ow-tile-s, .ow-kpi-l, .ow-chart-u, .ow-step-b, .ow-step-c, .ow-alt-c,
+.ow-quote-tag, .ow-quote-m, .ow-shot figcaption, .ow-credits li {{ font-size: 0.9rem !important; }}
+.ow-quote-o, .ow-alt-c, .ow-step-b, .ow-quote-m, .ow-tile-s, .ow-spec-p {{ color: #475569 !important; }}
+/* 차트 아래: '사업PM 판단' 한 줄 + 해석·기준 작은 한 줄 */
+.ow-chart-f2 > div.pm {{ font-size: 1rem !important; padding: 0.55rem 0.8rem !important; border-radius: 10px !important; }}
+.ow-chart-b {{ font-size: 0.88rem !important; color: #475569 !important; margin-top: 0.35rem !important; line-height: 1.5 !important; }}
+.ow-kpi-v {{ font-size: 1.25rem !important; }}
+/* 배지 범례: 한 줄 */
+.ow-badges {{ display: flex !important; flex-wrap: wrap; gap: 0.3rem 1rem !important; font-size: 0.85rem !important; color: #475569 !important; }}
+.ow-badges .gp-badge {{ font-size: 0.72rem !important; }}
+/* 실제 화면 이미지는 조금 크게 */
+.ow-shot.hero {{ max-width: 940px !important; }} .ow-shot.wide {{ max-width: 860px !important; }}
+
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
 /* 모바일 */
