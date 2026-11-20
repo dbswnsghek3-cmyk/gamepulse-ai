@@ -1056,7 +1056,12 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .pg-demo .src {{ font-size: 0.85rem; color: #475569; margin-top: 0.4rem; }}
 .pg-slot {{ border: 1.5px dashed #CBD5E1; border-radius: 12px; background: #F8FAFC; padding: 1.2rem 1rem; text-align: center; color: #475569;
   aspect-ratio: 16 / 9; display: flex; flex-direction: column; justify-content: center; gap: 0.3rem; max-width: 640px; }}
-.pg-slot b {{ color: #1E293B; }}
+.pg-slot b {{ color: #1E293B; font-size: 1.02rem; }}
+.pg-slot-k {{ align-self: center; font-size: 0.75rem; font-weight: 800; color: #475569; background: #FFFFFF; border: 1px solid #E2E8F0;
+  border-radius: 999px; padding: 0.1rem 0.6rem; }}
+.pg-slot small {{ font-size: 0.85rem; }} .pg-slot small.f {{ font-family: ui-monospace, Consolas, monospace; font-size: 0.78rem; color: #64748B; }}
+.pg-slot-w {{ display: flex; flex-direction: column; gap: 0.3rem; }} .pg-slot-w > small {{ color: #475569; font-size: 0.85rem; }}
+.pg-slot-w .pg-slot {{ max-width: none; }}
 .pg-metric {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem; margin: 0.5rem 0; }}
 .pg-metric > div {{ background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.5rem 0.65rem; }}
 .pg-metric b {{ display: block; font-size: 1.2rem; color: #1E293B; }} .pg-metric small {{ color: #475569; font-size: 0.82rem; }}

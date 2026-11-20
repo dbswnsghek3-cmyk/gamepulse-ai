@@ -65,8 +65,36 @@ def tab_nav() -> int:
     return TAB_LABELS.index(sel)
 
 
-def slot(title: str, need: str) -> None:
-    html(f'<div class="pg-slot"><b>실제 게임 화면 캡처 필요</b><span>{escape(title)}</span><small>{escape(need)}</small></div>')
+SCREENS: dict[str, dict] = {}   # newstart.json 'screens' (render 에서 채움)
+ASSETS = Path(__file__).resolve().parents[2] / "assets" / "pubg"
+
+
+def slot_html(key: str) -> str:
+    """실제 게임 화면 자리 (캡처 대기 카드)."""
+    sc = SCREENS.get(key, {"title": key, "where": "", "file": f"{key}.png"})
+    return (f'<div class="pg-slot"><span class="pg-slot-k">실제 게임 화면 · 캡처 대기</span><b>{escape(sc["title"])}</b>'
+            f'<small>캡처 위치 · {escape(sc["where"])}</small><small class="f">assets/pubg/{escape(sc["file"])}</small></div>')
+
+
+def shot(key: str) -> None:
+    """캡처가 들어오고 닉네임 가림 처리 후 ready=true 로 바꾼 파일만 표시. 그 전에는 자리만."""
+    sc = SCREENS.get(key, {})
+    path = ASSETS / sc.get("file", "-")
+    if sc.get("ready") and path.is_file():
+        st.image(str(path), caption=sc.get("title", ""), width="stretch")
+    else:
+        html(slot_html(key))
+
+
+def compare(real_key: str, real_title: str, mock_title: str, mock_fn) -> None:
+    """오버워치와 같은 '실제 화면(왼쪽) ↔ 기획 시안(오른쪽)' 비교 배치."""
+    left, right = st.columns([1, 1], gap="medium")
+    with left:
+        html(f'<div class="ow-colh real">현재 · {escape(real_title)}</div>')
+        shot(real_key)
+    with right:
+        html(f'<div class="ow-colh mock">제안 · {escape(mock_title)}</div>')
+        mock_fn()
 
 
 def gantt(sc: dict) -> str:
@@ -85,6 +113,8 @@ def gantt(sc: dict) -> str:
 # ======================================================================
 def render() -> None:
     ns, ops, steam, pool = load()
+    SCREENS.clear()
+    SCREENS.update({x["key"]: x for x in ns.get("screens", [])})
     plan = S.plan(ns["experiment"])
     html('<div class="gp-ow-page"></div>')          # 오버워치와 같은 반응형·배경 스타일 범위
     cv = ns["cover"]
@@ -99,7 +129,7 @@ def render() -> None:
     html(f'<div class="ow-pane-mark" data-tab="{SECTIONS[i][0]}"></div>')   # 정적 보고서 탭 경계 표식
     [lambda: s1(ns, ops, plan, pool), lambda: s2(ns, ops, steam, pool), lambda: s3(ns, ops, pool),
      lambda: s4(ns), lambda: s5(ns, plan), lambda: s6(ns, plan)][i]()
-    st.caption(f"{ns['disclaimer']} · 자료 확인일 2026-11-20 · 실제 게임 화면은 캡처 확보 전")
+    st.caption(f"{ns['disclaimer']} · 자료 확인일 2026-11-20")
 
 
 # ======================================================================
@@ -113,12 +143,14 @@ def s1(ns: dict, ops: pd.DataFrame, plan: dict, pool: dict) -> None:
         f'<small>{escape(pr[k]["tagline"])} · {escape(pr[k]["diff"])}</small></div></div>' for t, k in [("A", "A1"), ("B", "B1")]) + "</div>")
 
     a = ops[ops["track"] == "A"]
+    b_ = ops[ops["track"] == "B"]
+    cost_main = int((b_["category"] == "총비용 부담").sum())
     gap = a["category"].isin(["실력 격차·매칭", "봇→실전 전환", "초반 교전·첫 사망"]).sum()
     a_ = plan["A"]
     sub("PM 의사결정 요약")
     cards = [("a", "왜 먼저인가", b_real(), f"훈련(17챕터·14일 미션)은 이미 있다. 리뷰 {len(a)}건 중 {gap}건이 '실전 전환 뒤' 격차를 말한다."),
-             ("b", "BM은 왜 정보부터", b_real(), "이중 가챠는 42.1에서 제거됐다. 남은 불만은 결과·총비용 예측이라 확률보다 안내가 먼저다."),
-             ("a", "무엇으로 판단", b_mock(), f"A1: 신규 D7 +{a_['mde']:.1f}%p(MDE) · B1: 구매 전환율 −{ns['experiment']['B']['ni_margin']:.1f}%p 이내 유지"),
+             ("b", "BM은 왜 '검증'부터", b_interp(), f"BM 리뷰 {len(b_)}건 중 총비용 부담 주분류는 {cost_main}건뿐. 시급하다고 단정하지 않고, 정보 부족이 구매 판단에 영향을 주는지부터 본다."),
+             ("a", "무엇으로 판단", b_mock(), f"A1: D7 유의 + 실질 효과 +{plan['practical_min']:.1f}%p 이상 + 가드레일 · B1: 전환율 비열등과 매출 가드레일을 따로"),
              ("a", "비용 대비 효과", b_sim(), f"A1 {plan['a1_cost'] / 1e4:,.0f}만 원 ÷ 분기 추가 D7 {plan['quarter_added_d7']:,.0f}명 ≈ 1명당 {plan['a1_cost_per_added']:,.0f}원")]
     html('<div class="ow-dec">' + "".join(
         f'<div class="ow-dec-i"><div class="ow-dec-q">{escape(q)} <span class="ow-dec-b">{b}</span></div><div class="ow-dec-a">{escape(t)}</div></div>'
@@ -152,19 +184,24 @@ def s2(ns: dict, ops: pd.DataFrame, steam: pd.DataFrame, pool: dict) -> None:
          f'<span>리뷰 {len(ops)}건 = 최신 리뷰 {sum(pool["pool"].values()):,}건에서 직접 고른 사례 · 비율 아님</span>'
          '<span>Steam 접속자 = 시장 규모 참고 · 신규 잔존·이탈률 아님</span>'
          f'<span>핵 키워드 리뷰 {pool["cheat_keyword_reviews"]}건은 별도 운영 리스크</span></div>')
-    t = st.tabs([f"유저 의견 {len(ops)}건", f"공식 시스템 {len(ns['official'])}건", "기존 기능 vs 제안", "자료 한계"])
+    t = st.tabs([f"유저 의견 {len(ops)}건", f"게임 화면 {len(SCREENS)}장", f"공식 시스템 {len(ns['official'])}건", "기존 기능 vs 제안", "자료 한계"])
     with t[0]:
         _opinions(ops)
     with t[1]:
+        sub("직접 캡처할 최신 한국어 화면", b_real())
+        html('<div class="ow-grid2">' + "".join(
+            f'<div class="pg-slot-w">{tr(x["track"])}<small>{escape(x["use"])}</small>{slot_html(x["key"])}</div>' for x in SCREENS.values()) + "</div>")
+        st.caption("캡처가 들어오면 다른 플레이어 닉네임을 가린 사본만 공개합니다. 원본은 로컬에만 보관합니다.")
+    with t[2]:
         table(["날짜 · 트랙", "자료", "확인한 사실", "출처"],
               [[f"{escape(o['date'])}<br>{tr(o['track'])}", f"<b>{escape(o['title'])}</b>", escape(o["fact"]), link(o["url"], o["status"])]
                for o in ns["official"]], badge_html=b_real())
         st.caption("'매체 보도'는 공식 원문을 찾지 못해 언론 보도로 확인한 항목입니다.")
-    with t[2]:
+    with t[3]:
         table(["영역", "기존 기능 (실제)", "남은 빈틈", "이번 제안"],
               [[escape(x["area"]), escape(x["existing"]), escape(x["gap"]), f"<b>{escape(x['new'])}</b>"] for x in ns["existing_vs_new"]],
               badge_html=b_interp())
-    with t[3]:
+    with t[4]:
         st.markdown(f"- 리뷰 표본: {pool['source']} · 한국어 {pool['pool']['한국어']}건({pool['period']['한국어']}) · "
                     f"영어 필터 {pool['pool']['영어 필터']}건({pool['period']['영어 필터']}) · 추천 비율 {pool['recommend_rate']['한국어']}% / {pool['recommend_rate']['영어 필터']}%\n"
                     f"- 그중 신규 정착·BM 관련 리뷰 {len(ops)}건을 기획자가 직접 읽고 분류 (AI 자동 분류 아님) · 원문 발췌는 원본과 글자 그대로 대조\n"
@@ -189,7 +226,7 @@ def _review_chart(ops: pd.DataFrame, pool: dict) -> None:
                unit="건 · 파랑 = TRACK A, 코랄 = TRACK B",
                kpis=[("TRACK A · 신규 정착", f"{a}건"), ("TRACK B · BM", f"{b}건"), ("긍정 의견 (반대 사례)", f"{pos}건")],
                analysis=f"A는 '학습 곡선·실력 격차·봇→실전 전환', B는 '확률 결과·총비용'이 많다",
-               decision="A1은 전환 구간, B1은 총비용 정보에 집중",
+               decision="A1은 전환 구간 · B는 '정보 부족 → 구매 판단' 영향부터 검증",
                basis=f"최신 리뷰 {sum(pool['pool'].values()):,}건 중 관련 리뷰 직접 분류 · 비율 아님",
                height=430, legend=False, cols=("분류", "리뷰 수 (건)"))
 
@@ -278,7 +315,7 @@ def s3(ns: dict, ops: pd.DataFrame, pool: dict) -> None:
     sub("TRACK B · 구매 만족도가 떨어지는 지점")
     _flow([("real", "확률형 구매", "밀수품 상자 1,800 G-Coin · 확률은 게임 안 페이지", "공식 상점 공지 2026-11", "상점 방문 → 구매 전환"),
            ("interp", "원하는 결과 미획득", "최고 등급 대신 크로마 반복", f"리뷰 '확률·결과' {int(n.get('확률·결과 불만', 0))}건", "구매 후 문의율"),
-           ("interp", "총비용 예측 어려움", "목표 스킨·업그레이드까지 얼마인지 모름", f"리뷰 '총비용' {int(n.get('총비용 부담', 0))}건 + 업그레이드 비용 지적 1건", "구매 과정 이탈률"),
+           ("hypo", "정보 부족 → 구매 판단", "목표 스킨까지 얼마인지 모른 채 구매", f"'총비용' 주분류 {int(n.get('총비용 부담', 0))}건 · 보조 언급 {int(ops['tags'].str.contains('총비용 부담').sum())}건 → 근거 약함", "B1 A/B: 전환율·구매 과정 이탈률"),
            ("hypo", "신뢰·재구매 하락", "만족도·신뢰가 낮아져 재구매가 줄 수 있음", "가설 · 매출 로그 검증 필요", "30일 재구매율 (A/B)")])
     sub("다른 원인도 함께 확인")
     alts = [("A", "핵·부정 플레이", f"핵 키워드 리뷰 {pool['cheat_keyword_reviews']}건 (최다)", "운영 과제 · 실험 기간 신고율 모니터링"),
@@ -324,119 +361,114 @@ def s4(ns: dict) -> None:
 def demo_a(ns: dict) -> None:
     dm = ns["demo_matches"]
     df = pd.DataFrame(dm["rows"], columns=dm["cols"])
-    html(f'<div class="ow-vs"><div><b>기존 기능</b> 경기 결과 화면(순위·킬) · 초심자 훈련소 일일 미션</div>'
-         f'<div><b>제안</b> 실전 기록을 1경기와 비교해 성장 지표 + 다음 목표 1개 (보상 없음)</div></div>')
-    k = st.select_slider("경기 번호 (예시 계정)", options=list(range(1, 11)), value=5, key="pg_a_match")
-    r, r0 = df.iloc[k - 1], df.iloc[0]
 
-    def delta(v, v0, unit, better_up=True):
-        if v is None or (isinstance(v, float) and math.isnan(v)) or v0 is None or (isinstance(v0, float) and math.isnan(v0)) or k == 1:
-            return ""
-        d = v - v0
-        return f"<em>{'+' if d > 0 else ''}{d:,.1f}{unit} vs 1경기</em>"
-    eng = "참여" if r["engaged"] else "없음"
-    dist = "—" if pd.isna(r["engage_dist_m"]) else f"{r['engage_dist_m']:.0f}m"
-    html(f'<div class="pg-demo"><h4>{k}경기째 기록 {b_sample()}</h4><div class="pg-metric">'
-         f'<div><small>생존 시간</small><b>{r["survive_min"]:.1f}분</b>{delta(r["survive_min"], r0["survive_min"], "분")}</div>'
-         f'<div><small>첫 교전</small><b>{eng}</b><small>거리 {dist}</small></div>'
-         f'<div><small>팀원과 평균 거리</small><b>{r["team_dist_m"]:.0f}m</b>{delta(r["team_dist_m"], r0["team_dist_m"], "m")}</div>'
-         f'<div><small>부활</small><b>{int(r["revives"])}회</b></div><div><small>순위</small><b>{int(r["place"])}위</b></div></div>'
-         f'<div class="act">다음 목표 · {escape(r["goal"])}</div>'
-         f'<div class="src">{escape(dm["note"])} · 지표는 기존 텔레메트리(위치·기절·부활)로 계산 가능</div></div>')
-    shown = df[df["match"] <= k]
-    fig = go.Figure(go.Scatter(x=shown["match"], y=shown["survive_min"], mode="lines+markers+text", line=dict(color=C_TREAT, width=3),
-                               text=[f"{v:.1f}" for v in shown["survive_min"]], textposition="top center"))
-    fig.update_xaxes(title="경기 번호", range=[0.5, 10.5], dtick=1)
-    fig.update_yaxes(title="생존 시간 (분)", rangemode="tozero", range=[0, df["survive_min"].max() * 1.25])
-    chart_card(fig, key="pg_demo_a", kind="sample", title="생존 시간 추이 (예시 계정)", unit="분",
-               kpis=[], analysis=f"{k}경기까지 생존 {r0['survive_min']:.1f} → {r['survive_min']:.1f}분",
-               decision="첫 10경기는 기획 구간 · 최적 경기 수는 데이터로 결정",
-               basis="예시 데이터 · 실제 계정 기록 아님", height=260, legend=False, cols=("경기 번호", "생존 시간 (분)"))
+    def mock() -> None:
+        k = st.select_slider("경기 번호 (예시 계정)", options=list(range(1, 11)), value=5, key="pg_a_match")
+        r, r0 = df.iloc[k - 1], df.iloc[0]
+
+        def delta(v, v0, unit):
+            return "" if k == 1 else f"<em>{'+' if v - v0 > 0 else ''}{v - v0:,.1f}{unit} vs 1경기</em>"
+        dist = "—" if pd.isna(r["engage_dist_m"]) else f"{r['engage_dist_m']:.0f}m"
+        html(f'<div class="pg-demo"><h4>{k}경기째 성장 기록 {b_sample()}</h4><div class="pg-metric">'
+             f'<div><small>생존 시간</small><b>{r["survive_min"]:.1f}분</b>{delta(r["survive_min"], r0["survive_min"], "분")}</div>'
+             f'<div><small>첫 교전</small><b>{"참여" if r["engaged"] else "없음"}</b><small>거리 {dist}</small></div>'
+             f'<div><small>팀원과 거리</small><b>{r["team_dist_m"]:.0f}m</b>{delta(r["team_dist_m"], r0["team_dist_m"], "m")}</div></div>'
+             f'<div class="act">다음 목표 · {escape(r["goal"])}</div>'
+             f'<div class="src">{escape(dm["note"])} · 보상 없음 (훈련소 미션과 구분)</div></div>')
+    compare("match_result", "경기 결과 화면 (순위·킬)", "첫 10경기 성장 기록", mock)
+    with st.expander("자세히 보기 · 생존 시간 추이 (예시 계정 10경기)"):
+        fig = go.Figure(go.Scatter(x=df["match"], y=df["survive_min"], mode="lines+markers", line=dict(color=C_TREAT, width=3)))
+        fig.update_xaxes(title="경기 번호", dtick=1)
+        fig.update_yaxes(title="생존 시간 (분)", rangemode="tozero", range=[0, df["survive_min"].max() * 1.2])
+        chart_card(fig, key="pg_demo_a", kind="sample", title="생존 시간 추이 (예시)", unit="분", kpis=[],
+                   analysis=f"1경기 {df['survive_min'].iloc[0]:.1f} → 10경기 {df['survive_min'].iloc[-1]:.1f}분",
+                   decision="첫 10경기는 기획 구간 · 최적 경기 수는 데이터로 결정",
+                   basis="예시 데이터 · 실제 계정 기록 아님", height=240, legend=False, cols=("경기 번호", "생존 시간 (분)"))
 
 
 def demo_b(ns: dict) -> None:
     fb = {f["label"]: f for f in ns["demo_feedback"]}
-    left, right = st.columns([1, 1], gap="medium")
-    with left:
-        html('<div class="ow-colh real">현재 · 데스캠·리플레이 (장면 재생)</div>')
-        slot("처치당한 직후 데스캠 화면", "직접 캡처 후 assets/pubg/ 에 추가 예정")
-    with right:
-        html('<div class="ow-colh mock">제안 · 경기 후 고칠 점 1개</div>')
+
+    def mock() -> None:
         lab = st.radio("상황 선택", list(fb), horizontal=True, key="pg_b_sit")
         f = fb[lab]
         html(f'<div class="pg-demo"><h4>첫 실전 피드백 {b_mock()}</h4>'
-             f'<div class="src">상황 (예시) · {escape(f["scene"])}</div>'
-             f'<div><b>원인</b> {escape(f["problem"])}</div>'
+             f'<div class="src">상황 (예시) · {escape(f["scene"])}</div><div><b>원인</b> {escape(f["problem"])}</div>'
              f'<div class="act">{escape(f["action"])}</div>'
-             f'<div class="src">판정 데이터 · {escape(f["data"])}<br>적용 단계 · <b>{escape(f["mvp"])}</b></div></div>')
+             f'<div class="src">판정 데이터 · {escape(f["data"])} · <b>{escape(f["mvp"])}</b></div></div>')
         st.toggle("피드백 끄기", key="pg_b_off", help="설정에서 언제든 끄고 켤 수 있다 (기획 시안)")
         if st.session_state.get("pg_b_off"):
             st.info("피드백을 껐습니다. 결과 화면은 기존과 같습니다. (기획 시안)")
+    compare("deathcam", "데스캠 (장면 재생)", "경기 후 고칠 점 1개", mock)
     note("MVP는 기존 로그로 판정되는 '차량·팀플레이'부터. 엄폐는 신규 로그, 자기장은 필드 확인 후.")
 
 
 def demo_c(ns: dict) -> None:
     bm = ns["bm_sim"]
-    html('<div class="ow-vs"><div><b>기존 기능</b> 확률 보기 페이지 · 누적 개봉 보상 · 스크랩 교환이 각각 다른 화면</div>'
-         '<div><b>제안</b> 목표 스킨 기준으로 기대 비용·50%/90% 비용·교환 시점을 한 화면에 (확률·가격은 그대로)</div></div>')
-    c1, c2, c3 = st.columns(3)
-    price = c1.number_input("1회 가격 (G-Coin)", 100, 10000, int(bm["price"]), step=100, key="pg_c_price")
-    prob = c2.slider("목표 스킨 확률 (%)", 0.1, 10.0, float(bm["prob"]), 0.1, key="pg_c_prob")
-    n = c3.slider("구매 횟수", 1, 400, 100, key="pg_c_n")
-    c1, c2, c3 = st.columns(3)
-    per = c1.number_input("1회당 스크랩", 0, 100, int(bm["scrap_per_open"]), key="pg_c_spo")
-    ex = c2.number_input("교환 필요 스크랩", 0, 20000, int(bm["exchange_scrap"]), step=100, key="pg_c_ex")
-    own = c3.number_input("보유 스크랩", 0, 20000, 0, step=100, key="pg_c_own")
-    s = S.crate_summary(price, prob, per, ex, own, n)
-    cap = s["cap"]
-    cap_v = "없음" if cap is None else f"{s['cap_cost']:,.0f}"
-    cap_n = "" if cap is None else f"{cap}회"
-    html(f'<div class="pg-demo b"><h4>목표 스킨까지 예상 비용 {b_sim()}</h4><div class="pg-metric">'
-         f'<div><small>{n}회 안에 얻을 확률</small><b class="big">{s["within_n"] * 100:.1f}%</b></div>'
-         f'<div><small>기대 비용 (교환 포함)</small><b>{s["exp_cost"]:,.0f}</b><small>G-Coin · {s["exp_opens"]:.0f}회</small></div>'
-         f'<div><small>50% 도달</small><b>{(s["c50"] or 0):,.0f}</b><small>{s["o50"]}회</small></div>'
-         f'<div><small>90% 도달</small><b>{(s["c90"] or 0):,.0f}</b><small>{s["o90"]}회</small></div>'
-         f'<div><small>교환 확정 (천장)</small><b>{cap_v}</b><small>{cap_n}</small></div></div>'
-         f'<div class="src">가격 1,800: {escape(bm["notes"]["price"])} · 확률: {escape(bm["notes"]["prob"])} · 스크랩 10/회: {escape(bm["notes"]["scrap_per_open"])} · '
-         f'교환가: {escape(bm["notes"]["exchange_scrap"])}</div></div>')
-    mx = max(n, (cap or 0), s["o90"] or 0) + 20
-    curve = S.crate_curve(prob, cap, mx)
-    fig = go.Figure()
-    fig.add_scatter(x=[c[0] for c in curve], y=[c[1] for c in curve], name="교환 없이", line=dict(color=C_CTRL, width=2, dash="dot"))
-    fig.add_scatter(x=[c[0] for c in curve], y=[c[2] for c in curve], name="스크랩 교환 포함", line=dict(color=C_CORAL, width=3))
-    fig.add_vline(x=n, line_dash="dash", line_color="#1E293B")
-    fig.add_annotation(x=n, y=8, text=f"{n}회", showarrow=False, xanchor="left", xshift=4)
-    fig.update_xaxes(title="구매 횟수 (회)", range=[0, mx])
-    fig.update_yaxes(title="1번 이상 얻을 확률 (%)", range=[0, 105], ticksuffix="%")
-    chart_card(fig, key="pg_demo_c", kind="sim", title="구매 횟수별 획득 확률", unit="% · 독립 시행 · 코랄 = 교환 포함",
-               kpis=[], analysis=f"교환 없이 기대 {s['exp_cost_nocap']:,.0f} → 교환 포함 {s['exp_cost']:,.0f} G-Coin",
-               decision="구매 전 이 정보를 보여도 전환율이 유지되는지 검증",
-               basis="P(n회 내) = 1 − (1 − p)^n · 천장 = 교환 스크랩 ÷ 1회당 스크랩", height=320,
-               cols=("구매 횟수 (회)", "획득 확률 (%)"), series="계산")
-    with st.expander("자세히 보기 · 계산식과 가정"):
-        st.markdown("- n회 안에 1번 이상 얻을 확률 = 1 − (1 − p)^n (매 구매가 독립이라고 가정)\n"
-                    "- 천장 K = ⌈(교환 필요 스크랩 − 보유 스크랩) ÷ 1회당 스크랩⌉ → K회째에는 교환으로 확보\n"
-                    "- 기대 구매 횟수 = (1 − (1 − p)^K) ÷ p (교환 없으면 1 ÷ p) · 기대 비용 = 기대 횟수 × 1회 가격\n"
+    box = {}
+
+    def mock() -> None:
+        c1, c2 = st.columns(2)
+        box["price"] = c1.number_input("1회 가격 (G-Coin)", 100, 10000, int(bm["price"]), step=100, key="pg_c_price")
+        box["prob"] = c2.slider("목표 스킨 확률 (%)", 0.1, 10.0, float(bm["prob"]), 0.1, key="pg_c_prob")
+        box["out"] = st.container()
+    compare("contraband_store", "밀수품 상자 구매 화면", "구매 전 예상 비용 (가격·확률 그대로)", mock)
+
+    # 상세 설정(스크랩·구매 횟수)과 확률 곡선은 접어 둔다. 값은 위 결과 카드에도 반영된다.
+    with st.expander("자세히 보기 · 스크랩 교환 조건 · 구매 횟수별 확률 곡선 · 계산식"):
+        c1, c2, c3, c4 = st.columns(4)
+        per = c1.number_input("1회당 스크랩", 0, 100, int(bm["scrap_per_open"]), key="pg_c_spo")
+        ex = c2.number_input("교환 필요 스크랩", 0, 20000, int(bm["exchange_scrap"]), step=100, key="pg_c_ex")
+        own = c3.number_input("보유 스크랩", 0, 20000, 0, step=100, key="pg_c_own")
+        n = c4.slider("구매 횟수", 1, 400, 100, key="pg_c_n")
+        s = S.crate_summary(box["price"], box["prob"], per, ex, own, n)
+        cap = s["cap"]
+        tiles([(f"{n}회 안에 얻을 확률", f"{s['within_n'] * 100:.1f}%", "독립 시행"),
+               ("교환 확정 (천장)", "없음" if cap is None else f"{s['cap_cost']:,.0f}", "" if cap is None else f"{cap}회 · G-Coin"),
+               ("교환 없을 때 기대 비용", f"{s['exp_cost_nocap']:,.0f}", "G-Coin · 1 ÷ p 회")])
+        mx = max(n, cap or 0, s["o90"] or 0) + 20
+        step = max(1, mx // 40)                       # 곡선 표본을 40개 안팎으로 (데이터 표가 수백 행이 되지 않게)
+        curve = [c for c in S.crate_curve(box["prob"], cap, mx) if c[0] % step == 0 or c[0] in (cap, n)]
+        fig = go.Figure()
+        fig.add_scatter(x=[c[0] for c in curve], y=[c[1] for c in curve], name="교환 없이", line=dict(color=C_CTRL, width=2, dash="dot"))
+        fig.add_scatter(x=[c[0] for c in curve], y=[c[2] for c in curve], name="스크랩 교환 포함", line=dict(color=C_CORAL, width=3))
+        fig.update_xaxes(title="구매 횟수 (회)", range=[0, mx])
+        fig.update_yaxes(title="1번 이상 얻을 확률 (%)", range=[0, 105], ticksuffix="%")
+        chart_card(fig, key="pg_demo_c", kind="sim", title="구매 횟수별 획득 확률", unit="% · 코랄 = 교환 포함",
+                   kpis=[], analysis=f"{n}회 안에 {s['within_n'] * 100:.1f}%", decision="구매 전에 보여 줘도 전환율이 유지되는지 B1로 검증",
+                   basis="P(n회 내) = 1 − (1 − p)^n · 천장 = 교환 스크랩 ÷ 1회당 스크랩", height=280,
+                   cols=("구매 횟수 (회)", "획득 확률 (%)"), series="계산")
+        st.markdown("- 기대 구매 횟수 = (1 − (1 − p)^K) ÷ p (K = 천장, 교환이 없으면 1 ÷ p) · 기대 비용 = 기대 횟수 × 1회 가격\n"
                     "- 10회 묶음 첫 구매 할인, 중복 보상의 분해·토큰 환급은 반영하지 않음 → 실제 비용은 이보다 낮을 수 있다\n"
-                    "- 공식 확률·상품별 교환가를 확인하기 전까지 결과는 '예시'로만 해석")
+                    f"- 가격 1,800: {bm['notes']['price']} · 확률: {bm['notes']['prob']} · 스크랩 10/회: {bm['notes']['scrap_per_open']} · 교환가: {bm['notes']['exchange_scrap']}")
+    with box["out"]:
+        html(f'<div class="pg-demo b"><h4>목표 스킨까지 예상 비용 {b_sim()}</h4><div class="pg-metric">'
+             f'<div><small>기대 비용 (교환 포함)</small><b class="big">{s["exp_cost"]:,.0f}</b><small>G-Coin · 평균 {s["exp_opens"]:.0f}회</small></div>'
+             f'<div><small>50% 확률 도달</small><b>{(s["c50"] or 0):,.0f}</b><small>{s["o50"]}회</small></div>'
+             f'<div><small>90% 확률 도달</small><b>{(s["c90"] or 0):,.0f}</b><small>{s["o90"]}회</small></div></div>'
+             '<div class="src">확률은 예시 값 · 공식 확률 확인 전 · 스크랩 교환 조건은 아래 펼쳐보기</div></div>')
 
 
 def demo_b2(ns: dict) -> None:
-    html('<div class="ow-defer"><b>검토 대기</b> 업그레이드 화면이 단계별 필요 재료를 이미 보여 주는지 확인 후 결정 · '
+    html('<div class="ow-defer"><b>검토 대기</b> 업그레이드 화면이 단계별 필요 재료를 이미 보여 주는지 캡처로 확인한 뒤 결정 · '
          '레벨별 필요량은 공식 미공개라 분해 환급표로 추정</div>')
-    c1, c2 = st.columns(2)
-    cur = c1.slider("현재 레벨", 1, 10, 3, key="pg_u_cur")
-    tgt = c2.slider("목표 레벨", 1, 10, 10, key="pg_u_tgt")
-    c1, c2 = st.columns(2)
-    pol = c1.number_input("보유 폴리머", 0, 100000, 5000, step=500, key="pg_u_pol")
-    sch = c2.number_input("보유 설계도", 0, 200, 10, key="pg_u_sch")
-    u = S.upgrade_need(ns["salvage"], cur, tgt, pol, sch)
-    tiles([("필요 폴리머 (추정)", f"{u['polymer']:,}", f"부족 <b>{u['short_polymer']:,}</b>"),
-           ("필요 설계도 (추정)", f"{u['schematic']:,}", f"부족 <b>{u['short_schematic']:,}</b>"),
-           ("획득 경로 (공식)", "분해 · 패키지", "성장형 스킨 분해 · 이벤트 패키지 · 누적 개봉 보상")])
-    if u["steps"]:
-        with st.expander("단계별 추정 필요량"):
-            table(["레벨", "폴리머", "설계도"], [[f"{lv - 1}→{lv}", f"{p:,}", str(s)] for lv, p, s in u["steps"]], badge_html=b_sim())
+
+    def mock() -> None:
+        c1, c2 = st.columns(2)
+        cur = c1.slider("현재 레벨", 1, 10, 3, key="pg_u_cur")
+        tgt = c2.slider("목표 레벨", 1, 10, 10, key="pg_u_tgt")
+        c1, c2 = st.columns(2)
+        pol = c1.number_input("보유 폴리머", 0, 100000, 5000, step=500, key="pg_u_pol")
+        sch = c2.number_input("보유 설계도", 0, 200, 10, key="pg_u_sch")
+        u = S.upgrade_need(ns["salvage"], cur, tgt, pol, sch)
+        html(f'<div class="pg-demo b"><h4>{cur} → {tgt}레벨 필요 재료 (추정) {b_sim()}</h4><div class="pg-metric">'
+             f'<div><small>폴리머</small><b>{u["polymer"]:,}</b><small>부족 {u["short_polymer"]:,}</small></div>'
+             f'<div><small>설계도</small><b>{u["schematic"]:,}</b><small>부족 {u["short_schematic"]:,}</small></div></div>'
+             '<div class="src">획득 경로 · 성장형 스킨 분해 · 이벤트 패키지 · 누적 개봉 보상 (공식)</div></div>')
+        if u["steps"]:
+            with st.expander("자세히 보기 · 단계별 추정 필요량"):
+                table(["레벨", "폴리머", "설계도"], [[f"{lv - 1}→{lv}", f"{p:,}", str(s)] for lv, p, s in u["steps"]], badge_html=b_sim())
+    compare("upgrade", "성장형 스킨 업그레이드 화면", "목표 레벨까지 부족한 재료", mock)
     st.caption("추정 근거: 공식 분해 환급표(2025-03, 34.2)를 '그 레벨까지 누적 투입량'으로 가정. 실제 필요량과 다를 수 있음.")
 
 
@@ -447,21 +479,21 @@ def s5(ns: dict, plan: dict) -> None:
     A, B = ex["A"], ex["B"]
     pa, pb, sc = plan["A"], plan["B"], plan["sched"]
     head("실험 2개 · 트랙마다 주요 지표 1개", "기준값은 모두 가정 · 내부 데이터로 교체 필요", b_mock())
-    tiles([("A1 · 신규 D7 (주요)", f"+{pa['mde']:.1f}%p", f"기준 {A['base_d7']:.0f}% 가정 · 우월성"),
+    tiles([("A1 · 신규 D7 MDE (표본 설계용)", f"+{pa['mde']:.1f}%p", f"기준 {A['base_d7']:.0f}% 가정 · 검정력 80%"),
            ("A1 · 표본", f"{pa['n']:,}명 × 2", f"주당 신규 {A['weekly']:,}명 가정 → {pa['assign_weeks']}주"),
-           ("B1 · 구매 전환율 (주요)", f"−{B['ni_margin']:.1f}%p 이내", f"기준 {B['base_conv']:.0f}% 가정 · 비열등성"),
+           ("B1 · 비열등 한계", f"−{B['ni_margin']:.1f}%p", f"구매 전환율 기준 {B['base_conv']:.0f}% 가정"),
            ("B1 · 표본", f"{pb['n']:,}명 × 2", f"주당 방문 {B['weekly']:,}명 가정 → {pb['assign_weeks']}주")])
     table(["실험", "대조군 → 실험군", "배정 · 대상", "주요 지표 · 기준", "MDE · 표본", "기간", "성공 · 중단"],
           [[f"{tr('A')}<b>A1 첫 실전 피드백</b>", f"{escape(A['control'])} → {escape(A['treatment'])}", f"{escape(A['unit'])}<br>{escape(A['segment'])}",
             f"신규 D7 (ITT)<br><small>기준 {A['base_d7']:.0f}% 가정</small>",
             f"+{pa['mde']:.1f}%p (열람 {A['participation']}% × {A['uplift_viewer']:.0f}%p)<br>{pa['n']:,}명 × 2",
             f"배정 {sc['a_assign'][0]}~{sc['a_assign'][1]}주 · D7 {sc['a_d7']}주 · D30 {sc['a_d30']}주",
-            "성공: 95% CI 하한 > 0, 점추정 ≥ MDE<br>중단: 대기시간·신고율 악화"],
+            "아래 판정 기준 ①②③<br><small>MDE는 표본 설계용</small>"],
            [f"{tr('B')}<b>B1 구매 전 총비용 안내</b>", f"{escape(B['control'])} → {escape(B['treatment'])}", f"{escape(B['unit'])}<br>{escape(B['segment'])}",
             f"30일 구매 전환율<br><small>기준 {B['base_conv']:.0f}% 가정</small>",
             f"비열등 한계 −{B['ni_margin']:.1f}%p<br>{pb['n']:,}명 × 2",
             f"배정 {sc['b_assign'][0]}주 · 전환 {sc['b_conv']}주 · 재구매 {sc['b_repurchase']}주",
-            "성공: 비열등 + 재구매·문의 개선<br>중단: 총매출 −5%"]], badge_html=b_mock())
+            "아래 판정 기준 ①②③<br><small>비열등과 매출 가드레일 분리</small>"]], badge_html=b_mock())
     with st.expander("자세히 보기 · 보조 KPI · 가드레일 · 계산식"):
         table(["트랙", "보조 KPI", "가드레일"],
               [[tr("A"), "D1·D30 · 첫 3경기 후 재접속 · 첫 10경기 완료율 · 피드백 열람률 · 스쿼드 재참여율", escape(" · ".join(A["guardrails"]))],
@@ -482,7 +514,7 @@ def s5(ns: dict, plan: dict) -> None:
         chart_card(fig, key="pg_sim_a", kind="sim", title="A1 · 대조군 vs 실험군", unit="% · 회색 = 대조군, 파랑 = 실험군",
                    kpis=[("신규 D7", f"{before[0]:.0f}% → <b>{after[0]:.0f}%</b> <em>{pp(pa['mde'])}</em>")],
                    analysis="D30은 D7 효과의 절반 유지 가정 · 10경기 완료율은 열람 50% × 8%p",
-                   decision="D7이 MDE 이상 유의할 때만 확대", basis="같은 신규 코호트 · 배정 기준(ITT)",
+                   decision="유의성·실질 효과·가드레일을 각각 통과해야 확대", basis="같은 신규 코호트 · 배정 기준(ITT) · 가정 결과",
                    height=330, cols=("지표", "비율 (%)"), series="그룹")
     with c2:
         sv = S.scenarios(ns["scenarios"])
@@ -509,11 +541,20 @@ def s5(ns: dict, plan: dict) -> None:
                 f"{s['low_pct']:+.1f}%~{s['high_pct']:+.1f}%"] for s in sv], badge_html=b_sim())
         st.caption(f"60일 매출 = 방문자 × 전환율 × ARPPU + 구매자 × 재구매율 × ARPPU × {ns['scenarios']['repurchase_arppu_ratio']}")
 
-    sub("성공·중단 기준", b_mock())
+    sub("판정 기준 · 세 가지를 따로 본다", b_mock())
+    pm = plan["practical_min"]
+    html('<div class="ow-sig">'
+         f'<div><b>① 통계적 유의성</b>A1: D7 차이의 95% 신뢰구간 하한 &gt; 0<br>B1: 전환율 차이의 단측 95% 신뢰 하한 &gt; −{B["ni_margin"]:.1f}%p (비열등)</div>'
+         f'<div><b>② 실질적 효과</b>A1: 점추정 ≥ +{pm:.1f}%p (추가 D7 1명당 약 {plan["a1_cost_per_added_practical"] / 1e4:.1f}만 원 이하 · 사전 합의)<br>'
+         'B1: 재구매율·구매 후 문의율 중 1개 이상 개선 (보조 지표 · 탐색적)</div>'
+         '<div><b>③ 가드레일</b>결과와 무관하게 먼저 확인 · 하나라도 악화되면 확대하지 않음<br>'
+         'A1: 매칭 대기·신고율·끄기 10% · B1: 총매출 −5% · 고액 결제자 매출 · 환불</div></div>')
+    note(f"MDE(+{pa['mde']:.1f}%p)는 표본 크기를 정하는 설계값이다. 성공 조건이 아니므로, MDE보다 작아도 ①을 통과하고 ②(+{pm:.1f}%p) 이상이면 의미 있는 효과로 본다.")
     table(["결과", "A1 첫 실전 피드백", "B1 총비용 안내"],
-          [["<b>확대</b>", "D7 95% CI 하한 > 0 · 점추정 ≥ MDE · 대기시간·신고율 악화 없음", "전환율 비열등 + 재구매·문의 중 1개 이상 개선"],
-           ["<b>수정 후 재실험</b>", "유의하지 않지만 열람률 50% 미만 → 노출 위치 수정", "비열등이지만 개선 없음 → 문구·위치 수정"],
-           ["<b>중단</b>", "재실험에도 효과 없음 · 피드백 끄기 10% 초과", "전환율 비열등 실패 또는 총매출 −5%"]])
+          [["<b>확대</b>", "① 유의 + ② 실질 기준 이상 + ③ 통과", "① 비열등 + ③ 매출 가드레일 통과 (② 개선은 가산점)"],
+           ["<b>조건부 확대</b>", f"① 유의하지만 ② 미만 (+{pm:.1f}%p 미만) → 비용을 줄여 일부 코호트만", "① 비열등이지만 ③ 일부가 경계선 → 노출 범위 축소"],
+           ["<b>연장·재실험</b>", f"① 유의하지 않고 신뢰구간 상한이 +{pm:.1f}%p 이상 → 판단 불가, 노출 위치 수정 후 1회", "① 판단 불가 (신뢰 하한이 한계에 걸침) → 표본 추가"],
+           ["<b>중단</b>", f"신뢰구간 상한 &lt; +{pm:.1f}%p (있어도 작은 효과) · 또는 ③ 악화", "① 비열등 실패 · 또는 ③ 총매출 −5%"]], badge_html=b_mock())
     with st.expander(f"자세히 보기 · 주차별 일정 (준비 2주 + 운영 {sc['decision']}주)"):
         html(gantt(sc))
 
@@ -547,7 +588,7 @@ def s6(ns: dict, plan: dict) -> None:
     pa = plan["A"]
     html(f'<div class="ow-conclusion"><div class="ow-conclusion-k">최종 사업PM 제안 {b_mock()}</div>'
          f'<b>매칭·확률은 그대로, 정보만 더해 두 가지를 동시에 검증한다.</b><br>'
-         f'A1은 신규 D7 +{pa["mde"]:.1f}%p, B1은 구매 전환율을 지키면서 재구매·문의 개선을 확인한다. '
+         f'A1은 D7 개선이 유의하고 실질 기준(+{plan["practical_min"]:.1f}%p) 이상인지, B1은 정보 안내가 구매 전환을 해치지 않는지(비열등)와 매출 가드레일을 따로 확인한다. '
          'A2·B2는 결과를 본 뒤, A3·누적 보장 강화는 위험이 커 보류한다.</div>')
     with st.expander("자세히 보기 · PPT 10장 구성"):
         html("<ol>" + "".join(f"<li>{escape(x)}</li>" for x in ns["ppt"]) + "</ol>")

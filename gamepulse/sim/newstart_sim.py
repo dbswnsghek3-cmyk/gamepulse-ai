@@ -122,6 +122,8 @@ def plan(cfg: dict) -> dict:
             "B": {"n": n_b, "assign_weeks": wk_b},
             "sched": sched, "quarter_added_d7": added, "a1_cost": a1_cost,
             "a1_cost_per_added": a1_cost / added if added else float("nan"),
+            "practical_min": a.get("practical_min", mde / 2),
+            "a1_cost_per_added_practical": a1_cost / (q * a.get("practical_min", mde / 2) / 100),
             "b1_cost": c["B1_effort"] * c["monthly_cost_per_person"]}
 
 

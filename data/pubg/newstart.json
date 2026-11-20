@@ -5,8 +5,8 @@
     "subtitle": "신규 유저 정착 및 성장형 스킨 BM 개선 전략",
     "problem": "봇 경기 → 숙련자 로비, 이유 모를 첫 패배",
     "problem_sub": "훈련은 있지만 실전 전환 구간의 피드백이 없다",
-    "bm_problem": "목표 스킨까지 총비용이 안 보인다",
-    "bm_problem_sub": "확률·누적 보상·스크랩 교환이 흩어져 있다",
+    "bm_problem": "구매 전 비용 정보가 흩어져 있다",
+    "bm_problem_sub": "확률·누적 보상·교환이 따로 · 구매 판단 영향은 미검증",
     "solution": "A1 첫 실전 피드백 · B1 구매 전 총비용 안내",
     "solution_sub": "매칭·확률은 그대로, 정보만 더한다",
     "footnote": "포트폴리오 제안 · KRAFTON의 실제 정책이 아님"
@@ -205,9 +205,9 @@
       "track": "B",
       "name": "구매 전 총비용 안내",
       "en": "COST CLARITY",
-      "tagline": "목표 스킨까지 기대 비용·교환 시점",
+      "tagline": "정보 부족이 구매 결정에 주는 영향 검증",
       "target": "밀수품 상자·블랙마켓 상점 방문 계정",
-      "problem": "목표 스킨까지 총비용을 예측하기 어렵다",
+      "problem": "비용 정보가 흩어져 구매 판단이 어려울 수 있다",
       "existing": "확률 보기 페이지 · 누적 개봉 보상 · 스크랩 교환",
       "diff": "흩어진 정보를 '목표 기준 기대 비용' 한 화면으로",
       "data": "공개 가격·확률·교환가만 사용 (신규 결제 로직 없음)",
@@ -289,7 +289,8 @@
         "매칭 대기시간 (변화 없음 확인)",
         "피드백 끄기 비율 10% 이하",
         "신고·문의율 대조군 대비 증가 없음"
-      ]
+      ],
+      "practical_min": 1.0
     },
     "B": {
       "segment": "밀수품 상자 상점 방문 계정",
@@ -456,7 +457,7 @@
   ],
   "mvp_reason": {
     "A1": "리뷰의 막힘 지점(봇 → 숙련자 로비 전환 직후)에 바로 닿고, 기존 텔레메트리로 대부분 판정 가능하며 매칭을 건드리지 않는다.",
-    "B1": "확률·가격을 바꾸지 않아 매출 위험이 가장 작고, 이미 공개된 정보만 재구성해 개발비가 낮다."
+    "B1": "확률·가격을 바꾸지 않아 매출 위험이 가장 작고, '정보 부족이 구매 결정에 영향을 주는가'를 가장 싸게 검증할 수 있다."
   },
   "ppt": [
     "표지 · PUBG: NEW START",
@@ -621,6 +622,72 @@
       "action": "다음 경기: 낙하 후 팀원 100m 안으로 합류",
       "data": "LogPlayerPosition(팀원 거리) · LogPlayerRevive (기존 로그)",
       "mvp": "MVP 포함"
+    }
+  ],
+  "screens": [
+    {
+      "key": "deathcam",
+      "file": "deathcam.png",
+      "track": "A",
+      "title": "데스캠 (사망 장면 재생)",
+      "where": "일반전 사망 직후 → 데스캠",
+      "use": "시연 B 비교"
+    },
+    {
+      "key": "match_result",
+      "file": "match_result.png",
+      "track": "A",
+      "title": "경기 결과 화면",
+      "where": "일반전 종료 직후",
+      "use": "시연 A 비교"
+    },
+    {
+      "key": "bootcamp",
+      "file": "bootcamp.png",
+      "track": "A",
+      "title": "초심자 훈련소 미션",
+      "where": "로비 상단 → 초심자 훈련소",
+      "use": "기존 기능 근거"
+    },
+    {
+      "key": "basic_training",
+      "file": "basic_training.png",
+      "track": "A",
+      "title": "기본 훈련 챕터",
+      "where": "훈련 → 기본 훈련",
+      "use": "기존 기능 근거"
+    },
+    {
+      "key": "contraband_store",
+      "file": "contraband_store.png",
+      "track": "B",
+      "title": "밀수품 상자 구매 화면",
+      "where": "은신처 → 밀수품",
+      "use": "시연 C 비교"
+    },
+    {
+      "key": "contraband_prob",
+      "file": "contraband_prob.png",
+      "track": "B",
+      "title": "확률 보기 페이지",
+      "where": "밀수품 → 자세히 보기 → 확률 보기",
+      "use": "확률 실제 값 확인"
+    },
+    {
+      "key": "scrap_broker",
+      "file": "scrap_broker.png",
+      "track": "B",
+      "title": "스크랩 브로커 교환가",
+      "where": "은신처 → 스크랩 브로커",
+      "use": "교환가 실제 값 확인"
+    },
+    {
+      "key": "upgrade",
+      "file": "upgrade.png",
+      "track": "B",
+      "title": "성장형 스킨 업그레이드",
+      "where": "인벤토리 → 성장형 스킨 → 업그레이드",
+      "use": "B2 중복 여부 확인"
     }
   ]
 }
