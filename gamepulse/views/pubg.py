@@ -191,12 +191,12 @@ def _cover(ns: dict) -> None:
     logo, drop = ASSETS / "brand" / "pubg_logo.png", ASSETS / "drop.png"
     logo_html = (f'<img class="pg-logo" src="data:image/png;base64,{_png_b64(str(logo), logo.stat().st_mtime)}" alt="PUBG: BATTLEGROUNDS 로고">'
                  if logo.is_file() else "")
-    img_html = (f'<figure class="pg-cover-r"><img src="data:image/jpeg;base64,{_jpeg_b64(str(drop), drop.stat().st_mtime)}" '
-                f'alt="실제 게임 화면: 낙하 직전 수송기와 섬"><figcaption>{escape(cv["image_credit"])}</figcaption></figure>'
+    img_html = (f'<figure class="pn-hero-img"><img src="data:image/jpeg;base64,{_jpeg_b64(str(drop), drop.stat().st_mtime, 1600)}" '
+                f'alt="실제 게임 화면: 에란겔 위를 나는 수송기"><figcaption>{escape(cv["image_credit"])}</figcaption></figure>'
                 if drop.is_file() else "")
-    html(f'<div class="pg-cover"><div class="pg-cover-l">{logo_html}<div class="pg-cover-k">{escape(cv["title"])}</div>'
-         f'<div class="pg-cover-t">{escape(cv["copy"])}</div><div class="pg-cover-s">{escape(cv["subtitle"])}</div>'
-         f'<div class="pn-cover-q">{escape(cv["question"])}</div></div>{img_html}</div>')
+    html(f'<div class="pn-hero"><div class="pn-hero-t">{logo_html}<div class="pg-cover-k">{escape(cv["title"])}</div>'
+         f'<div class="pn-hero-tag">{escape(cv["copy"])}</div><div class="pn-hero-q" role="heading" aria-level="1">{escape(cv["question"])}</div>'
+         f'<p class="pn-hero-s">{escape(cv["subtitle"])}</p></div>{img_html}</div>')
     tk = ns["tracks"]
     bar = "".join(f'<div class="pn-w {t["key"].lower()}" style="flex:{t["weight"]} 1 0"><b>{t["key"]}</b> {t["weight"]}%</div>' for t in tk)
     cards = "".join(
@@ -459,7 +459,7 @@ def s3(ns: dict, ops: pd.DataFrame, ret: pd.DataFrame, rpool: dict) -> None:
     html(_flow3([("real", "확률형 구매", "확률은 게임 안 페이지에서 공개"),
                  ("interp", "기대와 다른 결과", "목표 스킨 대신 다른 보상"),
                  ("hypo", "만족도 저하 가능성", "검증 전 · 내부 데이터로 확인")], "sub"))
-    note("다른 원인(서버·최적화·대회 운영 논란 등)은 실험의 무작위 배정으로 두 그룹에 고르게 섞인다 → 기능·캠페인 효과만 분리된다.")
+    note("서버·운영 논란 같은 다른 원인은 무작위 배정으로 고르게 섞인다 → 기능 효과만 분리된다.")
     with st.expander("자세히 보기 · 단계별 근거와 검증 방법 · 다른 원인"):
         table(["단계", "구분", "근거", "검증 방법"],
               [[f"{tr('A')}① 훈련·봇 경기", KIND["real"](), "기본 훈련 17챕터 · 초심자 훈련소 14일 (42.2 · 2026-07, 현재) · 일반전 봇 (2020 도입 · 2024 개발자 노트, 과거 자료)", "훈련 완료율 · 경기당 봇 비율"],
@@ -591,8 +591,7 @@ def demo_a3(ns: dict) -> None:
     mq = ns["match_quality"]
     _lead("A", "MATCH QUALITY · 신규 유저 매칭 품질 개선 실험", "새 매칭 알고리즘이 아니라, 운영 정책과 실험 설계")
     html('<div class="pg-diff"><div><span class="pg-tag real">이미 있는 정책 (실제 · 과거 자료)</span>일반전 MMR · 신규·미숙련 유저 매칭 구조 개선 · 인원 부족 시 봇'
-         '<small>2024 개발자 노트 기준 · 2026 패치노트 목록(40.1~44.1)에서는 매칭 변경을 확인하지 못함 → 현재 적용 범위는 내부 확인 필요 · '
-         '새 기능을 발명한 것처럼 표현하지 않는다</small></div>'
+         '<small>2024 개발자 노트 기준 · 2026 적용 범위는 내부 확인 필요</small></div>'
          f'<div><span class="pg-tag mock">제안 (실험)</span>보호 구간·완화 조건을 대기시간과 함께 실험<small>{escape(mq["experiment"])}</small></div></div>')
     table(["분석", "보는 것", "판단 지표"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in mq["analyses"]], badge_html=b_mock())
     note(mq["not"])
@@ -656,9 +655,9 @@ def demo_b1(ns: dict) -> None:
             table(["광고", "채널", "유입 링크 (실제 주소)"],
                   [[escape(a), escape(ch), link(f'{cp["landing"]}?src={src}', f"?src={src}")] for a, ch, src in cp["links"]], badge_html=b_mock())
         bud = cp["budget"]
-        table(["채널", "용도", "비중", "광고비 배분"],
+        table(["채널", "용도", "비중", "파일럿 배분"],
               [[f"<b>{escape(n)}</b>", escape(d), f"{w}%", f"{bud * w / 100 / 1e4:,.0f}만 원"] for n, d, w in cp["channels"]], badge_html=b_sim())
-        st.caption(f"광고비 {bud / 1e8:.0f}억 원 가정 (가상 파일럿) · 실제 운영 결과 아님 · {cp['note']}")
+        st.caption(f"광고·콘텐츠 파일럿 {won(bud)} + 추가 제작비(랜딩·UTM) {won(ns['experiment']['cost']['B1_effort'] * ns['experiment']['cost']['monthly_cost_per_person'])} = B1 총액 {won(bud + ns['experiment']['cost']['B1_effort'] * ns['experiment']['cost']['monthly_cost_per_person'])} (06과 동일) · 가정 · {cp['note']}")
 
 
 def demo_b2(ns: dict) -> None:
@@ -685,8 +684,7 @@ def demo_b2(ns: dict) -> None:
     compare("first_kill", "첫 경기 · 첫 킬 직후", "복귀 첫날 · 친구와 3경기", mock)
     fd = ns["firstday"]
     html('<div class="pn-day">' + "".join(f'<div><span>{escape(a)}</span><b>{escape(b)}</b><small>{escape(c)}</small></div>' for a, b, c in fd)
-         + f'</div><div class="pn-daynote">{b_mock()} 첫날 3경기 동안 복귀자 매칭 품질(상대 MMR 격차)을 따로 점검하고 3경기 후 공정성·재미·난도를 묻는다 · '
-         '친구 초대는 기존 기능을 그대로 쓰고, 새 모드를 만들지 않는다</div>')
+         + f'</div><div class="pn-daynote">{b_mock()} 첫날 3경기 동안 복귀자 매칭 품질을 따로 점검 · 친구 초대는 기존 기능 그대로</div>')
     fn = ns["funnel"]
     steps = S.return_funnel(fn)
     fig = go.Figure(go.Bar(x=[v for _, v in steps], y=[n for n, _ in steps], orientation="h", marker_color=C_NAVY,
@@ -802,7 +800,7 @@ def s5(ns: dict, plan: dict) -> None:
          f'<div class="a"><span>신규 D7 잔존율</span><b>{A["base_d7"]:.0f}% → {A["base_d7"] + pa["mde"]:.0f}%</b><small>A1 코칭 · 가정 설계</small></div>'
          f'<div class="b"><span>복귀 전환율</span><b>{R["base_return"]:.1f}% → {R["base_return"] + pr["mde"]:.1f}%</b><small>광고 vs 대조군 · 가정 설계</small></div>'
          '<div class="b"><span>복귀 D30</span><b>대조군 이상</b><small>자연 복귀자와 비교 · 기준값은 측정</small></div>'
-         f'<div class="y"><span>복귀 유저당 비용</span><b>약 {plan["b1_cost"] / ret_n / 1e4:,.0f}만 원</b><small>B1 총액 ÷ 광고 그룹 복귀자 · 가정</small></div></div>')
+         f'<div class="y"><span>복귀 유저당 비용</span><b>약 {plan["b1_cost"] / ret_n / 1e4:,.0f}만 원</b><small>B1 총액 {won(plan["b1_cost"])} ÷ 복귀자 · 가정</small></div></div>')
     html(f'<div class="pn-abt"><div class="pn-abt-h">{b_mock()} B1 광고 A/B 테스트 · 대조군 포함 4그룹</div>'
          '<table><tr><th>그룹</th><th>광고</th><th>가설</th></tr>' + "".join(
              f'<tr><td><b>{escape(g)}</b></td><td>{escape(ad)}</td><td>{escape(h)}</td></tr>' for g, ad, h in cp["abtest"]) + '</table>'
@@ -825,7 +823,7 @@ def s5(ns: dict, plan: dict) -> None:
              f'<div><b>① 통계적 유의성</b>A1: D7 차이의 95% 신뢰구간 하한 &gt; 0<br>B1: 광고별 복귀 전환율 차이(대조군 대비) 95% 신뢰구간 하한 &gt; 0 (다중 비교 보정)</div>'
              f'<div><b>② 실질적 사업 효과</b>A1: 점추정 ≥ +{pm:.1f}%p (사전 합의)<br>B1: 복귀 D30이 자연 복귀자보다 낮지 않음 · 복귀 유저당 비용 사전 상한 이하</div>'
              f'<div><b>③ 가드레일</b>하나라도 악화되면 확대하지 않음<br>A1: {escape(" · ".join(A["guardrails"]))}<br>B1: {escape(" · ".join(R["guardrails"]))}</div></div>')
-        st.markdown(f"- **복귀 유저당 비용 (가정 계산)** B1 총액 {plan['b1_cost'] / 1e4:,.0f}만 원 ÷ 광고 그룹 복귀자 약 {ret_n:,.0f}명 "
+        st.markdown(f"- **복귀 유저당 비용 (가정 계산)** B1 총액 {won(plan['b1_cost'])} ÷ 광고 그룹 복귀자 약 {ret_n:,.0f}명 "
                     f"(광고 3그룹 × {pr['n']:,}명 × {R['base_return'] + pr['mde']:.1f}%) ≈ {plan['b1_cost'] / ret_n / 1e4:,.1f}만 원\n"
                     f"- 대조군 대비 **순증** 복귀자 약 {add_n:,.0f}명 기준으로는 ≈ {plan['b1_cost'] / add_n / 1e4:,.0f}만 원 → 실제 판단은 순증 기준으로 한다\n"
                     "- 채널별 효율 = 랜딩 방문 → 복귀 로그인 · 지하철·버스·PC방은 무작위 배정이 불가능해 QR 유입(src)으로만 참고\n"
@@ -872,11 +870,11 @@ def s6(ns: dict, plan: dict) -> None:
     b1 = ad + land
     assert abs(b1 - plan["b1_cost"]) < 1 and abs(a1 - plan["a1_cost"]) < 1 and abs(cc - plan["c_cost"]) < 1   # 화면 숫자 = 계산 모듈 숫자
     rows = [("A1 개발·운영", f"{c['A1_effort']}인월 × {mp / 1e4:,.0f}만 원", a1, ""),
-            ("B1 광고비", "가상 파일럿 (채널 배분은 아래)", ad, ""),
-            ("B1 랜딩 제작비", f"{c['B1_effort']}인월 × {mp / 1e4:,.0f}만 원", land, ""),
-            ("B1 소계", "광고비 + 랜딩 제작비", b1, "sub"),
+            ("B1 광고·콘텐츠 파일럿", "디지털 50% · 옥외 30% · 콘텐츠 20% (04와 동일)", ad, ""),
+            ("B1 추가 제작비", f"랜딩·UTM {c['B1_effort']}인월 × {mp / 1e4:,.0f}만 원", land, ""),
+            ("B1 총액", "파일럿 + 추가 제작비", b1, "sub"),
             ("C 내부 분석", f"{c['C_effort']}인월 × {mp / 1e4:,.0f}만 원", cc, ""),
-            ("합계", "A1 + B1 소계 + C", a1 + b1 + cc, "tot")]
+            ("전체 합계", "A1 + B1 총액 + C", a1 + b1 + cc, "tot")]
     html('<div class="gp-table-wrap"><table class="gp-table pn-cost"><tr><th>항목</th><th>산출</th><th>금액</th></tr>' + "".join(
         f'<tr class="{k}"><td>{escape(n)}</td><td>{escape(f)}</td><td><b>{won(v)}</b></td></tr>' for n, f, v, k in rows) + "</table></div>")
     sub("실행 일정", b_mock())
@@ -896,15 +894,14 @@ def s6(ns: dict, plan: dict) -> None:
     table(["위험", "대응"], [[escape(r["risk"]), escape(r["response"])] for r in ns["risks"]])
     cp = ns["campaign"]
     assert cp["budget"] == ad and sum(w for _, _, w in cp["channels"]) == 100   # 채널 배분 합 = 광고비
-    sub(f"B1 광고비 {won(ad)} · 채널 배분 (가정)", b_sim())
+    sub(f"B1 광고·콘텐츠 파일럿 {won(ad)} · 채널 배분 (가정)", b_sim())
     html('<div class="pn-budget">' + "".join(
         f'<div style="flex:{w} 1 0"><b>{w}%</b><span>{escape(n)}</span><small>{cp["budget"] * w / 100 / 1e4:,.0f}만 원</small></div>'
-        for n, d, w in cp["channels"]) + f'</div><div class="pn-cav2">광고비 {cp["budget"] / 1e8:.0f}억 원 안에서의 배분 · 랜딩 제작비 {won(land)}은 별도 · 가상 파일럿 가정 (실제 운영 결과 아님)</div>')
+        for n, d, w in cp["channels"]) + f'</div><div class="pn-cav2">파일럿 {won(ad)} 안에서의 배분 · 추가 제작비 {won(land)} 별도 → B1 총액 {won(b1)} · 버스는 옥외 30% 안에서 검토 · 가정</div>')
     html('<div class="pn-final">' + art(ns, "winner", "첫 치킨의 성취감 · 신규는 처음으로, 복귀 유저는 다시 한 번", "winner") +
          f'<div class="ow-conclusion"><div class="ow-conclusion-k">최종 사업PM 판단 {b_mock()}</div>'
          '<b>신규는 다음 경기 행동으로, 떠난 유저는 다시 낙하할 이유로.</b><br>'
-         'A1을 먼저 검증하고, B1 광고는 대조군과 비교해 복귀 로그인과 D30을 함께 본다. 핵 문제는 숨기지 않고 공정성 신뢰도로 측정한다. '
-         'C는 유저 화면을 바꾸지 않는 내부 분석으로 둔다.'
+         'A1 먼저 · B1은 대조군과 비교해 복귀율과 D30을 함께 본다 · 핵 불신은 공정성 신뢰도로 측정 · C는 내부 분석'
          '<div class="pn-next"><b>다음 실험 판단</b> A1 확대 시 → A2 별도 코호트 · B1 확대 시 → 가장 좋은 메시지로 채널 비중 재배분</div></div></div>')
     with st.expander("자세히 보기 · 후보 우선순위 점수 · 주차별 일정 · PPT 구성"):
         lab = ns["score_labels"]

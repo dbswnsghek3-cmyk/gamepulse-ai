@@ -1306,7 +1306,20 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .pn-ad3row .pn-ad {{ margin: 0; }} .pn-ad3row p {{ margin: 0; font-size: 1rem; color: #334155; line-height: 1.55; }} .pn-ad3row p b {{ display: block; font-size: 1.1rem; color: #0B1F3A; }}
 .pn-cost td:last-child, .pn-cost th:last-child {{ text-align: right; white-space: nowrap; }}
 .pn-cost tr.sub td {{ background: #EEF2FF; }} .pn-cost tr.tot td {{ background: #0B1F3A; color: #fff; }} .pn-cost tr.tot b {{ color: #FACC15; font-size: 1.1rem; }}
+/* 01 첫 화면 히어로: 왼쪽 핵심 질문 · 오른쪽 실제 게임 화면(원본 비율, 잘림 없음) */
+.pn-hero {{ display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr); gap: 1.6rem; align-items: center;
+  background: linear-gradient(135deg, #0B1F3A 0%, #14305A 65%, #1E4B8F 130%); color: #fff; border-radius: 18px; padding: 1.6rem 1.7rem; margin-bottom: 0.9rem; }}
+.pn-hero-t {{ display: flex; flex-direction: column; gap: 0.55rem; }} .pn-hero-t .pg-logo {{ align-self: flex-start; margin-bottom: 0.2rem; }}
+.pn-hero-tag {{ font-size: 1rem; font-weight: 700; color: #FACC15; line-height: 1.45; }}
+.pn-hero-q {{ font-size: 2rem; font-weight: 900; line-height: 1.3; letter-spacing: -0.02em; color: #fff; margin: 0.1rem 0; }}
+.pn-hero-s {{ font-size: 1.08rem; color: #D6E2FA; margin: 0; }}
+.pn-hero-img {{ margin: 0; }} .pn-hero-img img {{ width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,0.35); }}
+.pn-hero-img figcaption {{ font-size: 0.78rem; color: #B9CBEA; margin-top: 0.4rem; }}
+@media (max-width: 900px) {{
+  .pn-hero {{ grid-template-columns: 1fr; padding: 1.1rem 1rem; gap: 0.9rem; }} .pn-hero-q {{ font-size: 1.45rem; }}
+}}
 /* 작은 글씨 확대 */
+.pg-demo .src {{ font-size: 0.9rem; }} .pn-daynote {{ font-size: 0.95rem; }} .pn-chan span {{ font-size: 0.98rem; }}
 .pg-tr {{ font-size: 0.78rem; }} .pn-k, .pn-tc-k {{ font-size: 0.84rem; }} .pn-tc small {{ font-size: 0.9rem; }} .pn-tc b {{ font-size: 1.08rem; }}
 .pn-ai {{ font-size: 0.8rem; }} .pn-chg li {{ font-size: 0.95rem; }} .pn-chg li a {{ display: block; font-size: 0.82rem; }} .pn-chg small {{ font-size: 0.88rem; }}
 .pn-cav2 {{ font-size: 0.88rem; }} .pn-photo figcaption span {{ font-size: 0.78rem; }} .pn-bflow span {{ font-size: 0.8rem; }}
