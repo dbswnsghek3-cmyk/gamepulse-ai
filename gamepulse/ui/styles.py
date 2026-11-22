@@ -1280,8 +1280,41 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .pn-final {{ display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem; align-items: center; margin: 0.8rem 0; }}
 .pn-final .pn-art.winner {{ margin: 0; max-width: 340px; }}
 .pn-final .pn-art.winner figcaption b {{ font-size: 0.85rem; }}
+/* 최종 마감: B1 상단 요약 · 포스터 목업 · 채널 · KPI 4개 · 비용 검산표 */
+.pn-camp {{ background: linear-gradient(160deg, #0B1F3A 0%, #1E3A8A 100%); color: #fff; border-radius: 14px; padding: 0.9rem 1.1rem; margin: 0.2rem 0 0.8rem; }}
+.pn-camp .t {{ display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.55rem; }} .pn-camp .t b {{ font-size: 1.55rem; font-weight: 900; color: #FACC15; }}
+.pn-camp dl {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.4rem 0.9rem; margin: 0; }}
+.pn-camp dl > div {{ border-left: 3px solid #FACC15; padding-left: 0.55rem; }}
+.pn-camp dt {{ font-size: 0.8rem; font-weight: 800; color: #A5B4FC; }} .pn-camp dd {{ margin: 0; font-size: 1rem; font-weight: 700; color: #fff; line-height: 1.4; }}
+.pn-mocks {{ display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 1rem; align-items: end; margin-bottom: 0.6rem; }}
+.pn-mocks .pn-photo figcaption {{ display: none; }} .pn-mocks .pn-photo {{ margin: 0; }}
+.pn-subway-top {{ font-size: 0.85rem !important; }}
+.pn-bus {{ max-width: 340px; margin: 0 auto; width: 100%; }}
+.pn-bus .roof {{ background: #1E3A8A; color: #fff; font-size: 0.8rem; font-weight: 800; text-align: center; border-radius: 10px 10px 0 0; padding: 0.4rem; }}
+.pn-bus .panel {{ background: #E2E8F0; border: 8px solid #475569; border-top: 0; padding: 0.4rem; }}
+.pn-bus .legs {{ display: flex; justify-content: space-between; padding: 0 14%; }} .pn-bus .legs i {{ width: 10px; height: 36px; background: #475569; display: block; }}
+.pn-chan {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 0.9rem; }}
+.pn-chan > div {{ background: #fff; border: 1px solid #DBEAFE; border-left: 5px solid #FACC15; border-radius: 10px; padding: 0.55rem 0.75rem; }}
+.pn-chan b {{ display: block; font-size: 1.05rem; color: #0B1F3A; }} .pn-chan span {{ font-size: 0.95rem; color: #334155; }}
+.pn-chan p {{ grid-column: 1 / -1; margin: 0; font-size: 0.88rem; color: #475569; }}
+.pn-k4 {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.9rem; }}
+.pn-k4 > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 5px solid #2563EB; border-radius: 12px; padding: 0.75rem 0.85rem; display: flex; flex-direction: column; gap: 0.15rem; }}
+.pn-k4 > div.b {{ border-top-color: #1E3A8A; }} .pn-k4 > div.y {{ border-top-color: #FACC15; }}
+.pn-k4 span {{ font-size: 0.9rem; font-weight: 800; color: #334155; }} .pn-k4 b {{ font-size: 1.6rem; font-weight: 900; color: #0B1F3A; line-height: 1.2; }}
+.pn-k4 small {{ font-size: 0.85rem; color: #475569; }}
+.pn-ad3row {{ display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 0.9rem; align-items: center; margin: 0 0 0.6rem; }}
+.pn-ad3row .pn-ad {{ margin: 0; }} .pn-ad3row p {{ margin: 0; font-size: 1rem; color: #334155; line-height: 1.55; }} .pn-ad3row p b {{ display: block; font-size: 1.1rem; color: #0B1F3A; }}
+.pn-cost td:last-child, .pn-cost th:last-child {{ text-align: right; white-space: nowrap; }}
+.pn-cost tr.sub td {{ background: #EEF2FF; }} .pn-cost tr.tot td {{ background: #0B1F3A; color: #fff; }} .pn-cost tr.tot b {{ color: #FACC15; font-size: 1.1rem; }}
+/* 작은 글씨 확대 */
+.pg-tr {{ font-size: 0.78rem; }} .pn-k, .pn-tc-k {{ font-size: 0.84rem; }} .pn-tc small {{ font-size: 0.9rem; }} .pn-tc b {{ font-size: 1.08rem; }}
+.pn-ai {{ font-size: 0.8rem; }} .pn-chg li {{ font-size: 0.95rem; }} .pn-chg li a {{ display: block; font-size: 0.82rem; }} .pn-chg small {{ font-size: 0.88rem; }}
+.pn-cav2 {{ font-size: 0.88rem; }} .pn-photo figcaption span {{ font-size: 0.78rem; }} .pn-bflow span {{ font-size: 0.8rem; }}
+.pn-prog > div {{ font-size: 0.82rem; }} .pn-steps li span {{ font-size: 0.8rem; }} .pn-chg .st {{ font-size: 0.76rem; }}
 @media (max-width: 900px) {{
-  .pn-arow, .pn-band, .pn-chg, .pn-final {{ grid-template-columns: 1fr; }} .pn-band .pn-q {{ font-size: 1.2rem; }}
+  .pn-arow, .pn-band, .pn-chg, .pn-final, .pn-mocks, .pn-chan, .pn-ad3row {{ grid-template-columns: 1fr; }}
+  .pn-camp dl {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+  .pn-k4 {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .pn-k4 b {{ font-size: 1.25rem; }} .pn-camp .t b {{ font-size: 1.25rem; }} .pn-band .pn-q {{ font-size: 1.2rem; }}
   .pn-budget {{ flex-direction: column; }} .pn-qr svg {{ width: 64px; height: 64px; }} .pn-ad2 .bubble {{ font-size: 1.1rem; }}
   .pn-bflow > i {{ display: none; }} .pn-bflow > div, .pn-bflow > div.w {{ flex: 1 1 100%; }}
   .pn-tcards, .pn-two, .pn-day, .pn-kpi {{ grid-template-columns: 1fr; }}

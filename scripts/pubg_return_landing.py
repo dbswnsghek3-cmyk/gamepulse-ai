@@ -74,14 +74,14 @@ def build(root: Path = ROOT, docs: Path | None = None) -> Path:
         "friend": {"img": "assets/pubg-ads/lobby.jpg", "k": "친구 공유", "t": "친구가 <em>같이 하재.</em>", "l": "링크를 보낸 친구와 같은 스쿼드로 첫날 3경기.",
                    "tag": "실제 게임 캡처(로비)를 활용한 가상 시안"},
     }
-    channel = {"ad1_subway": "광고 1 · 지하철 (QR)", "ad1_digital": "광고 1 · 디지털", "ad2_digital": "광고 2 · 디지털", "ad2_pcbang": "광고 2 · PC방",
+    channel = {"ad1_subway": "광고 1 · 지하철 (QR)", "ad1_bus": "광고 1 · 버스 정류장 (QR)", "ad1_digital": "광고 1 · 디지털", "ad2_digital": "광고 2 · 디지털", "ad2_pcbang": "광고 2 · PC방 (QR)",
                "ad3_digital": "광고 3 · 디지털", "friend": "친구 공유 링크", "portfolio": "포트폴리오에서 열람"}
 
     def items(rows, cls, lab):
         return "".join(f'<li><span class="st {cls}">{lab}</span>{escape(t)} · <a href="{escape(u, quote=True)}" target="_blank" rel="noopener">{escape(s)}</a></li>'
                        for t, s, u in rows)
     cards = "".join(f'<div class="card"><h3>{c["icon"]} {escape(c["title"])}</h3><ul>{items(c["applied"], "ok", "적용됨")}'
-                    f'{items(c["roadmap"], "plan", "로드맵 발표")}{items(c["past"], "past", "과거 자료")}</ul><small>{escape(c["caveat"])}</small></div>'
+                    f'{items(c["roadmap"], "plan", "개선 예정")}{items(c["past"], "past", "과거 자료")}</ul><small>{escape(c["caveat"])}</small></div>'
                     for c in cp["changes"])
     steps = "".join(f'<div data-i="{i}">{escape(s)}</div>' for i, s in enumerate(cp["flow"]))
     data = json.dumps({"heroes": heroes, "channel": channel, "landing": cp["landing"]}, ensure_ascii=False).replace("</", "<\\/")
@@ -89,11 +89,11 @@ def build(root: Path = ROOT, docs: Path | None = None) -> Path:
     html = f"""<!doctype html><html lang="ko" translate="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>다시 낙하할 시간 · PUBG 복귀 랜딩 (포트폴리오 데모)</title><meta name="robots" content="noindex"><style>{CSS}</style></head><body>
 <div class="bar">포트폴리오용 가상 캠페인 데모 · KRAFTON 공식 페이지 아님 · 실제 게임·로그인·결제와 연결되지 않음 · <a href="pubg.html#t04" style="color:#FDE68A">← 포트폴리오로</a></div>
-<header class="hero"><div class="wrap in"><div><span class="src" id="src">유입 경로 · 확인 중</span><div class="kicker">PUBG: 다시 낙하할 시간</div>
+<header class="hero"><div class="wrap in"><div><span class="src" id="src">유입 경로 · 확인 중</span><div class="kicker">PUBG · 다시 낙하할 시간</div>
 <h1 id="h"></h1><p class="lead" id="l"></p><a class="btn y" href="#changes" id="go">무엇이 달라졌는지 보기</a></div>
 <div><img id="img" alt="" src="assets/pubg-ads/ad1_we_changed.jpg"><span class="tag" id="tag"></span></div></div></header>
 <main class="wrap">
-<section id="changes"><h2>그래서 뭐가 달라졌냐고?</h2><p class="sub">공식 자료로 확인한 것만 적었다 · <b>적용됨</b>과 <b>로드맵 발표</b>, <b>과거 자료</b>를 나눠 표시</p>
+<section id="changes"><h2>그래서 뭐가 달라졌냐고?</h2><p class="sub">공식 자료로 확인한 것만 · <b>적용됨</b>과 <b>개선 예정</b>을 나눠 표시</p>
 <div class="cards">{cards}</div>
 <div class="honest"><b>솔직하게 말할게요.</b> 핵이 사라졌다거나 매칭 문제가 해결됐다는 뜻이 아닙니다. 돌아와서 3경기를 해 본 뒤, “이번 경기는 공정했나요?” 한 줄로 직접 알려 주세요. 그 답이 다음 개선의 기준이 됩니다.</div>
 <p style="margin-top:1rem"><button class="btn n" id="seen" type="button">달라진 점 확인했어요</button></p></section>
