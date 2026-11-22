@@ -797,12 +797,12 @@ def s5(ns: dict, plan: dict) -> None:
     cp = ns["campaign"]
     ret_n = (pr["arms"] - 1) * pr["n"] * (R["base_return"] + pr["mde"]) / 100      # 광고 그룹 복귀자 (가정)
     add_n = (pr["arms"] - 1) * pr["n"] * pr["mde"] / 100                            # 대조군 대비 순증 복귀자 (가정)
-    head("KPI: 신규 D7 · 복귀 전환율 · 복귀 D30 · 복귀 유저당 비용", "모든 수치는 실험 전 가정이다 · 실제 결과가 아니다", b_mock())
+    head("KPI: 신규 D7 · 복귀율 · 복귀 D30 · 순증 복귀 유저당 비용", "모든 수치는 실험 전 가정이다 · 실제 결과가 아니다", b_mock())
     html('<div class="pn-k4">'
          f'<div class="a"><span>신규 D7 잔존율</span><b>{A["base_d7"]:.0f}% → {A["base_d7"] + pa["mde"]:.0f}%</b><small>A1 코칭 · 가정 설계</small></div>'
-         f'<div class="b"><span>복귀 전환율</span><b>{R["base_return"]:.1f}% → {R["base_return"] + pr["mde"]:.1f}%</b><small>광고 vs 대조군 · 가정 설계</small></div>'
+         f'<div class="b"><span>복귀율</span><b>{R["base_return"]:.1f}% → {R["base_return"] + pr["mde"]:.1f}%</b><small>광고 vs 대조군 · 가정 설계</small></div>'
          '<div class="b"><span>복귀 D30</span><b>대조군 이상</b><small>자연 복귀자와 비교 · 기준값은 측정</small></div>'
-         f'<div class="y"><span>복귀 유저당 비용</span><b>약 {plan["b1_cost"] / ret_n / 1e4:,.0f}만 원</b><small>B1 총액 {won(plan["b1_cost"])} ÷ 복귀자 · 가정</small></div></div>')
+         f'<div class="y"><span>순증 복귀 유저당 비용</span><b>약 {plan["b1_cost"] / add_n / 1e4:,.0f}만 원</b><small>B1 총액 ÷ 대조군 대비 순증 복귀자 · 가정</small></div></div>')
     html(f'<div class="pn-abt"><div class="pn-abt-h">{b_mock()} B1 광고 A/B 테스트 · 대조군 포함 4그룹</div>'
          '<table><tr><th>그룹</th><th>광고</th><th>가설</th></tr>' + "".join(
              f'<tr><td><b>{escape(g)}</b></td><td>{escape(ad)}</td><td>{escape(h)}</td></tr>' for g, ad, h in cp["abtest"]) + '</table>'
@@ -825,10 +825,10 @@ def s5(ns: dict, plan: dict) -> None:
              f'<div><b>① 통계적 유의성</b>A1: D7 차이의 95% 신뢰구간 하한 &gt; 0<br>B1: 광고별 복귀 전환율 차이(대조군 대비) 95% 신뢰구간 하한 &gt; 0 (다중 비교 보정)</div>'
              f'<div><b>② 실질적 사업 효과</b>A1: 점추정 ≥ +{pm:.1f}%p (사전 합의)<br>B1: 복귀 D30이 자연 복귀자보다 낮지 않음 · 복귀 유저당 비용 사전 상한 이하</div>'
              f'<div><b>③ 가드레일</b>하나라도 악화되면 확대하지 않음<br>A1: {escape(" · ".join(A["guardrails"]))}<br>B1: {escape(" · ".join(R["guardrails"]))}</div></div>')
-        st.markdown(f"- **복귀 유저당 비용 (가정 계산)** B1 총액 {won(plan['b1_cost'])} ÷ 광고 그룹 복귀자 약 {ret_n:,.0f}명 "
+        st.markdown(f"- **참고 · 전체 복귀자 기준** B1 총액 {won(plan['b1_cost'])} ÷ 광고 그룹 복귀자 약 {ret_n:,.0f}명 "
                     f"(광고 3그룹 × {pr['n']:,}명 × {R['base_return'] + pr['mde']:.1f}%) ≈ {plan['b1_cost'] / ret_n / 1e4:,.1f}만 원\n"
-                    f"- 대조군 대비 **순증** 복귀자 약 {add_n:,.0f}명 기준으로는 ≈ {plan['b1_cost'] / add_n / 1e4:,.0f}만 원 → 실제 판단은 순증 기준으로 한다\n"
-                    "- 채널별 효율 = 랜딩 방문 → 복귀 로그인 · 지하철·버스·PC방은 무작위 배정이 불가능해 QR 유입(src)으로만 참고\n"
+                    f"- **순증 복귀 유저당 비용 (위 KPI)** 대조군 대비 순증 복귀자 약 {add_n:,.0f}명 기준 ≈ {plan['b1_cost'] / add_n / 1e4:,.0f}만 원 → 광고가 없어도 돌아왔을 유저를 빼야 하므로 판단은 순증 기준\n"
+                    "- 채널별 효율 = 랜딩 방문 → 복귀 로그인 · 지하철·버스 정류장·PC방은 무작위 배정이 불가능해 QR 유입(src)으로만 참고\n"
                     "- A1·A2·A3는 한 번에 넣지 않는다 → A1 단독 실험 후 A2는 별도 코호트, A3는 서버 단위 실험")
     with st.expander("자세히 보기 · KPI 정의 (분모 · 대상 · 관측 기간)"):
         for t in ("A", "B", "C"):
@@ -882,7 +882,7 @@ def s6(ns: dict, plan: dict) -> None:
     sub("실행 일정", b_mock())
     weeks = [("준비 (−2~0주)", "A1 판정 규칙·문구 검수 · B1 광고 3종·랜딩·UTM/QR 점검 · 휴면 대상 추출·4그룹 배정"),
              (f"{sc['a_assign'][0]}~{sc['a_assign'][1]}주", "A1 배정 (신규 50:50)"),
-             (f"{sc['r_assign'][0]}~{sc['r_assign'][1]}주", f"B1 광고 집행 (휴면 4그룹 · 지하철·버스·PC방 병행) · {sc['a_d7']}주 A1 D7 판정"),
+             (f"{sc['r_assign'][0]}~{sc['r_assign'][1]}주", f"B1 광고 집행 (휴면 4그룹 · 지하철·버스 정류장·PC방 병행) · {sc['a_d7']}주 A1 D7 판정"),
              (f"{sc['r_assign'][1] + 1}~{sc['decision']}주", f"{sc['a_d30']}주 A1 D30 · {sc['r_return']}주 B1 복귀 로그인율 · {sc['r_d30']}주 B1 D30 · {sc['decision']}주 확대·수정·중단")]
     html('<div class="ow-timeline pg-tl">' + "".join(
         f'<div class="ow-tl"><div class="ow-tl-d">{escape(p)}</div><div class="ow-tl-b">{escape(w)}</div></div>' for p, w in weeks) + "</div>")
@@ -899,7 +899,7 @@ def s6(ns: dict, plan: dict) -> None:
     sub(f"B1 광고·콘텐츠 파일럿 {won(ad)} · 채널 배분 (가정)", b_sim())
     html('<div class="pn-budget">' + "".join(
         f'<div style="flex:{w} 1 0"><b>{w}%</b><span>{escape(n)}</span><small>{cp["budget"] * w / 100 / 1e4:,.0f}만 원</small></div>'
-        for n, d, w in cp["channels"]) + f'</div><div class="pn-cav2">파일럿 {won(ad)} 안에서의 배분 · 추가 제작비 {won(land)} 별도 → B1 총액 {won(b1)} · 버스는 옥외 30% 안에서 검토 · 가정</div>')
+        for n, d, w in cp["channels"]) + f'</div><div class="pn-cav2">파일럿 {won(ad)} 안에서의 배분 · 추가 제작비 {won(land)} 별도 → B1 총액 {won(b1)} · 버스 정류장은 옥외 30% 안에서 검토 · 가정</div>')
     html('<div class="pn-final">' + art(ns, "winner", "첫 치킨의 성취감 · 신규는 처음으로, 복귀 유저는 다시 한 번", "winner") +
          f'<div class="ow-conclusion"><div class="ow-conclusion-k">최종 사업PM 판단 {b_mock()}</div>'
          '<b>신규는 다음 경기 행동으로, 떠난 유저는 다시 낙하할 이유로.</b><br>'
