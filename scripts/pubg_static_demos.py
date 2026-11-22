@@ -20,7 +20,15 @@ B_MOCK = '<span class="gp-badge k-mock">기획 시안</span>'
 
 PAGE_CSS = """<style>
 /* ---- PUBG 정적 페이지 전용 (Streamlit 화면과 맞춤) ---- */
+/* Streamlit 본문 글꼴: 앱에 포함된 "Source Sans" 가변 글꼴(SIL OFL) 그대로 + 한글은 시스템 sans-serif → 글자 폭·줄바꿈 일치 */
+@font-face{font-family:"Source Sans";font-weight:100 900;font-style:normal;font-display:swap;src:url(assets/fonts/SourceSansVF-Upright.woff2) format("woff2")}
+.pg-static,.pg-static *{font-family:"Source Sans",sans-serif}
+.pg-static *,.pg-static *::before,.pg-static *::after{box-sizing:border-box}   /* Streamlit 전역 설정과 동일 (여백 포함 폭) */
 .pg-static{max-width:940px;margin:0 auto}   /* Streamlit 본문 폭(1400px 화면 기준 940px)과 같게 → 카드 줄바꿈·글자 밀도 동일 */
+/* Streamlit 기본 글자 스타일 (theme textColor #1E293B · 본문 줄간격 1.6 · 제목 600/1.2 · 표 칸 위 구분선) */
+.pg-static{color:#1E293B;line-height:1.6}
+.pg-static h4,.pg-static h5{font-weight:600;line-height:1.2}
+.pg-static .gp-table td,.pg-static .gp-table th{border-top:1px solid rgba(30,41,59,.1)}
 .pg-static .pg-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:900px){.pg-static .pg-cards{grid-template-columns:1fr}}
 .pg-static.js .sx-tabs>.sx-tabnav{gap:1.4rem;background:none;border-bottom:1px solid #E2E8F0;padding:0;margin:.4rem 0 1rem}

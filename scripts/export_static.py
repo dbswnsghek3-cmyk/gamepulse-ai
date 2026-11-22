@@ -392,6 +392,11 @@ def pubg_body(kind: str) -> tuple[str, int]:
     """PUBG 전용: 01~06 내용을 HTML 에 모두 펼쳐 두고(JavaScript 없이도 읽힘) JS 가 선택한 탭만 남긴다.
     하위 탭(시연 A·B·C·B2) 전환, 시안 칸의 JS 조작판, 탭별 Streamlit 화면 캡처를 더한다. 오버워치 출력은 그대로."""
     from pubg_static_demos import PAGE_CSS, PAGE_JS, demos   # 정적 페이지용 JS 시연 (같은 newstart.json 값 사용)
+    import streamlit
+    # Streamlit 앱과 같은 본문 글꼴 (앱 패키지에 포함된 Source Sans 가변 글꼴 · SIL OFL)
+    font = next((Path(streamlit.__file__).parent / "static" / "static" / "media").glob("SourceSansVF-Upright*.woff2"))
+    (DOCS / "assets" / "fonts").mkdir(parents=True, exist_ok=True)
+    shutil.copy(font, DOCS / "assets" / "fonts" / "SourceSansVF-Upright.woff2")
     shots = pubg_screens()
     labels = {lab[:2]: lab for lab in PG_TABS}
 
