@@ -1,6 +1,6 @@
 """정적 보고서(GitHub Pages)용 PUBG 페이지 보강 — 서버 없이 브라우저에서 바로 조작.
 
-- 시연 A·B·C·B2: Streamlit '제안' 칸과 같은 구성(입력 → 결과 카드)을 JavaScript 로 구현한다.
+- 04 탭 A1·B1·A2·B2: Streamlit '제안' 칸과 같은 구성(입력 → 결과 카드)을 JavaScript 로 구현한다.
   같은 data/pubg/newstart.json 값을 쓰고, 계산식은 gamepulse/sim/newstart_sim.py 와 같다.
 - export_static.py 가 04 탭의 해당 하위 탭 끝에 덧붙이면, 아래 PAGE_JS 가 각 조작판을 그 하위 탭의 '제안' 칸
   (Streamlit 화면을 옮긴 스냅샷 자리)으로 옮긴다. 조작판은 처음에 hidden 이라 JavaScript 가 없으면
@@ -28,6 +28,7 @@ PAGE_CSS = """<style>
 /* Streamlit 기본 글자 스타일 (theme textColor #1E293B · 본문 줄간격 1.6 · 제목 600/1.2 · 표 칸 위 구분선) */
 .pg-static{color:#1E293B;line-height:1.6}
 .pg-static h4,.pg-static h5{font-weight:600;line-height:1.2}
+:where(.pg-static) b,:where(.pg-static) strong{font-weight:600}   /* Streamlit 기본 굵기 (클래스 지정 굵기는 그대로) */
 .pg-static .gp-table td,.pg-static .gp-table th{border-top:1px solid rgba(30,41,59,.1)}
 .pg-static .pg-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:900px){.pg-static .pg-cards{grid-template-columns:1fr}}
@@ -111,8 +112,7 @@ def demos(root: Path) -> dict[str, str]:
              f'<label>1회 가격 (G-Coin · 예시)<input type="number" id="lvC-price" value="{bm["price"]}" min="100" max="10000" step="100"></label>'
              f'<label>목표 스킨 확률 (% · 예시) <b id="lvC-pv">{bm["prob"]}</b><input type="range" id="lvC-prob" min="0.1" max="10" step="0.1" value="{bm["prob"]}"></label></div>'
              f'<div class="pg-demo b"><h4>목표 스킨까지 예상 비용 {B_SAMPLE} {B_SIM}</h4><div class="pg-metric" id="lvC-m"></div>'
-             '<div class="src">예시 데이터 계산 · 1회 200 G-Coin·확률 0.9%·교환가 3,000은 게임 화면 캡처값이며 공개 공식 문서로 확인되지 않음 '
-             '(공지 가격 1,800 G-Coin과 불일치) · 첫 10회 1,000 G-Coin만 공식 공지 확인 · 출처는 아래 펼쳐보기</div></div>'
+             '<div class="src">예시 데이터 · 가격 200·확률 0.9%·교환가 3,000은 게임 화면 캡처값 (공식 문서 미확인) · 출처는 아래 펼쳐보기</div></div>'
              f'{hint}</div>')
     c_exp = (f'<details class="sx-exp pg-live" data-pg-mount="exp" hidden><summary>자세히 보기 · 스크랩 교환 조건 · 구매 횟수별 확률 곡선 · 계산식 '
              f'<span class="sx-more">펼쳐보기</span></summary><div class="sx-exp-b"><div class="ctl">'
@@ -201,5 +201,5 @@ function init(){seg('lvA-seg',A);seg('lvB-seg',B);A(5);B(0);
  document.querySelectorAll('details').forEach(function(d){d.addEventListener('toggle',function(){if(d.open)rs();});});}
 if(document.querySelector('.pg-static.js'))init();else document.addEventListener('pg-mounted',init);
 })();</script>"""
-    return {"시연 A · 첫 10경기 성장 기록": a, "시연 B · 첫 실전 피드백 (A1)": b,
-            "시연 C · 총비용 시뮬레이터 (B1)": c_top + c_exp, "강화 비용 안내 (B2 · 추정)": b2 + js}
+    return {"A1 첫 실전 피드백 (메인)": b, "B1 총비용 시뮬레이터 (서브)": c_top + c_exp,
+            "A2 첫 10경기 성장 기록": a, "B2 강화 비용 (추정)": b2 + js}

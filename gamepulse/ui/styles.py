@@ -1068,6 +1068,67 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .pg-metric em {{ font-style: normal; font-size: 0.8rem; font-weight: 800; color: #1D4ED8; margin-left: 0.25rem; }}
 /* 실제 화면 이미지는 조금 크게 */
 .ow-shot.hero {{ max-width: 940px !important; }} .ow-shot.wide {{ max-width: 860px !important; }}
+/* ---------- PUBG 최종 정리: 첫 화면 · 80/20 비중 · 3단계 흐름 (pg- 전용, 오버워치 미사용) ---------- */
+.pg-cover {{ display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.2rem; align-items: center;
+  background: linear-gradient(135deg, #0B1F3A 0%, #14305A 70%, #1E4B8F 130%); color: #fff; border-radius: 16px; padding: 1.3rem 1.4rem; margin-bottom: 0.8rem; }}
+.pg-logo {{ height: 38px; width: auto; display: block; margin-bottom: 0.7rem; }}
+.pg-cover-k {{ font-size: 0.8rem; font-weight: 800; letter-spacing: 0.14em; color: #9CC3FF; }}
+.pg-cover-t {{ font-size: 1.75rem; font-weight: 800; line-height: 1.3; margin: 0.35rem 0 0.4rem; letter-spacing: -0.02em; color: #fff; }}
+.pg-cover-s {{ font-size: 1.05rem; color: #D6E2FA; }}
+.pg-cover-r {{ margin: 0; }} .pg-cover-r img {{ width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; display: block; }}
+.pg-cover-r figcaption {{ font-size: 0.72rem; color: #B9CBEA; margin-top: 0.3rem; }}
+.pg-lead {{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.62fr); gap: 0.6rem; margin-bottom: 0.9rem; }}
+.pg-lead > div {{ border-radius: 12px; padding: 0.75rem 0.9rem; display: flex; flex-direction: column; gap: 0.15rem; }}
+.pg-lead .m {{ background: #EFF6FF; border: 1px solid #BFDBFE; }} .pg-lead .m span {{ color: #1D4ED8; }}
+.pg-lead .sub {{ background: #FFF7F5; border: 1px dashed #F6C7C1; }} .pg-lead .sub span {{ color: #B4433B; }}
+.pg-lead span {{ font-size: 0.78rem; font-weight: 800; }} .pg-lead b {{ font-size: 1.08rem; color: #0B1F3A; line-height: 1.35; }}
+.pg-lead .sub b {{ font-size: 0.98rem; }} .pg-lead small {{ font-size: 0.88rem; color: #334155; }}
+.pg-main {{ display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0.8rem; margin: 0.3rem 0 0.8rem; }}
+.pg-main > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #2563EB; border-radius: 12px; padding: 0.9rem 1.05rem; color: #1E293B; }}
+.pg-main > .pg-main-r.sub {{ border-top-color: #E97870; background: #FFFCFB; }}
+.pg-h {{ font-size: 1.05rem; font-weight: 800; color: #0B1F3A; margin-bottom: 0.45rem; }}
+.pg-big {{ font-size: 1.45rem; font-weight: 800; color: #1D4ED8; margin: 0 0 0.3rem; }} .pg-main-r.sub .pg-big {{ font-size: 1.15rem; color: #B4433B; }}
+.pg-why {{ list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.45rem; font-size: 1.02rem; line-height: 1.55; }}
+.pg-why .gp-badge {{ margin-right: 0.3rem; }}
+.pg-why li {{ font-size: 1.02rem !important; line-height: 1.55 !important; }}
+.pg-main p {{ margin: 0.45rem 0 0; font-size: 1rem; line-height: 1.55; }} .pg-main p.kpi {{ font-weight: 800; color: #1D4ED8; }}
+.pg-chips {{ display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }}
+.pg-chips span {{ background: #2563EB; color: #fff; font-weight: 800; border-radius: 999px; padding: 0.3rem 0.75rem; font-size: 0.95rem; }}
+.pg-chips i {{ font-style: normal; color: #2563EB; font-weight: 900; }}
+.pg-subbox {{ background: #FFF7F5; border: 1px dashed #F6C7C1; border-radius: 10px; padding: 0.6rem 0.85rem; font-size: 0.95rem; color: #334155; margin-bottom: 0.8rem; }}
+.pg-subbox b {{ color: #0B1F3A; margin-right: 0.3rem; }}
+.pg-ul {{ margin: 0.2rem 0; padding-left: 1.1rem; line-height: 1.6; }} .pg-ul li {{ margin: 0.3rem 0; }}
+.pg-quotes {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.4rem 0 0.5rem; }}
+.pg-bm2 {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.8rem; }}
+.pg-bm2 > div {{ background: #FFF7F5; border: 1px solid #F6C7C1; border-radius: 10px; padding: 0.65rem 0.85rem; font-size: 0.95rem; line-height: 1.55; color: #1E293B; }}
+.pg-flow {{ display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); align-items: stretch; gap: 0.5rem; margin: 0.4rem 0 0.6rem; }}
+.pg-step {{ background: #fff; border: 1px solid #BFDBFE; border-top: 4px solid #2563EB; border-radius: 12px; padding: 0.85rem 1rem;
+  display: flex; flex-direction: column; gap: 0.25rem; }}
+.pg-step.hypo {{ border-style: dashed; border-top-style: solid; border-top-color: #94A3B8; }}
+.pg-step .n {{ font-size: 0.85rem; font-weight: 800; color: #1D4ED8; }} .pg-step .kb .gp-badge {{ font-size: 0.68rem; }}
+.pg-step b {{ font-size: 1.2rem; color: #0B1F3A; font-weight: 700 !important; }} .pg-step small {{ font-size: 0.98rem; color: #334155; }}
+.pg-arrow {{ align-self: center; font-size: 1.5rem; font-weight: 900; color: #2563EB; }}
+.pg-flow.sub {{ max-width: 760px; }} .pg-flow.sub .pg-step {{ padding: 0.55rem 0.75rem; border-color: #F6C7C1; border-top-color: #E97870; }}
+.pg-flow.sub .pg-step.hypo {{ border-top-color: #94A3B8; }} .pg-flow.sub .pg-step b {{ font-size: 1rem; }} .pg-flow.sub .pg-step small {{ font-size: 0.88rem; }}
+.pg-flow.sub .pg-step .n {{ color: #B4433B; }} .pg-flow.sub .pg-arrow {{ color: #E97870; font-size: 1.2rem; }}
+.pg-hyp {{ background: #F8FAFC; border-left: 4px solid #64748B; border-radius: 8px; padding: 0.7rem 0.9rem; margin: 0.3rem 0 1rem; font-size: 1.05rem; color: #0B1F3A; }}
+.pg-hyp small {{ display: block; font-size: 0.85rem; color: #475569; margin-top: 0.25rem; font-weight: 400; }}
+.pg-hyp.sub {{ font-size: 0.95rem; max-width: 760px; }}
+.pg-diff {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.9rem; }}
+.pg-diff > div {{ background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.75rem 0.9rem; font-size: 1rem; font-weight: 700; color: #0B1F3A; }}
+.pg-diff > div:nth-child(2) {{ border: 1.5px dashed #93C5FD; background: #F8FAFC; }}
+.pg-diff small {{ display: block; font-weight: 400; font-size: 0.9rem; color: #334155; margin-top: 0.3rem; line-height: 1.5; }}
+.pg-tag {{ display: block; width: fit-content; font-size: 0.75rem; font-weight: 800; border-radius: 999px; padding: 0.08rem 0.55rem; margin-bottom: 0.35rem; }}
+.pg-tag.real {{ background: #2563EB; color: #fff; }} .pg-tag.mock {{ background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }}
+.pg-callout {{ background: #FFF7F5; border-left: 4px solid #E97870; border-radius: 8px; padding: 0.65rem 0.9rem; margin: 0.2rem 0 0.6rem; color: #0B1F3A; font-size: 1.02rem; }}
+.ow-timeline.pg-tl {{ grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }}
+.pg-callout small {{ display: block; font-size: 0.85rem; color: #475569; margin-top: 0.2rem; }}
+@media (max-width: 900px) {{
+  .pg-cover, .pg-main, .pg-lead, .pg-quotes, .pg-bm2, .pg-diff {{ grid-template-columns: 1fr; }}
+  .ow-timeline.pg-tl {{ grid-template-columns: 1fr !important; }}
+  .pg-flow {{ grid-template-columns: 1fr; }} .pg-arrow {{ transform: rotate(90deg); justify-self: center; line-height: 1; }}
+  .pg-cover-t {{ font-size: 1.4rem; }}
+}}
 
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
