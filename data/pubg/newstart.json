@@ -54,7 +54,7 @@
       "date": "2026-11-03",
       "title": "11월 상점 업데이트",
       "track": "B",
-      "fact": "밀수품 상자 1,800 G-Coin, 10회 첫 구매 1,000 G-Coin 할인. 성장형 Mini14 최대 10레벨. 확률은 게임 안 '확률 보기' 페이지에서만 공개",
+      "fact": "'큐티 파이 - 밀수품 상자 (1,800 G-Coin)' 표기(1회·10회 단위 없음, 게임 안 가격과 불일치). 10회 첫 구매 시 1,000 G-Coin. 판매 26/11/4~27/4/7. 성장형 큐티 파이 - 미니14 최대 10레벨. 확률은 게임 안 '확률 보기' 페이지에서만 공개",
       "url": "https://pubg.com/en/news/11306",
       "status": "공식 확인"
     },
@@ -84,6 +84,15 @@
       "fact": "설계도·폴리머로 업그레이드, 레벨이 오를수록 필요량 증가, 업그레이드는 되돌릴 수 없음. 레벨별 필요량 수치는 뉴스에 없음",
       "url": "https://pubg.com/en/news/1744",
       "status": "공식 확인"
+    },
+    {
+      "id": "O9",
+      "date": "2026-11-22",
+      "title": "게임 화면 캡처 · 큐티 파이 밀수품 상자 (작성자 직접 캡처)",
+      "track": "B",
+      "fact": "공개 공식 문서가 아닌 작성자 캡처값. 은신처 → 밀수품: 1회 200 G-Coin(스크랩 10 포함), 10회 2,000 G-Coin → 첫 구매 1,000 G-Coin(50%). 확률 보기: 레전더리 성장 '큐티 파이 - 미니14' 0.9%, 얼티밋 크로마(핑크 화이트) 0.4%. 스크랩 브로커: 큐티 파이 - 미니14(Lv.1) 3,000 스크랩, 크로마 6,500 스크랩. 공지 가격(1,800 G-Coin, 단위 미표기)과 1회 가격이 달라 공식 가격은 미확정",
+      "url": "",
+      "status": "캡처 · 공식 문서 미확인"
     },
     {
       "id": "O9",
@@ -316,15 +325,18 @@
     }
   },
   "bm_sim": {
-    "price": 1800,
+    "price": 200,
+    "first_n": 10,
+    "first_price": 1000,
     "prob": 0.9,
     "scrap_per_open": 10,
     "exchange_scrap": 3000,
     "notes": {
-      "price": "공식 · 2026-11 밀수품 상자",
-      "prob": "예시 · 공식 확률은 게임 안 페이지에서만 확인 가능",
-      "scrap_per_open": "공식 · 개발자 노트 2025-06",
-      "exchange_scrap": "예시 · 2022 성장형 스킨 교환 사례, 현재 상품별 교환가 미확인"
+      "price": "예시 · 게임 화면 캡처값 1회 200 G-Coin (2026-11-22). 공식 공지는 '1,800 G-Coin'(1회·10회 단위 미표기)으로 달라 공식 가격 미확정",
+      "first": "공식 공지 2026-11-03 · 10회 첫 구매 1,000 G-Coin (게임 화면도 2,000 → 1,000으로 같음)",
+      "prob": "예시 · 게임 안 '확률 보기' 캡처값 (레전더리 성장 큐티 파이 - 미니14 0.9%) · 공개 공식 문서로는 교차 확인 불가",
+      "scrap_per_open": "공식 · 개발자 노트 2025-06 (1회당 10)",
+      "exchange_scrap": "예시 · 스크랩 브로커 화면 캡처값 (큐티 파이 - 미니14 Lv.1 3,000) · 공식 공지에 교환가 없음"
     }
   },
   "salvage": [
@@ -431,7 +443,8 @@
         ]
       }
     ],
-    "repurchase_arppu_ratio": 0.6
+    "repurchase_arppu_ratio": 0.6,
+    "note": "가정 시뮬레이션 · 방문자·전환율·ARPPU·재구매율 모두 실제 PUBG 수치가 아닌 가정값. ARPPU 9,000 G-Coin은 30일 구매자 1인당 결제액 가정 (예시 가격 1회 200 기준 약 45회분)"
   },
   "risks": [
     {
@@ -628,6 +641,7 @@
     {
       "key": "deathcam",
       "file": "deathcam.png",
+      "ready": true,
       "track": "A",
       "title": "데스캠 (사망 장면 재생)",
       "where": "일반전 사망 직후 → 데스캠",
@@ -636,6 +650,7 @@
     {
       "key": "match_result",
       "file": "match_result.png",
+      "ready": true,
       "track": "A",
       "title": "경기 결과 화면",
       "where": "일반전 종료 직후",
@@ -644,6 +659,7 @@
     {
       "key": "bootcamp",
       "file": "bootcamp.png",
+      "ready": true,
       "track": "A",
       "title": "초심자 훈련소 미션",
       "where": "로비 상단 → 초심자 훈련소",
@@ -652,6 +668,7 @@
     {
       "key": "basic_training",
       "file": "basic_training.png",
+      "ready": true,
       "track": "A",
       "title": "기본 훈련 챕터",
       "where": "훈련 → 기본 훈련",
@@ -660,6 +677,7 @@
     {
       "key": "contraband_store",
       "file": "contraband_store.png",
+      "ready": true,
       "track": "B",
       "title": "밀수품 상자 구매 화면",
       "where": "은신처 → 밀수품",
@@ -668,6 +686,7 @@
     {
       "key": "contraband_prob",
       "file": "contraband_prob.png",
+      "ready": true,
       "track": "B",
       "title": "확률 보기 페이지",
       "where": "밀수품 → 자세히 보기 → 확률 보기",
@@ -676,6 +695,7 @@
     {
       "key": "scrap_broker",
       "file": "scrap_broker.png",
+      "ready": true,
       "track": "B",
       "title": "스크랩 브로커 교환가",
       "where": "은신처 → 스크랩 브로커",
@@ -684,9 +704,10 @@
     {
       "key": "upgrade",
       "file": "upgrade.png",
+      "ready": true,
       "track": "B",
-      "title": "성장형 스킨 업그레이드",
-      "where": "인벤토리 → 성장형 스킨 → 업그레이드",
+      "title": "성장형 스킨 레벨 구성 (Lv.1~10, 미획득 상태)",
+      "where": "로비 → 은신처 → 무기 → 큐티 파이 - 미니14",
       "use": "B2 중복 여부 확인"
     }
   ]

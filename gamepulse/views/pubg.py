@@ -5,7 +5,8 @@
 - 공식 사실·가정값·시연 데이터는 data/pubg/newstart.json, 실제 유저 의견은 data/pubg/opinions.csv(Steam 리뷰 직접 분류),
   공개 지표는 data/pubg/steam_monthly.csv. 계산은 gamepulse/sim/newstart_sim.py 한 곳에서 한다.
 - TRACK A = 블루, TRACK B = 코랄. 두 트랙을 같은 이탈 원인으로 묶지 않는다.
-- PUBG 실제 게임 화면은 아직 확보하지 못해 '캡처 필요' 자리만 표시한다 (임의 이미지 생성 금지).
+- PUBG 실제 게임 화면은 직접 캡처한 assets/pubg/*.png (다른 플레이어 닉네임 가림 사본)만 표시한다. 원본은 _originals/ (git 제외).
+  newstart.json screens[].ready=true 인 것만 표시, 없으면 '캡처 대기' 자리 (임의 이미지 생성 금지).
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from gamepulse.data.overwatch_images import web_jpeg_b64
 from gamepulse.sim import newstart_sim as S
 from gamepulse.ui.components import html
 from gamepulse.views.overwatch import (C_CTRL, C_MUTED, C_TREAT, KIND, b_hypo, b_interp, b_mock, b_real, b_sample, b_sim,
@@ -76,12 +78,21 @@ def slot_html(key: str) -> str:
             f'<small>캡처 위치 · {escape(sc["where"])}</small><small class="f">assets/pubg/{escape(sc["file"])}</small></div>')
 
 
+@st.cache_data(show_spinner=False)
+def _jpeg_b64(path: str, mtime: float) -> str:
+    return web_jpeg_b64(path, max_w=1400)
+
+
 def shot(key: str) -> None:
-    """캡처가 들어오고 닉네임 가림 처리 후 ready=true 로 바꾼 파일만 표시. 그 전에는 자리만."""
+    """캡처가 들어오고 닉네임 가림 처리 후 ready=true 로 바꾼 파일만 표시. 그 전에는 자리만.
+    오버워치와 같은 '실제 게임 화면' 프레임(HTML) → 정적 내보내기(docs/)에도 그대로 실린다."""
     sc = SCREENS.get(key, {})
     path = ASSETS / sc.get("file", "-")
     if sc.get("ready") and path.is_file():
-        st.image(str(path), caption=sc.get("title", ""), width="stretch")
+        t = escape(sc.get("title", ""))
+        html(f'<figure class="ow-shot"><div class="ow-shot-bar"><span class="ow-shot-tag">실제 게임 화면</span>{t}</div>'
+             f'<div class="ow-shot-img"><img src="data:image/jpeg;base64,{_jpeg_b64(str(path), path.stat().st_mtime)}" '
+             f'alt="{t}" loading="lazy"></div></figure>')
     else:
         html(slot_html(key))
 
@@ -189,12 +200,17 @@ def s2(ns: dict, ops: pd.DataFrame, steam: pd.DataFrame, pool: dict) -> None:
         _opinions(ops)
     with t[1]:
         sub("직접 캡처할 최신 한국어 화면", b_real())
-        html('<div class="ow-grid2">' + "".join(
-            f'<div class="pg-slot-w">{tr(x["track"])}<small>{escape(x["use"])}</small>{slot_html(x["key"])}</div>' for x in SCREENS.values()) + "</div>")
+        items = list(SCREENS.values())
+        for i in range(0, len(items), 2):
+            cols = st.columns(2, gap="medium")
+            for col, x in zip(cols, items[i:i + 2]):
+                with col:
+                    html(f'<div class="pg-slot-w">{tr(x["track"])}<small>{escape(x["use"])}</small></div>')
+                    shot(x["key"])
         st.caption("캡처가 들어오면 다른 플레이어 닉네임을 가린 사본만 공개합니다. 원본은 로컬에만 보관합니다.")
     with t[2]:
         table(["날짜 · 트랙", "자료", "확인한 사실", "출처"],
-              [[f"{escape(o['date'])}<br>{tr(o['track'])}", f"<b>{escape(o['title'])}</b>", escape(o["fact"]), link(o["url"], o["status"])]
+              [[f"{escape(o['date'])}<br>{tr(o['track'])}", f"<b>{escape(o['title'])}</b>", escape(o["fact"]), (link(o["url"], o["status"]) if o.get("url") else escape(o["status"]))]
                for o in ns["official"]], badge_html=b_real())
         st.caption("'매체 보도'는 공식 원문을 찾지 못해 언론 보도로 확인한 항목입니다.")
     with t[3]:
@@ -208,7 +224,7 @@ def s2(ns: dict, ops: pd.DataFrame, steam: pd.DataFrame, pool: dict) -> None:
                     "- Steam 리뷰는 Steam 이용자만, 리뷰를 쓴 사람만 포함 → 전체 이용자 의견 비율이 아니다\n"
                     "- Reddit은 수집 환경에서 접근 차단(403), 국내 커뮤니티는 이번 범위에서 수집하지 않음\n"
                     "- 욕설·혐오 표현이 섞인 리뷰는 해당 부분을 빼고 발췌 · 작성자 이름은 저장하지 않음\n"
-                    "- 밀수품 상자 확률은 게임 안 페이지에서만 공개되어 이 보고서에서는 '예시' 값으로만 계산")
+                    "- 밀수품 상자 1회 가격·확률·교환가는 공개 공식 문서로 확인되지 않아 게임 화면 캡처값을 '예시'로만 계산 (공지 가격 1,800 G-Coin은 단위 미표기·화면과 불일치)")
         st.caption("Steam Charts(steamcharts.com/app/578080) 월평균 동시접속자 · 확인일 2026-11-20")
 
 
@@ -313,7 +329,7 @@ def s3(ns: dict, ops: pd.DataFrame, pool: dict) -> None:
            ("interp", "숙련자 로비 전환", "갑자기 수백 레벨 상대와 만나 반복 사망", f"리뷰 '실력 격차' {int(n.get('실력 격차·매칭', 0))}건 · '첫 사망' {int(n.get('초반 교전·첫 사망', 0))}건", "첫 교전 생존율 · 기절 거리"),
            ("hypo", "이유 모를 패배 → 이탈", "무엇을 고칠지 몰라 재접속 의향 감소", "가설 · 로그 검증 필요", "첫 3경기 후 재접속 · D7 (A/B)")])
     sub("TRACK B · 구매 만족도가 떨어지는 지점")
-    _flow([("real", "확률형 구매", "밀수품 상자 1,800 G-Coin · 확률은 게임 안 페이지", "공식 상점 공지 2026-11", "상점 방문 → 구매 전환"),
+    _flow([("real", "확률형 구매", "큐티 파이 밀수품 상자 판매 · 확률은 게임 안 페이지에서만 공개", "공식 상점 공지 2026-11", "상점 방문 → 구매 전환"),
            ("interp", "원하는 결과 미획득", "최고 등급 대신 크로마 반복", f"리뷰 '확률·결과' {int(n.get('확률·결과 불만', 0))}건", "구매 후 문의율"),
            ("hypo", "정보 부족 → 구매 판단", "목표 스킨까지 얼마인지 모른 채 구매", f"'총비용' 주분류 {int(n.get('총비용 부담', 0))}건 · 보조 언급 {int(ops['tags'].str.contains('총비용 부담').sum())}건 → 근거 약함", "B1 A/B: 전환율·구매 과정 이탈률"),
            ("hypo", "신뢰·재구매 하락", "만족도·신뢰가 낮아져 재구매가 줄 수 있음", "가설 · 매출 로그 검증 필요", "30일 재구매율 (A/B)")])
@@ -409,8 +425,8 @@ def demo_c(ns: dict) -> None:
 
     def mock() -> None:
         c1, c2 = st.columns(2)
-        box["price"] = c1.number_input("1회 가격 (G-Coin)", 100, 10000, int(bm["price"]), step=100, key="pg_c_price")
-        box["prob"] = c2.slider("목표 스킨 확률 (%)", 0.1, 10.0, float(bm["prob"]), 0.1, key="pg_c_prob")
+        box["price"] = c1.number_input("1회 가격 (G-Coin · 예시)", 100, 10000, int(bm["price"]), step=100, key="pg_c_price")
+        box["prob"] = c2.slider("목표 스킨 확률 (% · 예시)", 0.1, 10.0, float(bm["prob"]), 0.1, key="pg_c_prob")
         box["out"] = st.container()
     compare("contraband_store", "밀수품 상자 구매 화면", "구매 전 예상 비용 (가격·확률 그대로)", mock)
 
@@ -421,9 +437,12 @@ def demo_c(ns: dict) -> None:
         ex = c2.number_input("교환 필요 스크랩", 0, 20000, int(bm["exchange_scrap"]), step=100, key="pg_c_ex")
         own = c3.number_input("보유 스크랩", 0, 20000, 0, step=100, key="pg_c_own")
         n = c4.slider("구매 횟수", 1, 400, 100, key="pg_c_n")
-        s = S.crate_summary(box["price"], box["prob"], per, ex, own, n)
+        d1, d2, _ = st.columns([1, 1, 2])
+        fn = d1.number_input("첫 묶음 횟수 (0 = 할인 미적용)", 0, 100, int(bm.get("first_n", 0)), key="pg_c_fn")
+        fp = d2.number_input("첫 묶음 가격 (G-Coin)", 0, 100000, int(bm.get("first_price", 0)), step=100, key="pg_c_fp")
+        s = S.crate_summary(box["price"], box["prob"], per, ex, own, n, fn, fp)
         cap = s["cap"]
-        tiles([(f"{n}회 안에 얻을 확률", f"{s['within_n'] * 100:.1f}%", "독립 시행"),
+        tiles([(f"{n}회 안에 얻을 확률", f"{s['within_n'] * 100:.1f}%", f"독립 시행 · {n}회 비용 {s['n_cost']:,.0f} G-Coin"),
                ("교환 확정 (천장)", "없음" if cap is None else f"{s['cap_cost']:,.0f}", "" if cap is None else f"{cap}회 · G-Coin"),
                ("교환 없을 때 기대 비용", f"{s['exp_cost_nocap']:,.0f}", "G-Coin · 1 ÷ p 회")])
         mx = max(n, cap or 0, s["o90"] or 0) + 20
@@ -438,15 +457,20 @@ def demo_c(ns: dict) -> None:
                    kpis=[], analysis=f"{n}회 안에 {s['within_n'] * 100:.1f}%", decision="구매 전에 보여 줘도 전환율이 유지되는지 B1로 검증",
                    basis="P(n회 내) = 1 − (1 − p)^n · 천장 = 교환 스크랩 ÷ 1회당 스크랩", height=280,
                    cols=("구매 횟수 (회)", "획득 확률 (%)"), series="계산")
-        st.markdown("- 기대 구매 횟수 = (1 − (1 − p)^K) ÷ p (K = 천장, 교환이 없으면 1 ÷ p) · 기대 비용 = 기대 횟수 × 1회 가격\n"
-                    "- 10회 묶음 첫 구매 할인, 중복 보상의 분해·토큰 환급은 반영하지 않음 → 실제 비용은 이보다 낮을 수 있다\n"
-                    f"- 가격 1,800: {bm['notes']['price']} · 확률: {bm['notes']['prob']} · 스크랩 10/회: {bm['notes']['scrap_per_open']} · 교환가: {bm['notes']['exchange_scrap']}")
+        st.markdown("- 기대 구매 횟수 = (1 − (1 − p)^K) ÷ p (K = 천장 = 교환 스크랩 ÷ 1회당 스크랩, 교환이 없으면 1 ÷ p)\n"
+                    "- 비용 = 첫 구매는 10회 묶음 할인가, 이후 1회 가격 × 추가 횟수 → 기대 비용 = 묶음가 + 1회 가격 × (E[N] − E[min(N, 10)])\n"
+                    "- 중복 보상의 분해·토큰 환급은 반영하지 않음 → 실제 부담은 이보다 낮을 수 있다\n"
+                    f"- 1회 가격 {bm['price']:,}: {bm['notes']['price']}\n"
+                    f"- 첫 10회 {bm['first_price']:,}: {bm['notes']['first']}\n"
+                    f"- 확률 {bm['prob']}%: {bm['notes']['prob']}\n"
+                    f"- 스크랩 {bm['scrap_per_open']}/회: {bm['notes']['scrap_per_open']} · 교환가 {bm['exchange_scrap']:,}: {bm['notes']['exchange_scrap']}")
     with box["out"]:
-        html(f'<div class="pg-demo b"><h4>목표 스킨까지 예상 비용 {b_sim()}</h4><div class="pg-metric">'
+        html(f'<div class="pg-demo b"><h4>목표 스킨까지 예상 비용 {b_sample()} {b_sim()}</h4><div class="pg-metric">'
              f'<div><small>기대 비용 (교환 포함)</small><b class="big">{s["exp_cost"]:,.0f}</b><small>G-Coin · 평균 {s["exp_opens"]:.0f}회</small></div>'
              f'<div><small>50% 확률 도달</small><b>{(s["c50"] or 0):,.0f}</b><small>{s["o50"]}회</small></div>'
              f'<div><small>90% 확률 도달</small><b>{(s["c90"] or 0):,.0f}</b><small>{s["o90"]}회</small></div></div>'
-             '<div class="src">확률은 예시 값 · 공식 확률 확인 전 · 스크랩 교환 조건은 아래 펼쳐보기</div></div>')
+             '<div class="src">예시 데이터 계산 · 1회 200 G-Coin·확률 0.9%·교환가 3,000은 게임 화면 캡처값이며 공개 공식 문서로 확인되지 않음 '
+             '(공지 가격 1,800 G-Coin과 불일치) · 첫 10회 1,000 G-Coin만 공식 공지 확인 · 출처는 아래 펼쳐보기</div></div>')
 
 
 def demo_b2(ns: dict) -> None:
@@ -532,14 +556,14 @@ def s5(ns: dict, plan: dict) -> None:
         chart_card(fig, key="pg_sim_b", kind="sim", title="BM 시나리오 · 60일 매출 범위", unit="방문 10만 명당 · 막대 = 비관~낙관",
                    kpis=[("B 안내 강화", f"{b_['low_pct']:+.0f}%~{b_['high_pct']:+.0f}%"), ("C 누적 보장", f"{c_['low_pct']:+.0f}%~{c_['high_pct']:+.0f}%")],
                    analysis="C는 하방이 가장 크다 (고액 결제 감소 가정)",
-                   decision="B부터 실험, C는 B 결과 후 재검토", basis="전환율·ARPPU·재구매 모두 가정 · 현행 대비",
+                   decision="B부터 실험, C는 B 결과 후 재검토", basis="가정 시뮬레이션 · 전환율·ARPPU·재구매 모두 실제 PUBG 수치 아님 · 현행 대비",
                    height=330, legend=False, cols=("시나리오", "60일 매출 (백만 G-Coin)"))
     with st.expander("자세히 보기 · BM 시나리오 가정값"):
         table(["시나리오", "전환율 (%)", "ARPPU (G-Coin)", "재구매율 (%)", "60일 매출 (백만)", "현행 대비"],
               [[f"<b>{s['key']}</b> {escape(s['name'])}", f"{s['conv'][0]}~{s['conv'][1]}", f"{s['arppu'][0]:,}~{s['arppu'][1]:,}",
                 f"{s['repurchase'][0]}~{s['repurchase'][1]}", f"{s['low']['total'] / 1e6:,.1f}~{s['high']['total'] / 1e6:,.1f}",
                 f"{s['low_pct']:+.1f}%~{s['high_pct']:+.1f}%"] for s in sv], badge_html=b_sim())
-        st.caption(f"60일 매출 = 방문자 × 전환율 × ARPPU + 구매자 × 재구매율 × ARPPU × {ns['scenarios']['repurchase_arppu_ratio']}")
+        st.caption(f"60일 매출 = 방문자 × 전환율 × ARPPU + 구매자 × 재구매율 × ARPPU × {ns['scenarios']['repurchase_arppu_ratio']} · {ns['scenarios']['note']}")
 
     sub("판정 기준 · 세 가지를 따로 본다", b_mock())
     pm = plan["practical_min"]

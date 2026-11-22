@@ -22,3 +22,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# PUBG 원본 스크린샷 (다른 플레이어 닉네임 포함)
+assets/pubg/_originals/

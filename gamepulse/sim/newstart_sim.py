@@ -5,6 +5,7 @@
    - 천장 K = ceil((교환 스크랩 − 보유 스크랩) ÷ 1회당 스크랩)  → K회째에는 교환으로 반드시 확보
    - 기대 개봉 수(천장 포함) = E[min(G, K)] = (1 − (1 − p)^K) ÷ p   (G = 첫 획득까지 시도 수, 기하분포)
    - q% 도달 개봉 수 = min(ceil(ln(1 − q) ÷ ln(1 − p)), K)
+   - 비용: 첫 구매는 10회 묶음 할인가, 이후 1회 가격 (cost_of) · 중복 보상 분해·토큰 환급은 반영 안 함
 2) 성장형 스킨 재료: 공식 '분해 환급표'를 누적 투입량으로 가정한 추정 (레벨별 필요량은 공식 미공개)
 3) 실험 설계: 우월성(두 비율 차이) · 비열등성(한쪽 검정) 표본 수, 배정 주수, 판정 주차
 4) BM 시나리오: 방문자 × 전환율 × ARPPU (+ 재구매) — 비관·낙관 범위
@@ -55,17 +56,38 @@ def opens_for(q: float, p: float, cap: int | None = None) -> int | None:
     return min(n, cap) if cap is not None else n
 
 
+def cost_of(opens: int, price: float, first_n: int = 0, first_price: float = 0) -> float:
+    """개봉 수 → 누적 비용. 첫 구매는 first_n회 묶음(first_price)으로 사고, 그 뒤는 1회씩 산다고 가정.
+    first_n=0 이면 할인 없음(opens × price). 묶음 중간에 얻어도 묶음 값은 이미 낸 것으로 본다."""
+    if first_n <= 0 or opens <= 0:
+        return max(opens, 0) * price
+    return first_price + max(opens - first_n, 0) * price
+
+
 def crate_summary(price: float, p_pct: float, scrap_per_open: int, exchange_scrap: int, owned_scrap: int = 0,
-                  n: int = 100) -> dict:
+                  n: int = 100, first_n: int = 0, first_price: float = 0) -> dict:
+    """기대 비용 = E[cost(N)], N = min(G, K).
+    할인 없음: price × E[N]
+    첫 묶음 할인: first_price + price × (E[N] − E[min(N, first_n)])  (E[min(G, K, m)] = expected_opens(p, min(K, m)))"""
     p = p_pct / 100
     cap = crate_cap(exchange_scrap, owned_scrap, scrap_per_open)
     e_no = 1 / p if p > 0 else math.inf
     e_cap = expected_opens(p, cap)
     o50, o90 = opens_for(0.5, p, cap), opens_for(0.9, p, cap)
+
+    def exp_cost(e_n: float, c: int | None) -> float:
+        if first_n <= 0:
+            return e_n * price
+        m = first_n if c is None else min(c, first_n)
+        return (first_price if (c is None or c > 0) else 0) + price * (e_n - expected_opens(p, m))
+
+    def cost(k: int | None) -> float | None:
+        return None if k is None else cost_of(k, price, first_n, first_price)
+
     return {"p": p, "cap": cap, "within_n": prob_within(n, p, cap), "within_n_nocap": prob_within(n, p),
-            "exp_opens": e_cap, "exp_cost": e_cap * price, "exp_cost_nocap": e_no * price,
-            "o50": o50, "o90": o90, "c50": None if o50 is None else o50 * price, "c90": None if o90 is None else o90 * price,
-            "cap_cost": None if cap is None else cap * price}
+            "exp_opens": e_cap, "exp_cost": exp_cost(e_cap, cap), "exp_cost_nocap": exp_cost(e_no, None),
+            "o50": o50, "o90": o90, "c50": cost(o50), "c90": cost(o90), "cap_cost": cost(cap),
+            "n_cost": cost(n), "first_n": first_n, "first_price": first_price}
 
 
 def crate_curve(p_pct: float, cap: int | None, max_n: int) -> list[tuple[int, float, float]]:

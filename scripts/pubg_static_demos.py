@@ -40,17 +40,21 @@ def demos(root: Path) -> dict[str, str]:
 <div class="act" id="lvB-a"></div><div class="src" id="lvB-d"></div></div></div>"""
 
     c = f"""<div class="sx-live b" id="lvC"><h5>이 페이지에서 바로 조작 · 시연 C <small>값을 바꾸면 바로 다시 계산</small></h5>
-<div class="ctl"><label>1회 가격 (G-Coin)<input type="number" id="lvC-price" value="{bm['price']}" min="100" step="100"></label>
-<label>목표 스킨 확률 <b id="lvC-pv">{bm['prob']}%</b><input type="range" id="lvC-prob" min="0.1" max="10" step="0.1" value="{bm['prob']}"></label></div>
-<div class="pg-demo b"><h4>목표 스킨까지 예상 비용 (가정 계산)</h4><div class="pg-metric" id="lvC-m"></div>
-<div class="src">확률은 예시 값 · 공식 확률 확인 전</div></div>
+<div class="ctl"><label>1회 가격 (G-Coin · 예시)<input type="number" id="lvC-price" value="{bm['price']}" min="100" step="100"></label>
+<label>목표 스킨 확률 (예시) <b id="lvC-pv">{bm['prob']}%</b><input type="range" id="lvC-prob" min="0.1" max="10" step="0.1" value="{bm['prob']}"></label></div>
+<div class="pg-demo b"><h4>목표 스킨까지 예상 비용 <span class="gp-badge k-sample">예시 데이터</span> <span class="gp-badge k-sim">가정 시뮬레이션</span></h4><div class="pg-metric" id="lvC-m"></div>
+<div class="src">예시 데이터 계산 · 1회 200 G-Coin·확률 0.9%·교환가 3,000은 게임 화면 캡처값이며 공개 공식 문서로 확인되지 않음 (공지 가격 1,800 G-Coin과 불일치) · 첫 10회 1,000 G-Coin만 공식 공지 확인 · 출처는 아래 펼쳐보기</div></div>
 <details class="sx-exp"><summary>자세히 보기 · 스크랩 교환 조건 · 구매 횟수별 확률 곡선 <span class="sx-more">펼쳐보기</span></summary><div class="sx-exp-b">
 <div class="ctl"><label>1회당 스크랩<input type="number" id="lvC-spo" value="{bm['scrap_per_open']}" min="0"></label>
 <label>교환 필요 스크랩<input type="number" id="lvC-ex" value="{bm['exchange_scrap']}" min="0" step="100"></label>
 <label>보유 스크랩<input type="number" id="lvC-own" value="0" min="0" step="100"></label>
-<label>구매 횟수 <b id="lvC-nv">100회</b><input type="range" id="lvC-n" min="1" max="400" step="1" value="100"></label></div>
+<label>구매 횟수 <b id="lvC-nv">100회</b><input type="range" id="lvC-n" min="1" max="400" step="1" value="100"></label>
+<label>첫 묶음 횟수 (0 = 할인 미적용)<input type="number" id="lvC-fn" value="{bm['first_n']}" min="0"></label>
+<label>첫 묶음 가격 (G-Coin)<input type="number" id="lvC-fp" value="{bm['first_price']}" min="0" step="100"></label></div>
 <div class="pg-metric" id="lvC-m2"></div><div class="sx-chart-c" id="lvC-chart" style="height:280px"></div>
-<div class="src">가격 1,800: {bm['notes']['price']} · 스크랩 10/회: {bm['notes']['scrap_per_open']} · 교환가: {bm['notes']['exchange_scrap']}</div></div></details></div>"""
+<div class="src">비용 = 첫 구매는 10회 묶음 할인가, 이후 1회 가격 × 추가 횟수 · 중복 보상 분해·토큰 환급은 미반영<br>
+1회 가격 {bm['price']:,}: {bm['notes']['price']}<br>첫 10회 {bm['first_price']:,}: {bm['notes']['first']}<br>
+확률 {bm['prob']}%: {bm['notes']['prob']}<br>스크랩 {bm['scrap_per_open']}/회: {bm['notes']['scrap_per_open']} · 교환가 {bm['exchange_scrap']:,}: {bm['notes']['exchange_scrap']}</div></div></details></div>"""
 
     js = """<script>(function(){var D=""" + data + """;
 function f(x){return Math.round(x).toLocaleString('ko-KR');}
@@ -65,22 +69,25 @@ function A(k){var r=D.m[k-1],r0=D.m[0];function dl(v,v0,u){if(k==1)return'';var 
 function B(i){var x=D.fb[i];document.getElementById('lvB-s').textContent='상황 (예시) · '+x.scene;
  document.getElementById('lvB-p').innerHTML='<b>원인</b> '+x.problem;document.getElementById('lvB-a').textContent=x.action;
  document.getElementById('lvB-d').innerHTML='판정 데이터 · '+x.data+'<br>적용 단계 · <b>'+x.mvp+'</b>';}
-function C(){var g=function(id){return +document.getElementById(id).value;};var price=g('lvC-price'),pp=g('lvC-prob'),n=g('lvC-n'),spo=g('lvC-spo'),ex=g('lvC-ex'),own=g('lvC-own');
+function C(){var g=function(id){return +document.getElementById(id).value;};var price=g('lvC-price'),pp=g('lvC-prob'),n=g('lvC-n'),spo=g('lvC-spo'),ex=g('lvC-ex'),own=g('lvC-own'),fn=g('lvC-fn'),fp=g('lvC-fp');
  document.getElementById('lvC-pv').textContent=pp+'%';document.getElementById('lvC-nv').textContent=n+'회';
  var p=pp/100,cap=(spo>0&&ex>0)?Math.max(0,Math.ceil((ex-own)/spo)):null;
  function within(k,c){if(c!==null&&k>=c)return 1;return 1-Math.pow(1-p,k);}
  function opens(q){var k=Math.ceil(Math.log(1-q)/Math.log(1-Math.min(p,0.999999)));return cap!==null?Math.min(k,cap):k;}
- var eo=cap===null?1/p:(cap===0?0:(1-Math.pow(1-p,cap))/p),o50=opens(0.5),o90=opens(0.9);
- document.getElementById('lvC-m').innerHTML='<div><small>기대 비용 (교환 포함)</small><b class="big">'+f(eo*price)+'</b><small>G-Coin · 평균 '+Math.round(eo)+'회</small></div>'+
- '<div><small>50% 확률 도달</small><b>'+f(o50*price)+'</b><small>'+o50+'회</small></div><div><small>90% 확률 도달</small><b>'+f(o90*price)+'</b><small>'+o90+'회</small></div>';
- document.getElementById('lvC-m2').innerHTML='<div><small>'+n+'회 안에 얻을 확률</small><b>'+(within(n,cap)*100).toFixed(1)+'%</b></div>'+
- '<div><small>교환 확정 (천장)</small><b>'+(cap===null?'없음':f(cap*price))+'</b><small>'+(cap===null?'':cap+'회')+'</small></div>';
+ function eN(c){return c===null?1/p:(c===0?0:(1-Math.pow(1-p,c))/p);}
+ function cost(k){if(k===null)return null;if(fn<=0||k<=0)return Math.max(k,0)*price;return fp+Math.max(k-fn,0)*price;}
+ function ecost(e,c){if(fn<=0)return e*price;var m=c===null?fn:Math.min(c,fn);return ((c===null||c>0)?fp:0)+price*(e-eN(m));}
+ var eo=eN(cap),o50=opens(0.5),o90=opens(0.9);
+ document.getElementById('lvC-m').innerHTML='<div><small>기대 비용 (교환 포함)</small><b class="big">'+f(ecost(eo,cap))+'</b><small>G-Coin · 평균 '+Math.round(eo)+'회</small></div>'+
+ '<div><small>50% 확률 도달</small><b>'+f(cost(o50))+'</b><small>'+o50+'회</small></div><div><small>90% 확률 도달</small><b>'+f(cost(o90))+'</b><small>'+o90+'회</small></div>';
+ document.getElementById('lvC-m2').innerHTML='<div><small>'+n+'회 안에 얻을 확률</small><b>'+(within(n,cap)*100).toFixed(1)+'%</b><small>'+n+'회 비용 '+f(cost(n))+' G-Coin</small></div>'+
+ '<div><small>교환 확정 (천장)</small><b>'+(cap===null?'없음':f(cost(cap)))+'</b><small>'+(cap===null?'':cap+'회')+'</small></div>';
  if(window.Plotly){var mx=Math.max(n,cap||0,o90||0)+20,xs=[],y1=[],y2=[];for(var k=0;k<=mx;k++){xs.push(k);y1.push((1-Math.pow(1-p,k))*100);y2.push(within(k,cap)*100);}
   Plotly.react('lvC-chart',[{x:xs,y:y1,name:'교환 없이',line:{color:'#94A3B8',dash:'dot',width:2}},{x:xs,y:y2,name:'스크랩 교환 포함',line:{color:'#E97870',width:3}}],
   {margin:{l:50,r:10,t:30,b:40},height:280,legend:{orientation:'h',y:1.12,x:0},xaxis:{title:'구매 횟수 (회)',range:[0,mx]},yaxis:{title:'획득 확률 (%)',range:[0,105],ticksuffix:'%'},
    shapes:[{type:'line',x0:n,x1:n,y0:0,y1:100,line:{dash:'dash',color:'#1E293B',width:1}}],paper_bgcolor:'#fff',plot_bgcolor:'#fff',font:{size:12}},{displayModeBar:false,responsive:true});}}
 seg('lvA-seg',A);seg('lvB-seg',B);A(5);B(0);
-['lvC-price','lvC-prob','lvC-n','lvC-spo','lvC-ex','lvC-own'].forEach(function(id){var e=document.getElementById(id);if(e)e.addEventListener('input',C);});
+['lvC-price','lvC-prob','lvC-n','lvC-spo','lvC-ex','lvC-own','lvC-fn','lvC-fp'].forEach(function(id){var e=document.getElementById(id);if(e)e.addEventListener('input',C);});
 C();window.addEventListener('hashchange',function(){if(window.Plotly&&document.getElementById('lvC-chart'))Plotly.Plots.resize('lvC-chart');});
 document.querySelectorAll('.ow-tabbar button').forEach(function(b){b.addEventListener('click',function(){setTimeout(function(){if(window.Plotly)Plotly.Plots.resize('lvC-chart');},50);});});
 document.querySelectorAll('#lvC details').forEach(function(d){d.addEventListener('toggle',function(){if(d.open&&window.Plotly)Plotly.Plots.resize('lvC-chart');});});
