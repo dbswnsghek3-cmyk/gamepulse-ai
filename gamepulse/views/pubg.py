@@ -195,8 +195,8 @@ def _cover(ns: dict) -> None:
                 f'alt="실제 게임 화면: 에란겔 위를 나는 수송기"><figcaption>{escape(cv["image_credit"])}</figcaption></figure>'
                 if drop.is_file() else "")
     html(f'<div class="pn-hero"><div class="pn-hero-t">{logo_html}<div class="pg-cover-k">{escape(cv["title"])}</div>'
-         f'<div class="pn-hero-tag">{escape(cv["copy"])}</div><div class="pn-hero-q" role="heading" aria-level="1">{escape(cv["question"])}</div>'
-         f'<p class="pn-hero-s">{escape(cv["subtitle"])}</p></div>{img_html}</div>')
+         '<div class="pn-hero-q" role="heading" aria-level="1">왜 떠나고,<br>왜 돌아오지 않을까?</div>'
+         '<p class="pn-hero-s">신규 유저 정착 · 휴면 유저 복귀 전략</p></div>' + img_html + '</div>')
     tk = ns["tracks"]
     bar = "".join(f'<div class="pn-w {t["key"].lower()}" style="flex:{t["weight"]} 1 0"><b>{t["key"]}</b> {t["weight"]}%</div>' for t in tk)
     cards = "".join(
@@ -231,6 +231,8 @@ def s1(ns: dict, ops: pd.DataFrame, plan: dict) -> None:
     pk = ns["peak"]
     head("결론: 신규는 '다음 경기 행동 1개'로 붙잡고, 떠난 유저에게는 '다시 낙하할 이유'를 보여 준다",
          "1차 A1 코칭 → 2차 B1 복귀 캠페인 → C는 내부 분석", b_mock())
+    html('<div class="pn-duo">' + photo("gameplay", "A · 첫 실전에서 막히는 신규 유저")
+         + art(ns, "ghillie", "B · 그때 그 배그를 기억하는 휴면 유저") + '</div>')
     with st.expander("자세히 보기 · 트랙별 근거 · 복귀 장벽 · 판단 근거"):
         html('<div class="pn-a pn-arow"><div><div class="pn-k">TRACK A · 50% · 신규 유저 정착</div>'
              '<div class="pn-q">첫 치킨을 맛보기도 전에, 왜 떠나는가?</div><div class="pn-sub">훈련은 끝났다. 그런데 실전은 왜 어려울까?</div></div>'
@@ -238,7 +240,7 @@ def s1(ns: dict, ops: pd.DataFrame, plan: dict) -> None:
              f'<li>{b_real()} 기본 훈련·초심자 훈련소는 이미 있다 → 빈 곳은 <b>훈련 이후 첫 실전</b></li>'
              f'<li>{b_real()} 신규 정착 리뷰 {len(a)}건 중 <b>{gap}건</b>이 실력 격차·봇→실전·첫 교전 사망</li></ul>'
              '<div class="pg-chips"><span>A1 경기별 코칭</span><i>→</i><span>A2 첫 10경기</span><i>→</i><span>A3 매칭 품질 실험</span></div></div></div>')
-        html('<div class="pn-band"><div class="pn-band-img">' + art(ns, "ghillie", "") + '</div>'
+        html('<div class="pn-band" style="grid-template-columns:1fr">'
              '<div class="pn-band-t"><div class="pn-k">TRACK B · 40% · 휴면 유저 복귀</div>'
              '<div class="pn-q">한때 배그를 즐기던 유저는 왜 돌아오지 않을까?</div>'
              '<div class="pn-sub">그때, 우리는 모두 치킨을 꿈꿨다. PC방에서 친구들과 헤드셋을 끼고, 마지막 자기장까지.</div>'

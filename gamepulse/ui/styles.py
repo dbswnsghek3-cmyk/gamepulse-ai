@@ -1311,12 +1311,15 @@ a.pn-btn:hover {{ background: #EAB308; }}
   background: linear-gradient(135deg, #0B1F3A 0%, #14305A 65%, #1E4B8F 130%); color: #fff; border-radius: 18px; padding: 1.6rem 1.7rem; margin-bottom: 0.9rem; }}
 .pn-hero-t {{ display: flex; flex-direction: column; gap: 0.55rem; }} .pn-hero-t .pg-logo {{ align-self: flex-start; margin-bottom: 0.2rem; }}
 .pn-hero-tag {{ font-size: 1rem; font-weight: 700; color: #FACC15; line-height: 1.45; }}
-.pn-hero-q {{ font-size: 2rem; font-weight: 900; line-height: 1.3; letter-spacing: -0.02em; color: #fff; margin: 0.1rem 0; }}
-.pn-hero-s {{ font-size: 1.08rem; color: #D6E2FA; margin: 0; }}
+.pn-hero-q {{ font-size: 2.5rem; font-weight: 900; line-height: 1.3; letter-spacing: -0.02em; color: #fff; margin: 0.1rem 0; }}
+.pn-hero-s {{ font-size: 1.15rem; color: #D6E2FA; margin: 0; }}
 .pn-hero-img {{ margin: 0; }} .pn-hero-img img {{ width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,0.35); }}
+.pn-duo {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; margin: 0.2rem 0 0.8rem; }}
+.pn-duo .pn-photo {{ margin: 0; }} .pn-duo .pn-photo img {{ aspect-ratio: 16 / 9; object-fit: cover; }}
+.pn-duo figcaption b {{ font-size: 1rem; }}
 .pn-hero-img figcaption {{ font-size: 0.78rem; color: #B9CBEA; margin-top: 0.4rem; }}
 @media (max-width: 900px) {{
-  .pn-hero {{ grid-template-columns: 1fr; padding: 1.1rem 1rem; gap: 0.9rem; }} .pn-hero-q {{ font-size: 1.45rem; }}
+  .pn-hero {{ grid-template-columns: 1fr; padding: 1.1rem 1rem; gap: 0.9rem; }} .pn-hero-q {{ font-size: 1.7rem; }} .pn-duo {{ grid-template-columns: 1fr; }}
 }}
 /* 작은 글씨 확대 */
 .pg-demo .src {{ font-size: 0.9rem; }} .pn-daynote {{ font-size: 0.95rem; }} .pn-chan span {{ font-size: 0.98rem; }}
