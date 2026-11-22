@@ -1164,7 +1164,8 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .pn-vs > div {{ background: #fff; border: 1px solid #C7D2FE; border-left: 4px solid #1E3A8A; border-radius: 10px; padding: 0.6rem 0.8rem; display: flex; flex-direction: column; }}
 .pn-vs > div:nth-child(2) {{ border-left-color: #2563EB; border-color: #BFDBFE; }}
 .pn-vs span {{ font-size: 0.82rem; font-weight: 800; color: #475569; }} .pn-vs b {{ font-size: 1.6rem; font-weight: 900; color: #0B1F3A; line-height: 1.2; }}
-.pn-vs small {{ font-size: 0.85rem; color: #334155; }} .pn-vs p {{ margin: 0; font-size: 0.85rem; color: #475569; }}
+.pn-vs small {{ font-size: 0.85rem; color: #334155; }} .pn-vs p {{ margin: 0; font-size: 0.92rem; color: #334155; line-height: 1.5; }}
+.pn-vs p b {{ font-size: inherit; font-weight: 800; color: #0B1F3A; line-height: inherit; }}
 .pn-pos {{ display: flex; flex-direction: column; gap: 0.3rem; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 0.6rem 0.85rem; margin: 0.2rem 0 0.8rem; font-size: 0.95rem; color: #14532D; }}
 .pn-pos small {{ color: #475569; font-size: 0.8rem; margin-left: 0.3rem; }}
 .pg-flow.nv .pg-step {{ border-color: #C7D2FE; border-top-color: #1E3A8A; }} .pg-flow.nv .pg-step .n {{ color: #1E3A8A; }}
@@ -1216,7 +1217,25 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .pn-order li .pg-tr {{ grid-area: t; }} .pn-order li b {{ grid-area: k; font-size: 1.05rem; color: #0B1F3A; }}
 .pn-order li small {{ grid-area: d; font-size: 0.9rem; color: #475569; }}
 .pn-next {{ margin-top: 0.6rem; font-size: 0.92rem; color: #334155; border-top: 1px dashed #CBD5E1; padding-top: 0.5rem; font-weight: 400; }}
+.pn-arow {{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 0.6rem 1.2rem; align-items: center;
+  border-radius: 14px; padding: 1rem 1.1rem; margin: 0.3rem 0 0.8rem; }}
+.pn-band {{ display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.1rem; align-items: center;
+  background: linear-gradient(160deg, #0B1F3A 0%, #1E3A8A 100%); color: #E2E8F0; border-radius: 14px; padding: 1rem 1.1rem; margin: 0 0 0.5rem; }}
+.pn-band-t {{ display: flex; flex-direction: column; gap: 0.5rem; }}
+.pn-band .pn-k {{ color: #A5B4FC; }} .pn-band .pn-q {{ color: #fff; font-size: 1.5rem; }} .pn-band .pn-sub {{ color: #CBD5E1; }}
+.pn-band .pn-photo {{ margin: 0; }} .pn-band .pn-photo img {{ aspect-ratio: auto; border: 0; }}
+.pn-band .pn-photo figcaption span {{ color: #A5B4FC; }}
+.pn-photo.top img {{ aspect-ratio: 910 / 330; object-fit: cover; object-position: 50% 0; }}
+.pn-bflow {{ display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.35rem; margin: 0 0 0.3rem; }}
+.pn-bflow > div {{ flex: 1 1 8rem; background: #fff; border: 1px solid #C7D2FE; border-radius: 10px; padding: 0.45rem 0.6rem; font-size: 0.9rem; color: #1E293B; line-height: 1.4; }}
+.pn-bflow > div.w {{ flex: 2 1 14rem; background: #EEF2FF; }}
+.pn-bflow span {{ display: block; font-size: 0.72rem; font-weight: 800; color: #1E3A8A; }}
+.pn-bflow b {{ color: #1E3A8A; }} .pn-bflow > i {{ align-self: center; font-style: normal; font-weight: 900; color: #1E3A8A; }}
+.pn-cav2 {{ font-size: 0.82rem; color: #475569; margin: 0 0 0.8rem; }}
+.pn-kpi small.pn-fair {{ margin-top: 0.3rem; color: #1E3A8A; }}
 @media (max-width: 900px) {{
+  .pn-arow, .pn-band {{ grid-template-columns: 1fr; }} .pn-band .pn-q {{ font-size: 1.2rem; }}
+  .pn-bflow > i {{ display: none; }} .pn-bflow > div, .pn-bflow > div.w {{ flex: 1 1 100%; }}
   .pn-tcards, .pn-two, .pn-day, .pn-kpi {{ grid-template-columns: 1fr; }}
   .pn-photo.strip img {{ height: 170px; }}
   .pn-prog {{ grid-template-columns: repeat(5, minmax(0, 1fr)); }} .pn-prog > div {{ font-size: 0.68rem; }}

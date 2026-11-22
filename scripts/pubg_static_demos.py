@@ -117,7 +117,7 @@ def demos(root: Path) -> dict[str, str]:
                  f'<small>{escape(f["last"])}</small></label>' for i, f in enumerate(sq["friends"]))
     seg_b = "".join(f'<button type="button" data-k="{i + 1}" aria-pressed="{str(i == 0).lower()}">{i + 1} {escape(s[0])}</button>'
                     for i, s in enumerate(sq["steps"]))
-    b1 = (f'<div class="pg-live nv" data-pg-mount="mock" hidden><div class="seg-l">초대할 친구 (예시 · 친구 목록에서 직접 선택)</div>'
+    b1 = (f'<div class="pg-live nv" data-pg-mount="mock" hidden><div class="seg-l">초대할 친구 (예시 · 친구 목록·초대 링크)</div>'
           f'<div id="lvS-f">{fr}</div><div class="seg-l">캠페인 단계</div><div class="seg" id="lvS-seg">{seg_b}</div>'
           f'<div class="pg-demo nv"><h4>RETURN TO BATTLEGROUNDS {B_MOCK} {B_SAMPLE}</h4><div class="pn-prog" id="lvS-p"></div>'
           '<div class="act" id="lvS-a"></div><ul class="pn-squad" id="lvS-q"></ul>'
