@@ -390,7 +390,7 @@ def pubg_screens() -> dict[str, str]:
 
 def pubg_body(kind: str) -> tuple[str, int]:
     """PUBG 전용: 01~06 내용을 HTML 에 모두 펼쳐 두고(JavaScript 없이도 읽힘) JS 가 선택한 탭만 남긴다.
-    하위 탭(시연 A·B·C·B2) 전환, 시안 칸의 JS 조작판, 탭별 Streamlit 화면 캡처를 더한다. 오버워치 출력은 그대로."""
+    하위 탭(A1~C 데모) 전환, 시안 칸의 JS 조작판, 탭별 Streamlit 화면 캡처를 더한다. 오버워치 출력은 그대로."""
     from pubg_static_demos import PAGE_CSS, PAGE_JS, demos   # 정적 페이지용 JS 시연 (같은 newstart.json 값 사용)
     import streamlit
     # Streamlit 앱과 같은 본문 글꼴 (앱 패키지에 포함된 Source Sans 가변 글꼴 · SIL OFL)
@@ -413,7 +413,7 @@ def pubg_body(kind: str) -> tuple[str, int]:
         top = ('<div class="pg-shotlist"><b>디자인 확인용 원본 화면 캡처</b>' + "".join(
             f'<a href="{shots[n]}" target="_blank" rel="noopener">{H.escape(labels[n])}</a>' for n in labels if n in shots) + "</div>")
     note = ('<div class="sx-note">이 페이지는 JavaScript 없이도 01~06 탭 내용을 모두 HTML 글자로 담고 있습니다 '
-            '(JavaScript 가 켜져 있으면 선택한 탭만 표시). 시연 A·B·C·B2는 이 페이지에서 직접 조작할 수 있습니다.</div>')
+            '(JavaScript 가 켜져 있으면 선택한 탭만 표시). 04 탭의 A1·A2·B1·C 데모는 이 페이지에서 직접 조작할 수 있습니다.</div>')
     return PAGE_CSS + '<div class="pg-static">' + note + top + body + "</div>" + PAGE_JS, charts
 
 
@@ -586,9 +586,9 @@ def index_html(gen: str) -> str:
              f'{H.escape(rs["cover"]["solution_sub"])}. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 '
              '개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a>',
              '<a class="sx-card feature" href="pubg.html"><div class="k">두 번째 프로젝트 · 실제 자료 기반</div>'
-             '<h3>PUBG · NEW START</h3><p><b>첫 전투의 좌절은 줄이고, 성장의 재미는 남긴다</b> — 공식 패치노트·상점 공지 10건과 '
-             'Steam 최신 리뷰 1,000건 중 직접 분류한 45건을 근거로, 신규 유저 정착(첫 실전 피드백)과 성장형 스킨 BM(구매 전 총비용 안내) '
-             'MVP 2개와 A/B 테스트·비용 시뮬레이터를 설계했습니다.</p></a>']
+             '<h3>PUBG · NEW START</h3><p><b>첫 치킨을 맛보기도 전에 떠나는 유저들. 그리고 돌아오지 않는 전우들.</b> — 신규 유저 정착(A 55%) · '
+             '휴면·복귀 유저 재활성화(B 35%) · BM 신뢰·수익성(C 10%). 공식 자료와 Steam 리뷰(신규 45건 · 복귀 21건, 별도 표본)를 근거로 '
+             'A1 경기별 코칭 · B1 옛 스쿼드 재결합 캠페인 데모와 A/B 테스트 설계를 만들었습니다.</p></a>']
     for pid, f, name, _ in PAGES[2:]:
         one = GAMES[pid].get("one_liner", "") if pid in GAMES else {
             "home": "사이트 전체 소개와 게임별 분석 바로가기", "data_lab": "CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)",
@@ -662,7 +662,7 @@ def main() -> int:
     for pid, fname, name, kind in PAGES:
         if pid in ("overwatch", "pubg"):
             body, n_charts = overwatch_body(kind) if pid == "overwatch" else pubg_body(kind)
-            desc = GAMES[pid].get("theme", name) if pid == "overwatch" else "신규 유저 정착 및 성장형 스킨 BM 개선 전략"
+            desc = GAMES[pid].get("theme", name) if pid == "overwatch" else "신규 유저 정착과 휴면 유저 재활성화 전략"
             doc = save_images(page_html(name, desc, fname, body, [], n_charts > 0, gen))
             (DOCS / fname).write_text(doc, encoding="utf-8")
             written.append(DOCS / fname)

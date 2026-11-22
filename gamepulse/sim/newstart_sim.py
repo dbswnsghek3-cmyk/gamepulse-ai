@@ -123,30 +123,47 @@ def sample_size_noninferiority(p: float, margin: float, alpha: float = 0.05, pow
 
 
 def plan(cfg: dict) -> dict:
-    """newstart.json 'experiment' → 두 실험의 MDE·표본·배정 주수·판정 주차 (모든 화면이 이 값을 공유)."""
-    a, b = cfg["A"], cfg["B"]
+    """newstart.json 'experiment' → A1(신규 D7)·B1(휴면 복귀) 두 실험의 MDE·표본·배정 주수·판정 주차.
+    모든 화면(01·05·06 탭)이 이 값 하나를 공유한다. 수치는 모두 가정값이다."""
+    a, r = cfg["A"], cfg["R"]
     alpha, power = cfg["alpha"], cfg["power"]
     mde = a["participation"] / 100 * a["uplift_viewer"]                       # 배정 기준(ITT) 효과
     n_a = sample_size_two_proportions(a["base_d7"] / 100, (a["base_d7"] + mde) / 100, alpha, power)
     wk_a = math.ceil(2 * n_a / a["weekly"])
     m10_mde = a["participation"] / 100 * a["uplift_m10_viewer"]
-    n_b = sample_size_noninferiority(b["base_conv"] / 100, b["ni_margin"] / 100, alpha, power)
-    wk_b = math.ceil(2 * n_b / b["weekly"])
-    win = math.ceil(b["window_days"] / 7)
+    # B1: 휴면 계정을 캠페인 발송군 / 미발송(홀드아웃) 군으로 무작위 배정 → 30일 내 복귀율(배정 기준) 비교
+    n_r = sample_size_two_proportions(r["base_return"] / 100, (r["base_return"] + r["mde"]) / 100, alpha, power)
+    wk_r = math.ceil(2 * n_r / r["weekly"])
+    win = math.ceil(r["window_days"] / 7)
+    r0 = r["start_week"]
     sched = {"a_assign": (1, wk_a), "a_d7": wk_a + 1, "a_d30": math.ceil((wk_a * 7 + 30) / 7),
-             "b_assign": (1, wk_b), "b_conv": wk_b + win, "b_repurchase": wk_b + 2 * win}
-    sched["decision"] = max(sched["a_d30"], sched["b_repurchase"]) + 1
+             "r_assign": (r0, r0 + wk_r - 1)}
+    sched["r_return"] = sched["r_assign"][1] + win              # 마지막 배정 + 30일: 복귀율 판정
+    sched["r_d30"] = sched["r_return"] + math.ceil(30 / 7)      # 마지막 복귀자 + 30일: 복귀 후 D30
+    sched["decision"] = max(sched["a_d30"], sched["r_d30"]) + 1
     q = cfg["quarter_new"]
     added = q * mde / 100
     c = cfg["cost"]
     a1_cost = c["A1_effort"] * c["monthly_cost_per_person"]
+    b1_cost = c["B1_effort"] * c["monthly_cost_per_person"] + c.get("B1_reward_budget", 0)
     return {"A": {"mde": mde, "n": n_a, "assign_weeks": wk_a, "m10_mde": m10_mde},
-            "B": {"n": n_b, "assign_weeks": wk_b},
+            "R": {"mde": r["mde"], "n": n_r, "assign_weeks": wk_r},
             "sched": sched, "quarter_added_d7": added, "a1_cost": a1_cost,
             "a1_cost_per_added": a1_cost / added if added else float("nan"),
             "practical_min": a.get("practical_min", mde / 2),
             "a1_cost_per_added_practical": a1_cost / (q * a.get("practical_min", mde / 2) / 100),
-            "b1_cost": c["B1_effort"] * c["monthly_cost_per_person"]}
+            "b1_cost": b1_cost,
+            "b1_cost_per_added": b1_cost / (n_r * r["mde"] / 100) if n_r else float("nan"),
+            "c_cost": c.get("C_effort", 0) * c["monthly_cost_per_person"]}
+
+
+def return_funnel(cfg: dict) -> list[tuple[str, float]]:
+    """B3 30일 재정착 퍼널 (가정 시뮬레이션). 각 단계 = 앞 단계 × 전환율. 반환: [(단계, 발송 대비 %)]."""
+    out, v = [], 100.0
+    for name, rate in cfg["steps"]:
+        v = v * rate / 100
+        out.append((name, v))
+    return out
 
 
 # ----------------------------------------------------------------------

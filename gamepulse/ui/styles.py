@@ -1129,6 +1129,101 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
   .pg-flow {{ grid-template-columns: 1fr; }} .pg-arrow {{ transform: rotate(90deg); justify-self: center; line-height: 1; }}
   .pg-cover-t {{ font-size: 1.4rem; }}
 }}
+/* ---------- PUBG A·B·C 리뉴얼 (pn- 전용 · A 블루 / B 네이비 / C 코랄, 오버워치 미사용) ---------- */
+.pg-tr.nv {{ background: #E0E7FF; color: #1E3A8A; border: 1px solid #C7D2FE; }}
+.pn-cover-q {{ margin-top: 0.7rem; font-size: 0.98rem; color: #FFFFFF; border-left: 3px solid #E97870; padding-left: 0.6rem; line-height: 1.5; }}
+.pn-weights {{ display: flex; gap: 3px; border-radius: 10px; overflow: hidden; margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 800; }}
+.pn-w {{ padding: 0.35rem 0.6rem; color: #fff; white-space: nowrap; min-width: 4.2rem; }}
+.pn-w.a {{ background: #2563EB; }} .pn-w.b {{ background: #1E3A8A; }} .pn-w.c {{ background: #E97870; }}
+.pn-tcards {{ display: grid; grid-template-columns: 1.1fr 1fr 0.8fr; gap: 0.6rem; margin-bottom: 0.9rem; }}
+.pn-tc {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #2563EB; border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.2rem; }}
+.pn-tc.b {{ border-top-color: #1E3A8A; }} .pn-tc.c {{ border-top-color: #E97870; background: #FFFCFB; }}
+.pn-tc-k {{ font-size: 0.78rem; font-weight: 800; color: #475569; }} .pn-tc b {{ font-size: 1.02rem; color: #0B1F3A; line-height: 1.4; }}
+.pn-tc small {{ font-size: 0.85rem; color: #475569; line-height: 1.45; }}
+.pn-two {{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.8rem; margin: 0.3rem 0 0.8rem; }}
+.pn-two > div {{ border-radius: 14px; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; }}
+.pn-a {{ background: #fff; border: 1px solid #BFDBFE; border-top: 4px solid #2563EB; }}
+.pn-b {{ background: linear-gradient(160deg, #0B1F3A 0%, #1E3A8A 100%); color: #E2E8F0; }}
+.pn-k {{ font-size: 0.78rem; font-weight: 800; letter-spacing: 0.04em; color: #1D4ED8; }} .pn-b .pn-k {{ color: #A5B4FC; }}
+.pn-q {{ font-size: 1.35rem; font-weight: 800; line-height: 1.35; color: #0B1F3A; letter-spacing: -0.01em; }} .pn-b .pn-q {{ color: #fff; }}
+.pn-sub {{ font-size: 0.95rem; color: #475569; }} .pn-b .pn-sub {{ color: #CBD5E1; }}
+.pn-peak {{ display: flex; flex-direction: column; background: rgba(255,255,255,0.08); border-radius: 10px; padding: 0.55rem 0.75rem; }}
+.pn-peak b {{ font-size: 2rem; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em; line-height: 1.15; }}
+.pn-peak span {{ font-size: 0.85rem; color: #CBD5E1; }}
+.pn-q2 {{ font-size: 1.1rem; font-weight: 800; color: #F6C7C1; }}
+.pn-cav {{ font-size: 0.8rem; color: #A5B4FC; }}
+.pg-chips.nv span {{ background: #FFFFFF; color: #1E3A8A; }} .pg-chips.nv i {{ color: #F6C7C1; }}
+.pg-subbox.c {{ display: block; }}
+.pn-photo {{ margin: 0.2rem 0 0.8rem; }}
+.pn-photo img {{ width: 100%; display: block; border-radius: 12px; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid #E2E8F0; }}
+.pn-photo figcaption {{ display: flex; flex-direction: column; gap: 0.1rem; margin-top: 0.35rem; }}
+.pn-photo figcaption b {{ font-size: 0.92rem; color: #0B1F3A; }} .pn-photo figcaption span {{ font-size: 0.72rem; color: #64748B; }}
+.pn-photo.strip img {{ aspect-ratio: auto; height: 230px; object-position: 50% 55%; }}
+.pn-photo.mini {{ margin: 0; }} .pn-photo.mini img {{ aspect-ratio: 4 / 3; }}
+.pn-vs {{ display: flex; flex-direction: column; gap: 0.5rem; }}
+.pn-vs > div {{ background: #fff; border: 1px solid #C7D2FE; border-left: 4px solid #1E3A8A; border-radius: 10px; padding: 0.6rem 0.8rem; display: flex; flex-direction: column; }}
+.pn-vs > div:nth-child(2) {{ border-left-color: #2563EB; border-color: #BFDBFE; }}
+.pn-vs span {{ font-size: 0.82rem; font-weight: 800; color: #475569; }} .pn-vs b {{ font-size: 1.6rem; font-weight: 900; color: #0B1F3A; line-height: 1.2; }}
+.pn-vs small {{ font-size: 0.85rem; color: #334155; }} .pn-vs p {{ margin: 0; font-size: 0.85rem; color: #475569; }}
+.pn-pos {{ display: flex; flex-direction: column; gap: 0.3rem; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 0.6rem 0.85rem; margin: 0.2rem 0 0.8rem; font-size: 0.95rem; color: #14532D; }}
+.pn-pos small {{ color: #475569; font-size: 0.8rem; margin-left: 0.3rem; }}
+.pg-flow.nv .pg-step {{ border-color: #C7D2FE; border-top-color: #1E3A8A; }} .pg-flow.nv .pg-step .n {{ color: #1E3A8A; }}
+.pg-flow.nv .pg-step.hypo {{ border-top-color: #94A3B8; }} .pg-flow.nv .pg-arrow {{ color: #1E3A8A; }}
+.pn-lead {{ display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; margin: 0.2rem 0 0.7rem; padding: 0.55rem 0.8rem; border-radius: 10px; background: #EFF6FF; }}
+.pn-lead.b {{ background: #EEF2FF; }} .pn-lead.c {{ background: #FFF7F5; }}
+.pn-lead b {{ font-size: 1.08rem; color: #0B1F3A; }} .pn-lead span:last-child {{ font-size: 0.92rem; color: #334155; }}
+.pn-steps {{ list-style: none; padding: 0; margin: 0.5rem 0; display: flex; flex-direction: column; gap: 0.35rem; }}
+.pn-steps li {{ background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.45rem 0.65rem; font-size: 0.95rem; color: #1E293B; line-height: 1.45; }}
+.pn-steps li span {{ display: block; font-size: 0.75rem; font-weight: 800; color: #1D4ED8; }}
+.pn-steps li.act {{ border-left: 4px solid #2563EB; font-weight: 700; }}
+.pn-steps b.ok {{ color: #15803D; }} .pn-steps b.no {{ color: #B45309; }}
+.pn-ext {{ background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 0.55rem 0.7rem; margin-top: 0.5rem; font-size: 0.9rem; color: #78350F; }}
+.pn-ext b {{ display: block; color: #92400E; }}
+.pn-stage {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.3rem; margin: 0.3rem 0 0.5rem; }}
+.pn-stage > div {{ border: 1px solid #E2E8F0; background: #fff; border-radius: 8px; padding: 0.35rem 0.5rem; font-size: 0.85rem; color: #475569; }}
+.pn-stage b {{ display: block; font-size: 0.75rem; }} .pn-stage .done {{ background: #F1F5F9; }}
+.pn-stage .on {{ background: #2563EB; border-color: #2563EB; color: #fff; font-weight: 700; }}
+.pg-demo.nv {{ border: 1.5px solid #1E3A8A; background: #F5F7FF; }} .pg-demo.nv::after {{ color: #1E3A8A; border-color: #1E3A8A; }}
+.pg-demo.nv .act {{ border-left-color: #1E3A8A; }}
+.pn-prog {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.25rem; margin: 0.3rem 0 0.4rem; }}
+.pn-prog > div {{ font-size: 0.75rem; color: #475569; border-top: 4px solid #CBD5E1; padding-top: 0.25rem; line-height: 1.3; }}
+.pn-prog b {{ display: block; font-size: 0.85rem; }} .pn-prog .done {{ border-top-color: #A5B4FC; }}
+.pn-prog .on {{ border-top-color: #1E3A8A; color: #1E3A8A; font-weight: 800; }}
+.pn-squad {{ list-style: none; margin: 0.4rem 0; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }}
+.pn-squad li {{ display: grid; grid-template-columns: 4.2rem 1fr auto; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid #E2E8F0;
+  border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.92rem; }}
+.pn-squad small {{ color: #475569; font-size: 0.82rem; }} .pn-squad em {{ font-style: normal; font-size: 0.78rem; font-weight: 800; color: #1E3A8A;
+  background: #E0E7FF; border-radius: 999px; padding: 0.05rem 0.5rem; }}
+.pn-goal {{ display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.5rem; font-size: 0.88rem; color: #1E293B; margin: 0.3rem 0; }}
+.pn-goal .bar {{ height: 10px; background: #E2E8F0; border-radius: 999px; overflow: hidden; }} .pn-goal .bar i {{ display: block; height: 100%; background: #1E3A8A; }}
+.pn-day {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.4rem; }}
+.pn-day > div {{ background: #fff; border: 1.5px dashed #A5B4FC; border-radius: 12px; padding: 0.6rem 0.8rem; display: flex; flex-direction: column; }}
+.pn-day span {{ font-size: 0.78rem; font-weight: 800; color: #1E3A8A; }} .pn-day b {{ font-size: 1.05rem; color: #0B1F3A; }}
+.pn-day small {{ font-size: 0.88rem; color: #475569; }}
+.pn-daynote {{ font-size: 0.9rem; color: #334155; margin: 0 0 0.9rem; line-height: 1.55; }}
+.pn-kpi {{ display: grid; grid-template-columns: 1fr 1fr 0.85fr 0.85fr; gap: 0.6rem; align-items: stretch; margin: 0.2rem 0 0.9rem; }}
+.pn-kpi > div {{ border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.15rem; border: 1px solid #E2E8F0; background: #fff; }}
+.pn-kpi > div.a {{ border-top: 4px solid #2563EB; }} .pn-kpi > div.b {{ border-top: 4px solid #1E3A8A; }} .pn-kpi > div.c {{ border-top: 4px solid #E97870; }}
+.pn-kpi span {{ font-size: 0.78rem; font-weight: 800; color: #475569; }} .pn-kpi b {{ font-size: 1.15rem; color: #0B1F3A; line-height: 1.3; }}
+.pn-kpi small {{ font-size: 0.85rem; color: #475569; }}
+.pn-kpi figure.pn-photo {{ border: 0; padding: 0; background: none; }}
+.pn-kpi .pn-photo figcaption span {{ display: none; }}
+.pn-order {{ list-style: none; margin: 0.2rem 0 1rem; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }}
+.pn-order li {{ display: grid; grid-template-columns: 3rem auto 1fr; grid-template-areas: "n t k" "n t d"; align-items: center; column-gap: 0.6rem;
+  background: #fff; border: 1px solid #E2E8F0; border-left: 5px solid #2563EB; border-radius: 10px; padding: 0.55rem 0.8rem; }}
+.pn-order li.b {{ border-left-color: #1E3A8A; }} .pn-order li.c {{ border-left-color: #E97870; }}
+.pn-order li > span:first-child {{ grid-area: n; font-size: 1.1rem; font-weight: 900; color: #0B1F3A; }}
+.pn-order li .pg-tr {{ grid-area: t; }} .pn-order li b {{ grid-area: k; font-size: 1.05rem; color: #0B1F3A; }}
+.pn-order li small {{ grid-area: d; font-size: 0.9rem; color: #475569; }}
+.pn-next {{ margin-top: 0.6rem; font-size: 0.92rem; color: #334155; border-top: 1px dashed #CBD5E1; padding-top: 0.5rem; font-weight: 400; }}
+@media (max-width: 900px) {{
+  .pn-tcards, .pn-two, .pn-day, .pn-kpi {{ grid-template-columns: 1fr; }}
+  .pn-photo.strip img {{ height: 170px; }}
+  .pn-prog {{ grid-template-columns: repeat(5, minmax(0, 1fr)); }} .pn-prog > div {{ font-size: 0.68rem; }}
+  .pn-order li {{ grid-template-columns: 2.4rem 1fr; grid-template-areas: "n t" "n k" "n d"; }}
+  .pn-peak b {{ font-size: 1.6rem; }} .pn-q {{ font-size: 1.15rem; }}
+  .pn-w {{ min-width: 3.2rem; font-size: 0.78rem; }}
+}}
 
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 

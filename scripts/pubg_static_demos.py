@@ -1,6 +1,6 @@
 """정적 보고서(GitHub Pages)용 PUBG 페이지 보강 — 서버 없이 브라우저에서 바로 조작.
 
-- 04 탭 A1·B1·A2·B2: Streamlit '제안' 칸과 같은 구성(입력 → 결과 카드)을 JavaScript 로 구현한다.
+- 04 탭 A1·A2·B1·C: Streamlit '제안' 칸과 같은 구성(입력 → 결과 카드)을 JavaScript 로 구현한다.
   같은 data/pubg/newstart.json 값을 쓰고, 계산식은 gamepulse/sim/newstart_sim.py 와 같다.
 - export_static.py 가 04 탭의 해당 하위 탭 끝에 덧붙이면, 아래 PAGE_JS 가 각 조작판을 그 하위 탭의 '제안' 칸
   (Streamlit 화면을 옮긴 스냅샷 자리)으로 옮긴다. 조작판은 처음에 hidden 이라 JavaScript 가 없으면
@@ -62,7 +62,7 @@ PAGE_CSS = """<style>
 
 PAGE_JS = """<script>(function(){
   var root=document.querySelector('.pg-static'); if(!root) return; root.classList.add('js');
-  /* 하위 탭 (시연 A·B·C·B2): 선택한 1개만 표시 · JavaScript 가 없으면 전부 펼쳐 둔다 */
+  /* 하위 탭 (A1~C 데모): 선택한 1개만 표시 · JavaScript 가 없으면 전부 펼쳐 둔다 */
   root.querySelectorAll('.sx-tabs').forEach(function(t){
     var links=[].slice.call(t.querySelectorAll(':scope>.sx-tabnav>a')), secs=[].slice.call(t.querySelectorAll(':scope>.sx-tab'));
     function show(i){ secs.forEach(function(s,j){ s.hidden=(i!==j); }); links.forEach(function(a,j){ a.classList.toggle('on', i===j); a.setAttribute('aria-selected', String(i===j)); });
@@ -88,32 +88,51 @@ PAGE_JS = """<script>(function(){
 
 
 def demos(root: Path) -> dict[str, str]:
+    """04 탭 하위 탭 이름 → 그 하위 탭 끝에 붙일 HTML (JS 조작판). 키는 gamepulse/views/pubg.py DEMO_TABS 와 같아야 한다."""
     ns = json.loads((root / "data" / "pubg" / "newstart.json").read_text(encoding="utf-8"))
-    dm, fb, bm, salvage = ns["demo_matches"], ns["demo_feedback"], ns["bm_sim"], ns["salvage"]
-    data = json.dumps({"m": dm["rows"], "fb": fb, "bm": bm, "sv": salvage}, ensure_ascii=False).replace("</", "<\\/")
+    dm, co, bm, rm, sq = ns["demo_matches"], ns["coach"], ns["bm_sim"], ns["roadmap"], ns["squad_demo"]
+    data = json.dumps({"m": dm["rows"], "co": co, "bm": bm, "rm": rm, "sq": sq}, ensure_ascii=False).replace("</", "<\\/")
     hint = '<div class="hint">이 페이지에서 직접 조작 · 값을 바꾸면 바로 다시 계산 (JavaScript)</div>'
 
-    seg_a = "".join(f'<button type="button" data-k="{i}" aria-pressed="{str(i == 5).lower()}">{i}</button>' for i in range(1, 11))
-    a = (f'<div class="pg-live a" data-pg-mount="mock" hidden><div class="seg-l">경기 번호 (예시 계정)</div>'
-         f'<div class="seg" id="lvA-seg">{seg_a}</div>'
-         f'<div class="pg-demo"><h4><span id="lvA-h">5</span>경기째 성장 기록 {B_SAMPLE}</h4><div class="pg-metric" id="lvA-m"></div>'
-         f'<div class="act" id="lvA-g"></div><div class="src">{escape(dm["note"])} · 보상 없음 (훈련소 미션과 구분)</div></div>{hint}</div>')
+    # A1 NEXT MATCH COACH
+    seg_s = "".join(f'<button type="button" data-k="{i}" aria-pressed="{str(i == 0).lower()}">{escape(x["label"])}</button>'
+                    for i, x in enumerate(co))
+    a1 = (f'<div class="pg-live a" data-pg-mount="mock" hidden><div class="seg-l">이번 경기 상황 (예시)</div><div class="seg" id="lvK-seg">{seg_s}</div>'
+          '<div id="lvK-rw"><div class="seg-l">다음 경기 결과 (예시)</div><div class="seg" id="lvK-res">'
+          '<button type="button" data-k="1" aria-pressed="true">달성</button><button type="button" data-k="0" aria-pressed="false">미달성</button></div></div>'
+          f'<div class="pg-demo"><h4>경기 후 코칭 {B_MOCK} {B_SAMPLE}</h4><div class="src" id="lvK-s"></div><div id="lvK-b"></div>'
+          '<div class="src" id="lvK-d"></div></div>'
+          '<label class="tog" id="lvK-tg"><input type="checkbox" id="lvK-off"> 코칭 끄기</label>'
+          f'<div class="info" id="lvK-info" hidden>코칭을 껐습니다. 결과 화면은 기존과 같습니다. (기획 시안)</div>{hint}</div>')
 
-    seg_b = "".join(f'<button type="button" data-k="{i}" aria-pressed="{str(i == 0).lower()}">{escape(x["label"])}</button>'
-                    for i, x in enumerate(fb))
-    b = (f'<div class="pg-live a" data-pg-mount="mock" hidden><div class="seg-l">상황 선택</div>'
-         f'<div class="seg" id="lvB-seg">{seg_b}</div>'
-         f'<div class="pg-demo"><h4>첫 실전 피드백 {B_MOCK}</h4><div class="src" id="lvB-s"></div><div id="lvB-p"></div>'
-         f'<div class="act" id="lvB-a"></div><div class="src" id="lvB-d"></div></div>'
-         f'<label class="tog"><input type="checkbox" id="lvB-off"> 피드백 끄기</label>'
-         f'<div class="info" id="lvB-info" hidden>피드백을 껐습니다. 결과 화면은 기존과 같습니다. (기획 시안)</div>{hint}</div>')
+    # A2 FIRST 10 MATCHES
+    seg_m = "".join(f'<button type="button" data-k="{i}" aria-pressed="{str(i == 5).lower()}">{i}</button>' for i in range(1, 11))
+    a2 = (f'<div class="pg-live a" data-pg-mount="mock" hidden><div class="seg-l">경기 번호 (예시 계정)</div><div class="seg" id="lvA-seg">{seg_m}</div>'
+          f'<div class="pg-demo"><h4 id="lvA-h"></h4><div class="pn-stage" id="lvA-st"></div><div class="pg-metric" id="lvA-m"></div>'
+          f'<div class="act" id="lvA-g"></div><div class="src">{escape(dm["note"])} · 보상 없음 (초심자 훈련소 미션과 구분) · '
+          f'구간(1~3 / 4~7 / 8~10)은 기획 가정, 데이터로 조정</div></div>{hint}</div>')
 
+    # B1 OLD SQUAD, NEW DROP
+    fr = "".join(f'<label class="tog"><input type="checkbox" data-f="{i}"{" checked" if i < 2 else ""}> {escape(f["name"])} '
+                 f'<small>{escape(f["last"])}</small></label>' for i, f in enumerate(sq["friends"]))
+    seg_b = "".join(f'<button type="button" data-k="{i + 1}" aria-pressed="{str(i == 0).lower()}">{i + 1} {escape(s[0])}</button>'
+                    for i, s in enumerate(sq["steps"]))
+    b1 = (f'<div class="pg-live nv" data-pg-mount="mock" hidden><div class="seg-l">초대할 친구 (예시 · 친구 목록에서 직접 선택)</div>'
+          f'<div id="lvS-f">{fr}</div><div class="seg-l">캠페인 단계</div><div class="seg" id="lvS-seg">{seg_b}</div>'
+          f'<div class="pg-demo nv"><h4>RETURN TO BATTLEGROUNDS {B_MOCK} {B_SAMPLE}</h4><div class="pn-prog" id="lvS-p"></div>'
+          '<div class="act" id="lvS-a"></div><ul class="pn-squad" id="lvS-q"></ul>'
+          '<div class="pn-goal"><span>공동 목표 · 함께 3경기</span><div class="bar"><i id="lvS-bar"></i></div><b id="lvS-g"></b></div>'
+          f'<div class="src" id="lvS-n"></div></div>{hint}</div>')
+
+    # C BM 내부 분석 (총비용 계산기 · 내부 도구)
     c_top = (f'<div class="pg-live" data-pg-mount="mock" hidden><div class="ctl">'
              f'<label>1회 가격 (G-Coin · 예시)<input type="number" id="lvC-price" value="{bm["price"]}" min="100" max="10000" step="100"></label>'
              f'<label>목표 스킨 확률 (% · 예시) <b id="lvC-pv">{bm["prob"]}</b><input type="range" id="lvC-prob" min="0.1" max="10" step="0.1" value="{bm["prob"]}"></label></div>'
-             f'<div class="pg-demo b"><h4>목표 스킨까지 예상 비용 {B_SAMPLE} {B_SIM}</h4><div class="pg-metric" id="lvC-m"></div>'
-             '<div class="src">예시 데이터 · 가격 200·확률 0.9%·교환가 3,000은 게임 화면 캡처값 (공식 문서 미확인) · 출처는 아래 펼쳐보기</div></div>'
+             f'<div class="pg-demo b"><h4>목표 스킨까지 기대 비용 (내부) {B_SAMPLE} {B_SIM}</h4><div class="pg-metric" id="lvC-m"></div>'
+             '<div class="src">가격 200·확률 0.9%·교환가 3,000은 게임 화면 캡처값 (공식 문서 미확인) · 상품별 검증은 아래 펼쳐보기</div></div>'
              f'{hint}</div>')
+    price_rows = "".join(f"<tr><td><b>{escape(a)}</b></td><td>{escape(b)}</td><td>{escape(c)}</td><td>{escape(d)}</td></tr>"
+                         for a, b, c, d in ns["price_check"])
     c_exp = (f'<details class="sx-exp pg-live" data-pg-mount="exp" hidden><summary>자세히 보기 · 스크랩 교환 조건 · 구매 횟수별 확률 곡선 · 계산식 '
              f'<span class="sx-more">펼쳐보기</span></summary><div class="sx-exp-b"><div class="ctl">'
              f'<label>1회당 스크랩<input type="number" id="lvC-spo" value="{bm["scrap_per_open"]}" min="0" max="100"></label>'
@@ -129,22 +148,9 @@ def demos(root: Path) -> dict[str, str]:
              f'<div class="ow-chart-b">P(n회 내) = 1 − (1 − p)^n · 천장 = 교환 스크랩 ÷ 1회당 스크랩</div><ul>'
              '<li>기대 구매 횟수 = (1 − (1 − p)^K) ÷ p (K = 천장 = 교환 스크랩 ÷ 1회당 스크랩, 교환이 없으면 1 ÷ p)</li>'
              '<li>비용 = 첫 구매는 10회 묶음 할인가, 이후 1회 가격 × 추가 횟수 → 기대 비용 = 묶음가 + 1회 가격 × (E[N] − E[min(N, 10)])</li>'
-             '<li>중복 보상의 분해·토큰 환급은 반영하지 않음 → 실제 부담은 이보다 낮을 수 있다</li>'
-             f'<li>1회 가격 {bm["price"]:,}: {escape(bm["notes"]["price"])}</li>'
-             f'<li>첫 10회 {bm["first_price"]:,}: {escape(bm["notes"]["first"])}</li>'
-             f'<li>확률 {bm["prob"]}%: {escape(bm["notes"]["prob"])}</li>'
-             f'<li>스크랩 {bm["scrap_per_open"]}/회: {escape(bm["notes"]["scrap_per_open"])} · 교환가 {bm["exchange_scrap"]:,}: '
-             f'{escape(bm["notes"]["exchange_scrap"])}</li></ul></div></details>')
-
-    b2 = (f'<div class="pg-live" data-pg-mount="mock" hidden><div class="ctl">'
-          f'<label>현재 레벨 <b id="lvU-cv">3</b><input type="range" id="lvU-cur" min="1" max="10" step="1" value="3"></label>'
-          f'<label>목표 레벨 <b id="lvU-tv">10</b><input type="range" id="lvU-tgt" min="1" max="10" step="1" value="10"></label></div>'
-          f'<div class="ctl"><label>보유 폴리머<input type="number" id="lvU-pol" value="5000" min="0" max="100000" step="500"></label>'
-          f'<label>보유 설계도<input type="number" id="lvU-sch" value="10" min="0" max="200"></label></div>'
-          f'<div class="pg-demo b"><h4><span id="lvU-h"></span> {B_SIM}</h4><div class="pg-metric" id="lvU-m"></div>'
-          f'<div class="src">획득 경로 · 성장형 스킨 분해 · 이벤트 패키지 · 누적 개봉 보상 (공식)</div></div>'
-          f'<details class="sx-exp" id="lvU-d"><summary>자세히 보기 · 단계별 추정 필요량 <span class="sx-more">펼쳐보기</span></summary>'
-          f'<div class="sx-exp-b"><div class="ow-table-b">{B_SIM}</div><table id="lvU-tb"></table></div></details>{hint}</div>')
+             '<li>중복 보상의 분해·토큰 환급은 반영하지 않음 → 실제 부담은 이보다 낮을 수 있다</li></ul>'
+             f'<div class="ow-table-b"><span class="gp-badge k-interp">분석자 해석</span></div><div class="gp-table-wrap"><table class="gp-table">'
+             f'<tr><th>값</th><th>상품</th><th>근거</th><th>검증 상태</th></tr>{price_rows}</table></div></div></details>')
 
     js = """<script>(function(){var D=""" + data + """;
 function f(x){return Math.round(x).toLocaleString('ko-KR');}
@@ -152,18 +158,33 @@ function $(id){return document.getElementById(id);}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function seg(id,cb){var s=$(id);if(!s)return;s.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){
  s.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed','false');});b.setAttribute('aria-pressed','true');cb(+b.dataset.k);});});}
-/* 시연 A · 첫 10경기 성장 기록 (Streamlit demo_a 와 같은 지표 3개) */
-function A(k){var r=D.m[k-1],r0=D.m[0];function dl(v,v0,u){if(k==1)return'';var d=v-v0;return '<em>'+(d>0?'+':'')+d.toFixed(1)+u+' vs 1경기</em>';}
- $('lvA-h').textContent=k;
+/* A1 · 경기별 코칭 (Streamlit demo_a1 과 같은 4단계) */
+var K={i:0,hit:1};
+function Kr(){var c=D.co[K.i];$('lvK-s').textContent='상황 (예시) · '+c.scene;var ext=c.mvp==='확장 기능';
+ $('lvK-rw').hidden=ext;$('lvK-tg').hidden=ext;
+ if(ext){$('lvK-b').innerHTML='<div class="pn-ext"><b>확장 기능 · MVP 제외</b>'+esc(c.data)+'</div>';$('lvK-d').textContent='';return;}
+ $('lvK-b').innerHTML='<ol class="pn-steps"><li><span>① 이번 경기 개선 항목</span>'+esc(c.improve)+'</li><li class="act"><span>② 다음 경기 목표</span>'+esc(c.goal)+
+ '</li><li><span>③ 다음 경기 달성 확인</span>'+esc(c.check)+' → <b class="'+(K.hit?'ok':'no')+'">'+esc(K.hit?c.hit:c.miss)+'</b></li><li><span>④ 성장 기록</span>'+
+ (K.hit?'목표 달성 1회 추가 · 다음 항목으로':'기록 유지 · 같은 목표 재도전')+'</li></ol>';
+ $('lvK-d').innerHTML='판정 데이터 · '+esc(c.data)+' · <b>'+esc(c.mvp)+'</b>';}
+/* A2 · 첫 10경기 로드맵 */
+function A(k){var r=D.m[k-1],r0=D.m[0];var cur=D.rm.filter(function(s){return s.range[0]<=k&&k<=s.range[1];})[0];
+ function dl(v,v0,u){if(k==1)return'';var d=v-v0;return '<em>'+(d>0?'+':'')+d.toFixed(1)+u+' vs 1경기</em>';}
+ $('lvA-h').innerHTML=k+'경기째 · '+esc(cur.stage)+' """ + B_SAMPLE.replace('"', '\\"') + """';
+ $('lvA-st').innerHTML=D.rm.map(function(s){var c=s===cur?'on':(s.range[1]<k?'done':'');return '<div class="'+c+'"><b>'+s.range[0]+'~'+s.range[1]+'경기</b>'+esc(s.stage)+'</div>';}).join('');
  $('lvA-m').innerHTML='<div><small>생존 시간</small><b>'+r[1].toFixed(1)+'분</b>'+dl(r[1],r0[1],'분')+'</div>'+
  '<div><small>첫 교전</small><b>'+(r[2]?'참여':'없음')+'</b><small>거리 '+(r[3]==null?'—':Math.round(r[3])+'m')+'</small></div>'+
  '<div><small>팀원과 거리</small><b>'+Math.round(r[4])+'m</b>'+dl(r[4],r0[4],'m')+'</div>';
- $('lvA-g').textContent='다음 목표 · '+r[7];}
-/* 시연 B · 첫 실전 피드백 (A1) */
-function B(i){var x=D.fb[i];$('lvB-s').textContent='상황 (예시) · '+x.scene;
- $('lvB-p').innerHTML='<b>원인</b> '+esc(x.problem);$('lvB-a').textContent=x.action;
- $('lvB-d').innerHTML='판정 데이터 · '+esc(x.data)+' · <b>'+esc(x.mvp)+'</b>';}
-/* 시연 C · 총비용 시뮬레이터 (B1) · gamepulse/sim/newstart_sim.py crate_summary 와 같은 식 */
+ $('lvA-g').textContent='단계 목표 · '+cur.goal;}
+/* B1 · 옛 스쿼드 재결합 */
+var Sk=1;
+function Sq(){var fr=[].slice.call(document.querySelectorAll('#lvS-f input')).filter(function(x){return x.checked;}).map(function(x){return D.sq.friends[+x.dataset.f];});
+ $('lvS-p').innerHTML=D.sq.steps.map(function(s,i){var c=(i+1===Sk)?'on':(i+1<Sk?'done':'');return '<div class="'+c+'"><b>'+(i+1)+'</b>'+esc(s[0])+'</div>';}).join('');
+ $('lvS-a').textContent=D.sq.steps[Sk-1][1];
+ $('lvS-q').innerHTML='<li><b>나</b><small>휴면 2년 · 복귀</small><em>복귀</em></li>'+(fr.length?fr.map(function(x){return '<li><b>'+esc(x.name)+'</b><small>'+esc(x.last)+' · '+esc(x.status)+'</small><em>'+(Sk>=2?'합류':'초대 보냄')+'</em></li>';}).join(''):'<li><small>친구를 선택하세요</small></li>');
+ var g={1:0,2:0,3:1,4:3,5:3}[Sk];$('lvS-bar').style.width=(g/3*100)+'%';$('lvS-g').textContent=g+'/3';
+ $('lvS-n').textContent='스쿼드 '+(1+(Sk>=2?fr.length:0))+'/4 · '+D.sq.note;}
+/* C · 내부 분석 계산기 · gamepulse/sim/newstart_sim.py crate_summary 와 같은 식 */
 function C(){var g=function(id){return +$(id).value;};var price=g('lvC-price'),pp=g('lvC-prob'),n=g('lvC-n'),spo=g('lvC-spo'),ex=g('lvC-ex'),own=g('lvC-own'),fn=g('lvC-fn'),fp=g('lvC-fp');
  $('lvC-pv').textContent=pp.toFixed(1);$('lvC-nv').textContent=n;
  var p=pp/100,cap=(spo>0&&ex>0)?Math.max(0,Math.ceil((ex-own)/spo)):null;
@@ -183,23 +204,15 @@ function C(){var g=function(id){return +$(id).value;};var price=g('lvC-price'),p
   Plotly.react('lvC-chart',[{x:xs,y:y1,name:'교환 없이',line:{color:'#94A3B8',dash:'dot',width:2}},{x:xs,y:y2,name:'스크랩 교환 포함',line:{color:'#E97870',width:3}}],
   {margin:{l:56,r:10,t:30,b:44},height:280,legend:{orientation:'h',y:1.12,x:0},xaxis:{title:{text:'구매 횟수 (회)'},range:[0,mx]},yaxis:{title:{text:'1번 이상 얻을 확률 (%)'},range:[0,105],ticksuffix:'%'},
    paper_bgcolor:'#fff',plot_bgcolor:'#fff',font:{size:12,family:"Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif"}},{displayModeBar:false,responsive:true});}}
-/* 강화 비용 안내 (B2 · 추정) · upgrade_need 와 같은 식 (분해 환급표 = 누적 투입량 가정) */
-function U(){var cur=+$('lvU-cur').value,tgt=+$('lvU-tgt').value,pol=+$('lvU-pol').value,sch=+$('lvU-sch').value;$('lvU-cv').textContent=cur;$('lvU-tv').textContent=tgt;
- var T={};D.sv.forEach(function(r){T[r[0]]=[r[1],r[2]];});var np=0,ns=0,steps=[];
- if(tgt>cur){np=T[tgt][0]-T[cur][0];ns=T[tgt][1]-T[cur][1];for(var lv=cur+1;lv<=tgt;lv++)steps.push([lv,T[lv][0]-T[lv-1][0],T[lv][1]-T[lv-1][1]]);}
- $('lvU-h').textContent=cur+' → '+tgt+'레벨 필요 재료 (추정)';
- $('lvU-m').innerHTML='<div><small>폴리머</small><b>'+f(np)+'</b><small>부족 '+f(Math.max(0,np-pol))+'</small></div><div><small>설계도</small><b>'+f(ns)+'</b><small>부족 '+f(Math.max(0,ns-sch))+'</small></div>';
- $('lvU-d').hidden=!steps.length;
- $('lvU-tb').innerHTML='<tr><th>레벨</th><th>폴리머</th><th>설계도</th></tr>'+steps.map(function(s){return '<tr><td>'+(s[0]-1)+'→'+s[0]+'</td><td>'+f(s[1])+'</td><td>'+s[2]+'</td></tr>';}).join('');}
-function init(){seg('lvA-seg',A);seg('lvB-seg',B);A(5);B(0);
- $('lvB-off').addEventListener('change',function(){$('lvB-info').hidden=!this.checked;});
- ['lvC-price','lvC-prob','lvC-n','lvC-spo','lvC-ex','lvC-own','lvC-fn','lvC-fp'].forEach(function(id){$(id).addEventListener('input',C);});
- ['lvU-cur','lvU-tgt','lvU-pol','lvU-sch'].forEach(function(id){$(id).addEventListener('input',U);});
- C();U();
+function init(){seg('lvK-seg',function(i){K.i=i;Kr();});seg('lvK-res',function(h){K.hit=h;Kr();});Kr();
+ $('lvK-off').addEventListener('change',function(){$('lvK-info').hidden=!this.checked;});
+ seg('lvA-seg',A);A(5);
+ seg('lvS-seg',function(k){Sk=k;Sq();});document.querySelectorAll('#lvS-f input').forEach(function(x){x.addEventListener('change',Sq);});Sq();
+ ['lvC-price','lvC-prob','lvC-n','lvC-spo','lvC-ex','lvC-own','lvC-fn','lvC-fp'].forEach(function(id){$(id).addEventListener('input',C);});C();
  function rs(){setTimeout(function(){if(window.Plotly&&$('lvC-chart').offsetParent)Plotly.Plots.resize('lvC-chart');},60);}
  document.querySelectorAll('.ow-tabbar button,.sx-tabnav a').forEach(function(b){b.addEventListener('click',rs);});
  document.querySelectorAll('details').forEach(function(d){d.addEventListener('toggle',function(){if(d.open)rs();});});}
 if(document.querySelector('.pg-static.js'))init();else document.addEventListener('pg-mounted',init);
 })();</script>"""
-    return {"A1 첫 실전 피드백 (메인)": b, "B1 총비용 시뮬레이터 (서브)": c_top + c_exp,
-            "A2 첫 10경기 성장 기록": a, "B2 강화 비용 (추정)": b2 + js}
+    return {"A1 NEXT MATCH COACH": a1, "A2 FIRST 10 MATCHES": a2, "B1 OLD SQUAD, NEW DROP": b1,
+            "C BM 내부 분석": c_top + c_exp + js}
