@@ -178,8 +178,9 @@ def _quotes(rows: pd.DataFrame, labels: dict[str, str] | None = None) -> str:
         f'<div class="ow-quote {"neg" if r.sentiment == "부정" else "pos" if r.sentiment == "긍정" else "neu"}">'
         f'<div class="ow-quote-tag">{escape(labels.get(r.opinion_id, r.category))} · 플레이 {escape(r.hours_on_record)}시간</div>'
         f'<div class="ow-quote-t">{escape(r.summary_ko)}</div><div class="ow-quote-o">“{escape(r.quote_ko)}”</div>'
-        + (f'<div class="pn-orig">원문 ({escape(r.language)}) · {escape(r.quote_original)}</div>' if r.quote_ko != r.quote_original else "")
-        + f'<div class="ow-quote-m">Steam 리뷰 · {escape(r.published_date)} · {link(r.source_url, "원문 보기")}</div></div>'
+        + f'<div class="ow-quote-m">Steam 리뷰 · {escape(r.published_date)}'
+        + (f' · {escape(r.language)} 원문 번역' if r.quote_ko != r.quote_original else "")
+        + f' · {link(r.source_url, "원문 보기")}</div></div>'
         for r in rows.itertuples()) + "</div>"
 
 
