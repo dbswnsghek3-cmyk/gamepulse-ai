@@ -50,6 +50,9 @@ def load() -> tuple[dict, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict, dict]:
     steam = pd.read_csv(DATA / "steam_monthly.csv")
     pool = json.loads((DATA / "review_pool.json").read_text(encoding="utf-8"))
     rpool = json.loads((DATA / "return_pool.json").read_text(encoding="utf-8"))
+    ko = json.loads((DATA / "quote_ko.json").read_text(encoding="utf-8"))   # 외국어 발췌의 한국어 번역 (원문은 CSV 그대로)
+    for df in (ops, ret):
+        df["quote_ko"] = [ko.get(i, q) for i, q in zip(df["opinion_id"], df["quote_original"])]
     return ns, ops, ret, steam, pool, rpool
 
 
@@ -174,8 +177,9 @@ def _quotes(rows: pd.DataFrame, labels: dict[str, str] | None = None) -> str:
     return '<div class="pg-quotes">' + "".join(
         f'<div class="ow-quote {"neg" if r.sentiment == "부정" else "pos" if r.sentiment == "긍정" else "neu"}">'
         f'<div class="ow-quote-tag">{escape(labels.get(r.opinion_id, r.category))} · 플레이 {escape(r.hours_on_record)}시간</div>'
-        f'<div class="ow-quote-t">{escape(r.summary_ko)}</div><div class="ow-quote-o">“{escape(r.quote_original)}”</div>'
-        f'<div class="ow-quote-m">Steam 리뷰 · {escape(r.published_date)} · {link(r.source_url, "원문 보기")}</div></div>'
+        f'<div class="ow-quote-t">{escape(r.summary_ko)}</div><div class="ow-quote-o">“{escape(r.quote_ko)}”</div>'
+        + (f'<div class="pn-orig">원문 ({escape(r.language)}) · {escape(r.quote_original)}</div>' if r.quote_ko != r.quote_original else "")
+        + f'<div class="ow-quote-m">Steam 리뷰 · {escape(r.published_date)} · {link(r.source_url, "원문 보기")}</div></div>'
         for r in rows.itertuples()) + "</div>"
 
 
@@ -308,7 +312,7 @@ def s2(ns: dict, ops: pd.DataFrame, ret: pd.DataFrame, steam: pd.DataFrame, pool
     html(_quotes(_pick(ret, ["R02", "R16", "R05"]), {"R02": "계정 도용·정지", "R16": "친구와 복귀 → 핵", "R05": "PC방의 추억"}))
     pos = _pick(ret, ["R06", "R12"])
     html('<div class="pn-pos"><b>긍정 경험도 함께</b>' + "".join(
-        f'<span>“{escape(r.quote_original)}” <small>{escape(r.published_date)} · {link(r.source_url, "원문")}</small></span>' for r in pos.itertuples())
+        f'<span>“{escape(r.quote_ko)}” <small>{escape(r.published_date)} · {link(r.source_url, "원문")}</small></span>' for r in pos.itertuples())
          + '</div>')
 
     c_ = ops[ops["track"] == "C"]
@@ -447,10 +451,10 @@ def _steam_chart(steam: pd.DataFrame, peak: dict) -> None:
 
 def _table_ops(df: pd.DataFrame, key: str) -> None:
     st.dataframe(df[["opinion_id", "track", "category", "tags", "sentiment", "language", "published_date", "recommended",
-                     "hours_on_record", "summary_ko", "quote_original", "source_url"]]
+                     "hours_on_record", "summary_ko", "quote_ko", "quote_original", "source_url"]]
                  .rename(columns={"opinion_id": "의견 번호", "track": "트랙", "category": "주 분류", "tags": "보조 분류", "sentiment": "방향",
                                   "language": "언어", "published_date": "작성일", "recommended": "추천 여부", "hours_on_record": "플레이 시간",
-                                  "summary_ko": "요약", "quote_original": "원문 발췌", "source_url": "원문"}),
+                                  "summary_ko": "요약", "quote_ko": "발췌 (한국어)", "quote_original": "원문 발췌", "source_url": "원문"}),
                  hide_index=True, key=key, column_config={"원문": st.column_config.LinkColumn("원문", display_text="열기")})
 
 

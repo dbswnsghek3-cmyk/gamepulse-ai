@@ -1331,6 +1331,7 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .pn-cause > div.b {{ border-top-color: #1E3A8A; }}
 .pn-cause small {{ font-size: 0.8rem; color: #64748B; }} .pn-cause b {{ font-size: 1.8rem; font-weight: 900; color: #0B1F3A; line-height: 1.15; }}
 .pn-cause strong {{ font-size: 1rem; font-weight: 800; color: #1D4ED8; }} .pn-cause > div.b strong {{ color: #1E3A8A; }} .pn-cause span {{ font-size: 0.9rem; color: #334155; }}
+.pn-orig {{ font-size: 0.82rem; color: #64748B; margin: 0.15rem 0 0.2rem; line-height: 1.45; }}
 /* 작은 글씨 확대 */
 .pg-demo .src {{ font-size: 0.9rem; }} .pn-daynote {{ font-size: 0.95rem; }} .pn-chan span {{ font-size: 0.98rem; }}
 .pg-tr {{ font-size: 0.78rem; }} .pn-k, .pn-tc-k {{ font-size: 0.84rem; }} .pn-tc small {{ font-size: 0.9rem; }} .pn-tc b {{ font-size: 1.08rem; }}
