@@ -372,12 +372,48 @@ def overwatch_body(kind: str) -> tuple[str, int]:
     return tabbed_body("overwatch", OW_TABS, "ow_tab", kind, overwatch_extras())
 
 
+PG_SCREENS_SRC = ROOT / "assets" / "pubg" / "site"      # scripts/capture_pubg_screens.py 가 만든 Streamlit 화면 캡처
+PG_SCREENS_DIR = "assets/pubg-screens"
+
+
+def pubg_screens() -> dict[str, str]:
+    """탭별 Streamlit 원본 화면 캡처(JPEG)를 docs/ 로 복사하고 {탭 번호: 경로} 를 돌려준다. 없으면 빈 dict."""
+    out = {}
+    for n in [lab[:2] for lab in PG_TABS]:
+        src = PG_SCREENS_SRC / f"tab-{n}.jpg"
+        if src.is_file():
+            (DOCS / PG_SCREENS_DIR).mkdir(parents=True, exist_ok=True)
+            shutil.copy(src, DOCS / PG_SCREENS_DIR / src.name)
+            out[n] = f"{PG_SCREENS_DIR}/{src.name}"
+    return out
+
+
 def pubg_body(kind: str) -> tuple[str, int]:
-    from pubg_static_demos import demos   # 정적 페이지용 JS 시연 (같은 newstart.json 값 사용)
-    return tabbed_body("pubg", PG_TABS, "pg_tab", kind, demos(ROOT))
+    """PUBG 전용: 01~06 내용을 HTML 에 모두 펼쳐 두고(JavaScript 없이도 읽힘) JS 가 선택한 탭만 남긴다.
+    하위 탭(시연 A·B·C·B2) 전환, 시안 칸의 JS 조작판, 탭별 Streamlit 화면 캡처를 더한다. 오버워치 출력은 그대로."""
+    from pubg_static_demos import PAGE_CSS, PAGE_JS, demos   # 정적 페이지용 JS 시연 (같은 newstart.json 값 사용)
+    shots = pubg_screens()
+    labels = {lab[:2]: lab for lab in PG_TABS}
+
+    def pane_extra(n: str) -> str:
+        if n not in shots:
+            return ""
+        return (f'<details class="sx-exp pg-screen"><summary>이 탭의 Streamlit 원본 화면 캡처 (디자인 확인용 이미지) '
+                f'<span class="sx-more">펼쳐보기</span></summary><div class="sx-exp-b"><a href="{shots[n]}" target="_blank" rel="noopener">'
+                f'<img src="{shots[n]}" alt="Streamlit 원본 화면 · {H.escape(labels[n])}" loading="lazy"></a></div></details>')
+
+    body, charts = tabbed_body("pubg", PG_TABS, "pg_tab", kind, demos(ROOT), all_visible=True, pane_extra=pane_extra)
+    top = ""
+    if shots:
+        top = ('<div class="pg-shotlist"><b>디자인 확인용 원본 화면 캡처</b>' + "".join(
+            f'<a href="{shots[n]}" target="_blank" rel="noopener">{H.escape(labels[n])}</a>' for n in labels if n in shots) + "</div>")
+    note = ('<div class="sx-note">이 페이지는 JavaScript 없이도 01~06 탭 내용을 모두 HTML 글자로 담고 있습니다 '
+            '(JavaScript 가 켜져 있으면 선택한 탭만 표시). 시연 A·B·C·B2는 이 페이지에서 직접 조작할 수 있습니다.</div>')
+    return PAGE_CSS + '<div class="pg-static">' + note + top + body + "</div>" + PAGE_JS, charts
 
 
-def tabbed_body(pid: str, labels: list[str], tab_key: str, kind: str, extras: dict) -> tuple[str, int]:
+def tabbed_body(pid: str, labels: list[str], tab_key: str, kind: str, extras: dict,
+                all_visible: bool = False, pane_extra=None) -> tuple[str, int]:
     """6개 탭을 각각 실행해 모은 뒤, 탭 버튼 + 패널(선택한 1개만 표시) + JS 로 합친다.
     숨은 패널의 내용도 HTML 에 그대로 있어 글자만 읽는 도구는 모든 탭을 읽을 수 있다. 주소 #t04 로 바로 열 수 있다."""
     OW_TABS_ = labels
@@ -393,8 +429,10 @@ def tabbed_body(pid: str, labels: list[str], tab_key: str, kind: str, extras: di
             raise RuntimeError(f"탭 {label}: 탭 경계 표식을 찾지 못함")
         pane = rest.split("</div>", 1)[1]
         prefix = prefix if prefix is not None else pre
-        panes.append(f'<section class="ow-pane" id="pane-{n}" role="tabpanel" aria-labelledby="tb-{n}" data-tab="{n}"{"" if i == 0 else " hidden"}>'
-                     f'<h2 class="sx-pane-h">{H.escape(label)}</h2>{pane}</section>')
+        hide = "" if (i == 0 or all_visible) else " hidden"
+        more = pane_extra(n) if pane_extra else ""
+        panes.append(f'<section class="ow-pane" id="pane-{n}" role="tabpanel" aria-labelledby="tb-{n}" data-tab="{n}"{hide}>'
+                     f'<h2 class="sx-pane-h">{H.escape(label)}</h2>{pane}{more}</section>')
         charts += ex.charts
     tabbar = ('<div class="ow-tabbar" role="tablist" aria-label="섹션">' + "".join(
         f'<button type="button" role="tab" id="tb-{lab[:2]}" aria-controls="pane-{lab[:2]}" data-tab="{lab[:2]}" '
