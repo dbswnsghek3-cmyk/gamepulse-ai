@@ -1321,6 +1321,16 @@ a.pn-btn:hover {{ background: #EAB308; }}
 @media (max-width: 900px) {{
   .pn-hero {{ grid-template-columns: 1fr; padding: 1.1rem 1rem; gap: 0.9rem; }} .pn-hero-q {{ font-size: 1.7rem; }} .pn-duo {{ grid-template-columns: 1fr; }}
 }}
+.pn-pfk {{ display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 0.8fr); gap: 0.35rem; align-items: stretch; margin: 0 0 0.8rem; }}
+.pn-pfk > div {{ background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.5rem 0.7rem; display: flex; flex-direction: column; }}
+.pn-pfk > div.k {{ background: #FEFCE8; border-color: #FDE68A; }}
+.pn-pfk span {{ font-size: 0.78rem; font-weight: 800; color: #475569; }} .pn-pfk b {{ font-size: 0.98rem; color: #0B1F3A; line-height: 1.4; }}
+.pn-pfk > i {{ align-self: center; font-style: normal; font-weight: 900; color: #2563EB; }}
+.pn-cause {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.4rem; }}
+.pn-cause > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 5px solid #2563EB; border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.1rem; }}
+.pn-cause > div.b {{ border-top-color: #1E3A8A; }}
+.pn-cause small {{ font-size: 0.8rem; color: #64748B; }} .pn-cause b {{ font-size: 1.8rem; font-weight: 900; color: #0B1F3A; line-height: 1.15; }}
+.pn-cause strong {{ font-size: 1rem; font-weight: 800; color: #1D4ED8; }} .pn-cause > div.b strong {{ color: #1E3A8A; }} .pn-cause span {{ font-size: 0.9rem; color: #334155; }}
 /* 작은 글씨 확대 */
 .pg-demo .src {{ font-size: 0.9rem; }} .pn-daynote {{ font-size: 0.95rem; }} .pn-chan span {{ font-size: 0.98rem; }}
 .pg-tr {{ font-size: 0.78rem; }} .pn-k, .pn-tc-k {{ font-size: 0.84rem; }} .pn-tc small {{ font-size: 0.9rem; }} .pn-tc b {{ font-size: 1.08rem; }}
@@ -1330,7 +1340,7 @@ a.pn-btn:hover {{ background: #EAB308; }}
 @media (max-width: 900px) {{
   .pn-arow, .pn-band, .pn-chg, .pn-final, .pn-mocks, .pn-chan, .pn-ad3row {{ grid-template-columns: 1fr; }}
   .pn-camp dl {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-  .pn-k4 {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .pn-k4 b {{ font-size: 1.25rem; }} .pn-camp .t b {{ font-size: 1.25rem; }} .pn-band .pn-q {{ font-size: 1.2rem; }}
+  .pn-k4, .pn-cause {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .pn-pfk {{ grid-template-columns: 1fr; }} .pn-pfk > i {{ display: none; }} .pn-k4 b {{ font-size: 1.25rem; }} .pn-camp .t b {{ font-size: 1.25rem; }} .pn-band .pn-q {{ font-size: 1.2rem; }}
   .pn-budget {{ flex-direction: column; }} .pn-qr svg {{ width: 64px; height: 64px; }} .pn-ad2 .bubble {{ font-size: 1.1rem; }}
   .pn-bflow > i {{ display: none; }} .pn-bflow > div, .pn-bflow > div.w {{ flex: 1 1 100%; }}
   .pn-tcards, .pn-two, .pn-day, .pn-kpi {{ grid-template-columns: 1fr; }}
@@ -1339,6 +1349,45 @@ a.pn-btn:hover {{ background: #EAB308; }}
   .pn-order li {{ grid-template-columns: 2.4rem 1fr; grid-template-areas: "n t" "n k" "n d"; }}
   .pn-peak b {{ font-size: 1.6rem; }} .pn-q {{ font-size: 1.15rem; }}
   .pn-w {{ min-width: 3.2rem; font-size: 0.78rem; }}
+}}
+
+/* ---------- 오버워치 최종 마감: 첫 화면 · 근거 요약 · KPI 4개 (owx- 전용) ---------- */
+.owx-hero {{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 1.4rem; align-items: center;
+  background: linear-gradient(135deg, #FFFFFF 0%, #EEF4FF 100%); border: 1px solid #DBEAFE; border-radius: 18px; padding: 1.4rem 1.5rem; margin-bottom: 0.7rem; }}
+.owx-t {{ display: flex; flex-direction: column; gap: 0.5rem; }}
+.owx-q {{ font-size: 2.35rem; font-weight: 900; line-height: 1.25; color: #0B1F3A; letter-spacing: -0.02em; }}
+.owx-s {{ margin: 0; font-size: 1.1rem; color: #334155; }}
+.owx-img {{ margin: 0; }} .owx-img img {{ width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 8px 24px rgba(11,31,58,0.18); }}
+.owx-img figcaption {{ font-size: 0.78rem; color: #64748B; margin-top: 0.35rem; }}
+.owx-steps {{ display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); gap: 0.4rem; align-items: stretch; margin-bottom: 0.9rem; }}
+.owx-steps > div {{ border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.15rem; border: 1px solid #E2E8F0; background: #fff; }}
+.owx-steps > div.p {{ background: #FFF1EF; border-color: #F6C7C1; }} .owx-steps > div.s {{ background: #EFF6FF; border-color: #BFDBFE; }}
+.owx-steps > div.v {{ background: #F8FAFC; }}
+.owx-steps span {{ font-size: 0.82rem; font-weight: 800; color: #B4433B; }} .owx-steps .s span {{ color: #1D4ED8; }} .owx-steps .v span {{ color: #334155; }}
+.owx-steps b {{ font-size: 1.08rem; color: #0B1F3A; line-height: 1.35; }} .owx-steps small {{ font-size: 0.9rem; color: #334155; }}
+.owx-steps em {{ font-style: normal; font-weight: 900; color: #1D4ED8; }}
+.owx-steps > i {{ align-self: center; font-style: normal; font-weight: 900; color: #2563EB; font-size: 1.3rem; }}
+.owx-ev {{ display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 2fr) minmax(0, 0.7fr); gap: 0.6rem; margin: 0.2rem 0 0.4rem; }}
+.owx-ev > div {{ background: #fff; border: 1px solid #DBEAFE; border-radius: 12px; padding: 0.75rem 0.9rem; }}
+.owx-ev .big {{ border-top: 4px solid #2563EB; display: flex; flex-direction: column; }}
+.owx-ev .big span {{ font-size: 0.85rem; font-weight: 800; color: #334155; }} .owx-ev .big b {{ font-size: 2.1rem; font-weight: 900; color: #0B1F3A; line-height: 1.15; }}
+.owx-ev .big em {{ font-style: normal; color: #1D4ED8; }} .owx-ev small {{ font-size: 0.85rem; color: #475569; }}
+.owx-ev .types {{ display: flex; flex-direction: column; gap: 0.35rem; }}
+.owx-ev .types > div {{ display: grid; grid-template-columns: 3.6rem 1fr; align-items: baseline; gap: 0.5rem; font-size: 0.98rem; color: #334155; }}
+.owx-ev .types > div > b {{ font-size: 1.25rem; font-weight: 900; color: #1D4ED8; }} .owx-ev .types span b {{ color: #0B1F3A; }}
+.owx-ev .opp {{ background: #F0FDF4; border-color: #BBF7D0; display: flex; flex-direction: column; }}
+.owx-ev .opp span {{ font-size: 0.85rem; font-weight: 800; color: #166534; }} .owx-ev .opp b {{ font-size: 1.6rem; font-weight: 900; color: #14532D; }}
+.owx-int {{ font-size: 0.98rem; color: #1E293B; margin: 0 0 0.9rem; line-height: 1.55; }}
+.owx-val {{ font-size: 1.05rem; font-weight: 800; color: #1D4ED8; margin: 0.1rem 0 0.4rem; }}
+.owx-k4 {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.6rem; }}
+.owx-k4 > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 5px solid #2563EB; border-radius: 12px; padding: 0.75rem 0.85rem; display: flex; flex-direction: column; gap: 0.15rem; }}
+.owx-k4 > div:last-child {{ border-top-color: #E97870; }}
+.owx-k4 span {{ font-size: 0.9rem; font-weight: 800; color: #334155; }} .owx-k4 b {{ font-size: 1.45rem; font-weight: 900; color: #0B1F3A; line-height: 1.2; }}
+.owx-k4 em {{ font-style: normal; color: #1D4ED8; }} .owx-k4 small {{ font-size: 0.85rem; color: #475569; }}
+@media (max-width: 900px) {{
+  .owx-hero, .owx-ev {{ grid-template-columns: 1fr; padding: 1rem; }} .owx-q {{ font-size: 1.7rem; }}
+  .owx-steps {{ grid-template-columns: 1fr; }} .owx-steps > i {{ transform: rotate(90deg); justify-self: center; }}
+  .owx-k4 {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .owx-k4 b {{ font-size: 1.15rem; }}
 }}
 
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}

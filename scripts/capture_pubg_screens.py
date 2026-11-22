@@ -30,7 +30,7 @@ HEIGHT_JS = """() => {
 
 def settle(page) -> None:
     """앱 실행 표시(stStatusWidget)가 사라지고 본문이 그려질 때까지 기다린다."""
-    page.wait_for_selector(".ow-tabbar, .ow-cover, .pg-cover, .pn-hero", timeout=120_000)
+    page.wait_for_selector(".ow-tabbar, .ow-cover, .pg-cover, .pn-hero, .owx-hero", timeout=120_000)
     for _ in range(3):   # 실행 표시가 잠깐 사라졌다 다시 생기는 경우까지
         page.wait_for_function("() => !document.querySelector('[data-testid=\"stStatusWidget\"]')", timeout=120_000)
         page.wait_for_timeout(1500)

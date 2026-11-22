@@ -427,7 +427,7 @@ def render() -> None:
 
     html('<div class="gp-ow-page"></div>')  # 오버워치 전용 반응형 CSS 범위 표식
     plan = experiment_plan(rs["experiment"])
-    _cover(rs, ops, plan)
+    _cover(rs, ops, plan, statuses)
 
     # 01~06 탭 전환: 선택한 섹션 하나만 표시 (나머지 5개는 그리지 않음)
     i = tab_nav()
@@ -444,19 +444,22 @@ def render() -> None:
 
 
 # ----------------------------------------------------------------------
-def _cover(rs: dict, ops: pd.DataFrame, plan: dict) -> None:
-    """탭 위에 항상 보이는 부분: 제목 한 줄 + '문제 → 해결 → 검증할 이유' 카드 하나."""
+def _cover(rs: dict, ops: pd.DataFrame, plan: dict, statuses: dict | None = None) -> None:
+    """탭 위 첫 화면: 핵심 질문(가장 크게) + 실제 게임 화면 + 문제 → 해결 → 검증 3단계."""
     cv = rs["cover"]
     v = ops[ops["verified"]]
     learn = sum(bool(set(opinion_codes(r)) & LEARNING_CODES) for _, r in v.iterrows())
     mde = plan["seg"]["복귀"]["mde"]["D7"]
-    html(f'<div class="ow-cover"><div class="ow-cover-t">{escape(cv["title"])}</div>'
-         f'<div class="ow-cover-c">{escape(cv["copy"])}</div></div>')
-    html('<div class="ow-hero3">'
-         f'<div><span>문제</span><b>{escape(cv["problem"])}</b><small>{escape(cv.get("problem_sub", ""))}</small></div>'
-         f'<div><span>해결</span><b>{escape(cv["solution"])}</b><small>{escape(cv.get("solution_sub", ""))}</small></div>'
-         f'<div><span>검증할 이유</span><b>의견 {len(v)}건 중 {learn}건이 학습·적응 어려움</b>'
-         f'<small>복귀 D7 +{mde:.1f}%p를 기준으로 단계적 A/B 테스트</small></div></div>')
+    stt = (statuses or {}).get("returning_menu")
+    img = (f'<figure class="owx-img"><img src="data:image/jpeg;base64,{_src(stt, 1400)}" alt="실제 게임 화면: 복귀 시 보이는 메인 화면">'
+           '<figcaption>실제 게임 화면 · 복귀하면 보이는 메인 화면 · 작성자 직접 캡처</figcaption></figure>') if stt is not None and stt.ok else ""
+    html(f'<div class="owx-hero"><div class="owx-t"><div class="ow-cover-t">{escape(cv["title"])}</div>'
+         '<div class="owx-q" role="heading" aria-level="1">복귀한 유저는<br>왜 첫 주에 막힐까?</div>'
+         f'<p class="owx-s">{escape(cv["copy"])} · 영웅·밸런스는 그대로, 정보만 보완</p></div>{img}</div>')
+    html('<div class="owx-steps">'
+         f'<div class="p"><span>① 문제</span><b>{escape(cv["problem"])}</b><small>의견 <em>{len(v)}건</em> 중 <em>{learn}건</em>이 학습·적응 어려움</small></div><i>→</i>'
+         f'<div class="s"><span>② 해결</span><b>{escape(cv["solution_sub"])}</b><small>A 복귀 브리핑 · C 첫 10경기 미션 · B 전투 학습 카드</small></div><i>→</i>'
+         f'<div class="v"><span>③ 검증</span><b>복귀 D7 <em>+{mde:.1f}%p</em> 목표</b><small>목표·가정값 · 실제 결과 아님 · 단계적 A/B 테스트</small></div></div>')
 
 
 def _hero_block(heroes: dict, statuses: dict) -> None:
@@ -570,6 +573,16 @@ def _s1_summary(rs: dict, ops: pd.DataFrame, statuses: dict, plan: dict, heroes:
 def _s2_evidence(rs: dict, kp: dict, steam: pd.DataFrame, pc: pd.DataFrame, ops: pd.DataFrame, statuses: dict) -> None:
     head("근거: 의견 · 지표 · 화면")
     v = ops[ops["verified"]]
+    cc = code_counts(v)
+    learn = sum(bool(set(opinion_codes(r)) & LEARNING_CODES) for _, r in v.iterrows())
+    top3 = [("영웅·스킬 학습 부담", "새 영웅·스킬을 익히기 버겁다"), ("복귀 적응·변경점 파악", "무엇이 바뀌었는지 모른다"),
+            ("상대 영웅 대응 이해 부족", "왜 졌는지, 어떻게 대응할지 모른다")]
+    html(f'<div class="owx-ev"><div class="big"><span>{b_real()} 유저 의견</span><b><em>{learn}</em> / {len(v)}건</b>'
+         '<small>학습·적응 어려움을 말한 의견 (중복 집계)</small></div><div class="types">' + "".join(
+             f'<div><b>{int(cc.get(k, 0))}건</b><span><b>{escape(k)}</b> · {escape(d)}</span></div>' for k, d in top3)
+         + f'</div><div class="opp"><span>반대 의견</span><b>{int(cc.get("긍정적인 학습 경험", 0))}건</b><small>긍정적인 학습 경험</small></div></div>'
+         f'<div class="owx-int">{b_interp()} <b>핵심은 영웅 수가 아니라, 바뀐 것을 실전에서 따라잡을 방법이 없다는 점</b>으로 해석한다 · '
+         '자발적 게시글이라 전체 이용자 비율이 아니다</div>')
     _opinion_chart(v)                       # 핵심 차트 1 · 실제 자료
     c1, c2 = st.columns(2, gap="medium")
     with c1:
@@ -848,12 +861,15 @@ def _s3_hypothesis(rs: dict, ops: pd.DataFrame) -> None:
 # ======================================================================
 # 4 개선안 체험 (A·B·C 기획 시안) + 비교·우선순위
 def _spec_cards(rs: dict) -> str:
-    """A·B·C 사양 카드 (기본 화면): 대상 · 문제 · 핵심 해결책 3줄. 흐름·KPI·난이도는 _spec_detail() 펼쳐보기."""
+    """A·B·C 카드 (기본 화면): 첫 줄 = 핵심 해결 가치, 그 아래 문제 → 해결 → 기대 효과. 흐름·난이도는 _spec_detail() 펼쳐보기."""
     out = []
     for s in [x for x in rs["strategies"] if x["core"]]:
-        rows = [("대상", escape(s["target"])), ("문제", escape(s.get("problem", ""))), ("핵심 해결책", escape(s["tagline"]))]
+        effect = escape(s.get("effect", "").replace(" (가설)", ""))
+        rows = [("문제", escape(s.get("problem", ""))), ("해결", escape(s["tagline"])),
+                ("기대 효과", f'{effect} <span class="ow-tag">가설</span><br><small>검증 KPI · {escape(s["kpis"][0])}</small>')]
         out.append(f'<div class="ow-spec k{s["key"]}"><div class="ow-spec-h"><span class="ow-spec-key">{s["key"]}</span>'
-                   f'<div><div class="ow-spec-n">{escape(s["name"])}</div><div class="ow-spec-p">{escape(s.get("phase", ""))}</div></div></div>'
+                   f'<div><div class="ow-spec-n">{escape(s["name"])}</div><div class="ow-spec-p">{escape(s.get("phase", ""))} · {escape(s["target"])}</div></div></div>'
+                   f'<div class="owx-val">{escape(s["tagline"])}</div>'
                    + "".join(f'<div class="ow-spec-r"><span>{k}</span><div>{v}</div></div>' for k, v in rows) + "</div>")
     return f'<div class="ow-specs">{"".join(out)}</div>'
 
@@ -1158,20 +1174,28 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
     ab, ex = rs["ab_test"], rs["experiment"]
     seg, sc, m10 = plan["seg"], plan["sched"], plan["m10"]
     r, nw = seg["복귀"], seg["신규"]
-    head("주요 지표: D7 잔존율 (배정 기준)", "목표 = 최소 의미 있는 개선 폭(MDE) · 기준값은 모두 가정", b_mock())
-    sub("KPI 정의")
+    head("핵심 KPI: 복귀 D7 · 첫 10경기 완료율 · 초반 이탈률 · 대조군 대비 개선", "모두 목표·가정값이다 · 실제 달성 성과가 아니다", b_mock())
+    fn0, p_new0 = ex["funnel"], ex["cohorts"]["신규"]["participation"]
+    early0 = 100 - fn0["first"] * fn0["m3"] / 100                                     # 첫 3경기 전 이탈 (신규 · 가정)
+    early1 = 100 - fn0["first"] * (fn0["m3"] + p_new0 / 100 * fn0["up3"]) / 100
+    html('<div class="owx-k4">'
+         f'<div><span>복귀 D7</span><b>{r["base"]["D7"]:.0f}% → <em>{r["base"]["D7"] + r["mde"]["D7"]:.0f}%</em></b><small>A 복귀 브리핑 · 목표 +{r["mde"]["D7"]:.1f}%p (가정)</small></div>'
+         f'<div><span>첫 10경기 완료율</span><b>{m10["base"]:.1f}% → <em>{m10["new"]:.1f}%</em></b><small>C 첫 10경기 미션 · 가정</small></div>'
+         f'<div><span>초반 이탈률 (3경기 전)</span><b>{early0:.1f}% → <em>{early1:.1f}%</em></b><small>신규 · 퍼널 가정값</small></div>'
+         f'<div><span>대조군 대비 개선</span><b><em>+{r["mde"]["D7"]:.1f}%p</em> 이상</b><small>95% 신뢰구간 하한 &gt; 0 일 때만 확대</small></div></div>')
+    note("실험은 기능 1개씩: 실험 1 A 복귀 브리핑(복귀 D7) → 실험 2 C 첫 10경기 미션(신규 D7) → 실험 3 B 사용성 · 상세는 아래 펼쳐보기")
     tgt = {"MDE": lambda k: (f"+{r['mde']['D7']:.1f}%p (기준 {r['base']['D7']:.0f}% 가정)" if "복귀" in k["name"]
                              else f"+{nw['mde']['D7']:.1f}%p (기준 {nw['base']['D7']:.0f}% 가정)"),
            "MDE30": lambda k: f"+{r['mde']['D30']:.1f}%p (배정 기준)",
            "M10": lambda k: f"+{m10['mde']:.1f}%p (기준 {m10['base']:.1f}% 가정)"}
-    tiles([("복귀 D7 (실험 1 주요)", f"+{r['mde']['D7']:.1f}%p", f"기준 {r['base']['D7']:.0f}% 가정"),
-           ("신규 D7 (실험 2 주요)", f"+{nw['mde']['D7']:.1f}%p", f"기준 {nw['base']['D7']:.0f}% 가정"),
-           ("D30 (보조)", f"+{r['mde']['D30']:.1f}%p", f"배정 기준"),
-           ("첫 10경기 완료율 (선행)", f"+{m10['mde']:.1f}%p", f"기준 {m10['base']:.1f}% 가정")])
-    html('<div class="ow-defbox"><div><b>D7 잔존율</b> Day 7 <u>당일</u> 접속 (11/1 복귀 → 11/8)</div>'
-         '<div><b>7일 내 재방문율</b> Day 1~7 중 <u>하루라도</u> 접속</div>'
-         '<div class="ow-defbox-n">재방문율은 항상 D7 이상이라 섞어 비교하지 않는다. 주요 지표는 D7.</div></div>')
-    with st.expander(f"KPI 정의 전체 · 분자·분모·측정 시점 ({len(rs['kpi_defs'])}개)"):
+    with st.expander(f"자세히 보기 · KPI 정의 전체 · 분자·분모·측정 시점 ({len(rs['kpi_defs'])}개)"):
+        tiles([("복귀 D7 (실험 1 주요)", f"+{r['mde']['D7']:.1f}%p", f"기준 {r['base']['D7']:.0f}% 가정"),
+               ("신규 D7 (실험 2 주요)", f"+{nw['mde']['D7']:.1f}%p", f"기준 {nw['base']['D7']:.0f}% 가정"),
+               ("D30 (보조)", f"+{r['mde']['D30']:.1f}%p", f"배정 기준"),
+               ("첫 10경기 완료율 (선행)", f"+{m10['mde']:.1f}%p", f"기준 {m10['base']:.1f}% 가정")])
+        html('<div class="ow-defbox"><div><b>D7 잔존율</b> Day 7 <u>당일</u> 접속 (11/1 복귀 → 11/8)</div>'
+             '<div><b>7일 내 재방문율</b> Day 1~7 중 <u>하루라도</u> 접속</div>'
+             '<div class="ow-defbox-n">재방문율은 항상 D7 이상이라 섞어 비교하지 않는다. 주요 지표는 D7.</div></div>')
         table(["구분", "지표", "확인 가능 여부"],
               [[b_real(), "Steam 동시접속자 · 한국 PC방 점유율", "공개 자료 (Steam 한정 · 한국 PC방 표본)"],
                [badge("내부 데이터 필요", "pending"), "DAU · D7 · D30 · 경기 완료율", "넥슨·블리자드 로그 필요 · 기준값은 모두 가정"]])
@@ -1181,7 +1205,6 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
                 escape(k["timing"]), f"<b>{escape(tgt[k['target']](k) if k['target'] in tgt else k['target'])}</b>"]
                for k in rs["kpi_defs"]], badge_html=b_mock(), cls="ow-kpi-table")
 
-    sub("실험 설계: 기능 1개씩")
     exp_rows = []
     for e in ex["experiments"]:
         if e["id"] == "1":
@@ -1198,8 +1221,9 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
                          f"{escape(e['segment'])}<br><small>배정 {escape(e['split'])}</small>",
                          f"<b>{escape(e['primary'])}</b><br><small>보조: {escape(e['secondary'])}</small>",
                          escape(size), escape(when)])
-    table(["실험 · 이유", "대상 · 배정", "주요 지표 (1개)", "MDE · 필요 표본 (가정)", "일정 (주차)"], exp_rows, badge_html=b_mock())
-    note(f"기능을 묶으면 효과를 구분할 수 없어 1개씩 실험한다 · α {ex['alpha']} · 검정력 {ex['power']:.0%} · 배정 기준(ITT)")
+    with st.expander("자세히 보기 · 실험 설계 4개 (대상 · 주요 지표 · MDE · 표본 · 일정)"):
+        table(["실험 · 이유", "대상 · 배정", "주요 지표 (1개)", "MDE · 필요 표본 (가정)", "일정 (주차)"], exp_rows, badge_html=b_mock())
+        note(f"기능을 묶으면 효과를 구분할 수 없어 1개씩 실험한다 · α {ex['alpha']} · 검정력 {ex['power']:.0%} · 배정 기준(ITT)")
     with st.expander(f"자세히 보기 · 표본 산정 근거 · 주차별 일정표 (준비 2주 + 운영 {sc['decision']}주)"):
         tiles([("복귀 D7 표본 (실험 1)", f"{r['n']:,}명 × 2", f"주당 유입 {r['weekly']:,.0f}명 가정 → 배정 {r['assign_weeks']}주"),
                ("신규 D7 표본 (실험 2)", f"{nw['n']:,}명 × 2", f"주당 유입 {nw['weekly']:,.0f}명 가정 → 배정 {nw['assign_weeks']}주"),
@@ -1207,12 +1231,12 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
         html(_timeline(plan))
         st.caption(f"D30 관측 종료 {sc['e1_d30']}·{sc['e2_d30']}주차 · 운영 일정은 06 탭 '파일럿 일정'과 같습니다.")
 
-    sub("유의성 ≠ 사업 효과", b_interp())
-    html('<div class="ow-sig">'
+    with st.expander("자세히 보기 · 유의성 ≠ 사업 효과"):
+        html('<div class="ow-sig">'
          '<div><b>통계적 유의성</b>효과 추정치의 95% 신뢰구간 하한이 0보다 큰가 → 우연이 아닐 가능성</div>'
          f'<div><b>사업적 효과</b>점추정이 MDE(+{r["mde"]["D7"]:.1f}%p) 이상인가, 개발·운영비 대비 추가 잔존 인원이 충분한가</div>'
          '<div><b>판단</b>둘 다 충족하고 안전 지표가 나빠지지 않을 때만 확대. 유의하지만 작으면 조건부 확대</div></div>')
-    note("보수적 기준: 실제 효과가 정확히 MDE면 확대 확률은 약 50%다. 효과 없는 기능을 넓히는 오판을 줄이는 쪽을 택했다.")
+        note("보수적 기준: 실제 효과가 정확히 MDE면 확대 확률은 약 50%다. 효과 없는 기능을 넓히는 오판을 줄이는 쪽을 택했다.")
 
     with st.expander("자세히 보기 · 판단 기준 4단계 · 측정 방법 · 즉시 중단 기준 · 표본 계산기"):
         table(["결과", "판단 기준"], [[f"<b>{escape(d['result'])}</b>", escape(d["rule"])] for d in rs["decision_rules"]], badge_html=b_mock())
@@ -1437,6 +1461,21 @@ def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
     table(["순서", "개선안", "RICE", "이유", "구현 난이도"],
           [[f"<b>{order.get(x.key, '')}</b>", f"{x.key} {escape(sname[x.key]['name'])}", f"{x.score:,.0f}점",
             escape(x.why), escape(sname[x.key].get("feasibility", ""))] for x in rice.itertuples()], badge_html=b_sim())
+
+    sub("개발·운영 부담 vs 기대 효과 · 비용 검산", b_sim())
+    mc = rs["experiment"]["cost"]["monthly_cost_per_person"]
+    eff = {x["key"]: x["effort"] for x in rs["rice"]["items"]}
+    add = plan["quarter"]["added_d7"]
+    cost = {k: eff[k] * mc for k in eff}
+    rows = [["<b>A</b> 복귀 브리핑", f"{eff['A']}인월", f"<b>{cost['A'] / 1e4:,.0f}만 원</b>", f"분기 추가 복귀 D7 약 {add['A']:,.0f}명", f"약 {cost['A'] / add['A']:,.0f}원"],
+            ["<b>C</b> 첫 10경기 미션", f"{eff['C']}인월", f"<b>{cost['C'] / 1e4:,.0f}만 원</b>", f"분기 추가 신규 D7 약 {add['C']:,.0f}명", f"약 {cost['C'] / add['C']:,.0f}원"],
+            ["<b>B</b> 전투 학습 카드", f"{eff['B']}인월", f"<b>{cost['B'] / 1e4:,.0f}만 원</b>", "사용성 검증 · 잔존 효과는 판단 안 함", "—"],
+            ["<b>A~C 합계</b>", f"{eff['A'] + eff['B'] + eff['C']}인월", f"<b>{(cost['A'] + cost['B'] + cost['C']) / 1e4:,.0f}만 원</b>",
+             f"D(보류) {eff['D']}인월 · {cost['D'] / 1e4:,.0f}만 원은 합계 제외", ""]]
+    table(["개선안", "공수", "개발·운영 비용", "기대 효과 (가정)", "추가 1명당"], rows)
+    st.caption(f"비용 = 공수 × 1인 월 {mc / 1e4:,.0f}만 원 (가정) · 기대 효과 = 분기 유입 × MDE (가정) · 실제 측정 전이라 ROI·매출 증가로 단정하지 않는다")
+    sub("확대 · 수정 · 중단 기준", b_mock())
+    table(["결과", "기준"], [[f"<b>{escape(d['result'])}</b>", escape(d["rule"])] for d in rs["decision_rules"]])
 
     mv = rs["mvp"]
     with st.expander("자세히 보기 · MVP 포함·제외 범위"):   # 우선순위 표와 겹쳐 접어 둠

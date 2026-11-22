@@ -273,6 +273,17 @@ def s2(ns: dict, ops: pd.DataFrame, ret: pd.DataFrame, steam: pd.DataFrame, pool
     head("근거: 신규는 '첫 실전'에서, 복귀 유저는 '핵·계정·친구'에서 막힌다",
          f"Steam 리뷰를 직접 대조해 신규({len(a)}건)·복귀({len(ret)}건)를 별도 표본으로 관리 · 대표 의견만 먼저", b_real())
 
+    r_ = ret.groupby("category").size()
+    gap_n = int(a["category"].isin(GAP_CATS).sum())
+    causes = [("a", f"{gap_n}건", "신규 · 실력 격차와 초기 이탈", "숙련자 로비·봇→실전·첫 교전 사망", f"신규 리뷰 {len(a)}건 중"),
+              ("b", f"{int(r_.get('핵·공정성', 0) + r_.get('계정 도용·정지', 0))}건", "복귀 · 핵·불법 프로그램 불신", "핵 경험 · 복귀하니 도용·정지된 계정", f"복귀 리뷰 {len(ret)}건 중"),
+              ("b", f"{int(r_.get('숙련도 격차', 0))}건", "복귀 · 매칭·실력 격차", "오랜만에 돌아오니 너무 어렵다", f"복귀 리뷰 {len(ret)}건 중"),
+              ("b", f"{int(r_.get('친구·스쿼드', 0))}건", "복귀 · 친구 이탈", "친구가 해야 하는 게임 · 혼자면 재미없다", f"복귀 리뷰 {len(ret)}건 중")]
+    html('<div class="pn-cause">' + "".join(
+        f'<div class="{c}"><small>{escape(src)}</small><b>{n}</b><strong>{escape(t)}</strong><span>{escape(d)}</span></div>'
+        for c, n, t, d, src in causes) + '</div>'
+        f'<div class="pn-cav2"><b>합계 {len(ops) + len(ret)}건(신규·BM {len(ops)} + 복귀 {len(ret)})은 서로 다른 시기에 고른 선별 사례</b>다 · '
+        '전체 유저를 대표하는 표본이 아니며 건수는 비율이 아니다</div>')
     sub("TRACK A · 신규 유저", tr("A"))
     c1, c2 = st.columns([1.35, 1], gap="medium")
     with c1:
@@ -516,12 +527,20 @@ def s4(ns: dict) -> None:
                 escape(p["data"]), escape(p["risk"])] for p in ns["proposals"]], badge_html=b_interp())
 
 
+def _pfk(ns: dict, key: str) -> None:
+    """개선안 상단 공통 구조: 해결하려는 문제 → 제안 기능 → 검증할 KPI (모두 기획 시안)."""
+    p, f, k = ns["pfk"][key]
+    html(f'<div class="pn-pfk"><div><span>해결하려는 문제</span><b>{escape(p)}</b></div><i>→</i>'
+         f'<div><span>제안 기능 (시안)</span><b>{escape(f)}</b></div><i>→</i><div class="k"><span>검증할 KPI</span><b>{escape(k)}</b></div></div>')
+
+
 def _lead(track: str, title: str, one: str) -> None:
     html(f'<div class="pn-lead {track.lower()}">{tr(track)}<b>{escape(title)}</b><span>{escape(one)}</span></div>')
 
 
 def demo_a1(ns: dict) -> None:
     _lead("A", "NEXT MATCH COACH · 경기별 실전 개인 코칭", "경기 결과 → 개선 행동 1개 → 다음 경기 → 성장 확인")
+    _pfk(ns, "A1")
     co = {c["label"]: c for c in ns["coach"]}
 
     def mock() -> None:
@@ -553,6 +572,7 @@ def demo_a1(ns: dict) -> None:
 
 def demo_a2(ns: dict) -> None:
     _lead("A", "FIRST 10 MATCHES · 첫 10경기 실전 성장 로드맵", "A1이 경기 단위라면, A2는 첫 10경기의 적응 과정을 설계한다")
+    _pfk(ns, "A2")
     dm = ns["demo_matches"]
     df = pd.DataFrame(dm["rows"], columns=dm["cols"])
     rm = ns["roadmap"]
@@ -592,6 +612,7 @@ def demo_a2(ns: dict) -> None:
 def demo_a3(ns: dict) -> None:
     mq = ns["match_quality"]
     _lead("A", "MATCH QUALITY · 신규 유저 매칭 품질 개선 실험", "새 매칭 알고리즘이 아니라, 운영 정책과 실험 설계")
+    _pfk(ns, "A3")
     html('<div class="pg-diff"><div><span class="pg-tag real">이미 있는 정책 (실제 · 과거 자료)</span>일반전 MMR · 신규·미숙련 유저 매칭 구조 개선 · 인원 부족 시 봇'
          '<small>2024 개발자 노트 기준 · 2026 적용 범위는 내부 확인 필요</small></div>'
          f'<div><span class="pg-tag mock">제안 (실험)</span>보호 구간·완화 조건을 대기시간과 함께 실험<small>{escape(mq["experiment"])}</small></div></div>')
@@ -641,6 +662,8 @@ def demo_b1(ns: dict) -> None:
     html(_poster_mocks(ns))
     html('<div class="pn-chan">' + "".join(f'<div><b>{escape(n)}</b><span>{escape(r)}</span></div>' for n, r in cp["offline"])
          + f'<p>{b_hypo()} 채널별 효과는 검증할 가설 · QR 유입(src)으로 측정 · {escape(ads["ad1"]["label"])}</p></div>')
+    kf = '<i>→</i>'.join(f'<span>{escape(x)}</span>' for x in cp["kpi_flow"])
+    html(f'<div class="pn-cflow">{kf}</div>')
     sub("변화 증명 · 공식 자료로 확인한 것만", b_real())
     html(f'<div class="pn-ad3row">{_ad_card(ns, ads["ad3"])}<p><b>광고 3 · 그래서 뭐가 달라졌냐고?</b>'
          '광고는 질문만 던지고, 답은 아래 3개 카드로 한다 · 적용됨과 개선 예정을 나눠 공식 출처를 단다</p></div>')
@@ -665,6 +688,7 @@ def demo_b1(ns: dict) -> None:
 def demo_b2(ns: dict) -> None:
     sq = ns["squad_demo"]
     _lead("B", "복귀 첫 플레이 · D7·D30 재정착", "돌아온 첫날 다시 좌절하지 않게 · 공부가 아니라 친구와 다시 즐길 이유")
+    _pfk(ns, "B2")
     names = [f["name"] for f in sq["friends"]]
 
     def mock() -> None:
@@ -701,6 +725,7 @@ def demo_b2(ns: dict) -> None:
 
 def demo_c(ns: dict) -> None:
     _lead("C", "BM 내부 분석 · 성장형 스킨 구조와 정책 시나리오", "사업PM 내부 분석 도구 · 유저 화면 제안이 아님")
+    _pfk(ns, "C")
     table(["구조", "실제 운영 내용", "판단", "근거"],
           [[f"<b>{escape(a)}</b>", escape(b), escape(c), escape(d)] for a, b, c, d in ns["skin_structure"]], badge_html=b_real())
     note("천장 유사 구조(스크랩 교환·누적 보상)는 이미 있고 이중 가챠는 제거됐다 → 새 구조를 제안하지 않고, 유저 불만이 확인된 '확률·결과'만 관리 대상으로 둔다.")
@@ -802,7 +827,10 @@ def s5(ns: dict, plan: dict) -> None:
          f'<div class="a"><span>신규 D7 잔존율</span><b>{A["base_d7"]:.0f}% → {A["base_d7"] + pa["mde"]:.0f}%</b><small>A1 코칭 · 가정 설계</small></div>'
          f'<div class="b"><span>복귀율</span><b>{R["base_return"]:.1f}% → {R["base_return"] + pr["mde"]:.1f}%</b><small>광고 vs 대조군 · 가정 설계</small></div>'
          '<div class="b"><span>복귀 D30</span><b>대조군 이상</b><small>자연 복귀자와 비교 · 기준값은 측정</small></div>'
-         f'<div class="y"><span>순증 복귀 유저당 비용</span><b>약 {plan["b1_cost"] / add_n / 1e4:,.0f}만 원</b><small>B1 총액 ÷ 대조군 대비 순증 복귀자 · 가정</small></div></div>')
+         f'<div class="y"><span>순증 복귀 유저당 비용</span><b>약 {plan["b1_cost"] / add_n / 1e4:,.0f}만 원</b><small>B1 총액 ÷ 순증 복귀자 약 {add_n:,.0f}명 · 가정</small></div></div>')
+    html(f'<div class="pn-cav2"><b>보조 · 일반 복귀 유저당 비용 약 {plan["b1_cost"] / ret_n / 1e4:,.0f}만 원</b> = B1 총액 {won(plan["b1_cost"])} ÷ 광고 그룹 복귀자 약 {ret_n:,.0f}명 '
+         f'(광고 3그룹 × {pr["n"]:,}명 × {R["base_return"] + pr["mde"]:.1f}%) · 순증 기준은 분모가 대조군 대비 늘어난 복귀자 약 {add_n:,.0f}명 '
+         f'(× {pr["mde"]:.1f}%p) · 옥외광고 유입은 분모에서 빼 보수적으로 계산 · 모두 가정</div>')
     html(f'<div class="pn-abt"><div class="pn-abt-h">{b_mock()} B1 광고 A/B 테스트 · 대조군 포함 4그룹</div>'
          '<table><tr><th>그룹</th><th>광고</th><th>가설</th></tr>' + "".join(
              f'<tr><td><b>{escape(g)}</b></td><td>{escape(ad)}</td><td>{escape(h)}</td></tr>' for g, ad, h in cp["abtest"]) + '</table>'
