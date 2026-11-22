@@ -1233,8 +1233,56 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .pn-bflow b {{ color: #1E3A8A; }} .pn-bflow > i {{ align-self: center; font-style: normal; font-weight: 900; color: #1E3A8A; }}
 .pn-cav2 {{ font-size: 0.82rem; color: #475569; margin: 0 0 0.8rem; }}
 .pn-kpi small.pn-fair {{ margin-top: 0.3rem; color: #1E3A8A; }}
+/* B1 복귀 광고 캠페인 (블루·화이트·네이비 + 옐로 포인트) */
+.pn-art img {{ aspect-ratio: auto !important; object-fit: contain !important; height: auto; margin: 0 auto; }}
+.pn-band .pn-art img {{ border-radius: 10px; }}
+.pn-ad {{ background: #fff; border: 1px solid #DBEAFE; border-radius: 14px; padding: 0.75rem 0.8rem; margin-bottom: 0.7rem; display: flex; flex-direction: column; gap: 0.45rem; }}
+.pn-ad-h {{ display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.5rem; }}
+.pn-ad-h .no {{ background: #FACC15; color: #0B1F3A; font-weight: 900; font-size: 0.78rem; border-radius: 999px; padding: 0.1rem 0.55rem; }}
+.pn-ad-h b {{ font-size: 1.1rem; color: #0B1F3A; }} .pn-ad-h em {{ font-style: normal; font-size: 0.78rem; font-weight: 800; color: #1D4ED8; background: #EFF6FF; border-radius: 999px; padding: 0.08rem 0.5rem; }}
+.pn-ad .pn-photo {{ margin: 0; }} .pn-ad .pn-photo figcaption {{ display: none; }}
+.pn-ad .role {{ font-size: 0.88rem; color: #334155; }}
+.pn-ai {{ align-self: flex-start; font-size: 0.72rem; font-weight: 800; color: #92400E; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 999px; padding: 0.08rem 0.55rem; }}
+.pn-ad2 {{ position: relative; border-radius: 12px; overflow: hidden; background: #1D4ED8; padding: 0.6rem; display: flex; flex-direction: column; gap: 0.45rem; }}
+.pn-ad2 .bubble {{ align-self: flex-start; background: #FACC15; color: #0B1F3A; font-weight: 900; font-size: 1.35rem; border-radius: 16px; padding: 0.35rem 0.9rem; }}
+.pn-ad2 img {{ width: 100%; display: block; border-radius: 8px; }} .pn-ad2 .sub {{ color: #fff; font-weight: 700; font-size: 0.95rem; }}
+.pn-subway {{ background: #CBD5E1; border-radius: 14px; padding: 0.5rem; }}
+.pn-subway-top {{ font-size: 0.72rem; font-weight: 800; color: #334155; margin: 0 0 0.35rem 0.2rem; }}
+.pn-subway-in {{ position: relative; background: #0B1F3A; border: 6px solid #94A3B8; border-radius: 8px; padding: 0.4rem; }}
+.pn-qr {{ position: absolute; right: 0.8rem; bottom: 0.8rem; background: #fff; border-radius: 8px; padding: 0.3rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }}
+.pn-qr svg {{ width: 84px; height: 84px; display: block; }} .pn-qr small {{ font-size: 0.6rem; color: #0B1F3A; line-height: 1.2; display: block; }}
+.pn-chg {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.8rem; }}
+.pn-chg > div {{ background: #fff; border: 1px solid #DBEAFE; border-top: 4px solid #FACC15; border-radius: 12px; padding: 0.7rem 0.85rem; }}
+.pn-chg .h {{ font-size: 1.05rem; font-weight: 800; color: #0B1F3A; margin-bottom: 0.3rem; }}
+.pn-chg ul {{ list-style: none; padding: 0; margin: 0 0 0.4rem; display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.9rem; color: #1E293B; line-height: 1.45; }}
+.pn-chg li a {{ font-size: 0.78rem; }} .pn-chg small {{ display: block; font-size: 0.82rem; color: #475569; border-top: 1px dashed #CBD5E1; padding-top: 0.35rem; }}
+.pn-chg .st {{ display: inline-block; font-size: 0.7rem; font-weight: 800; border-radius: 999px; padding: 0.02rem 0.45rem; margin-right: 0.3rem; }}
+.pn-chg .st.ok {{ background: #DCFCE7; color: #166534; }} .pn-chg .st.plan {{ background: #EFF6FF; color: #1D4ED8; }} .pn-chg .st.past {{ background: #F1F5F9; color: #475569; }}
+.pn-cflow {{ display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; margin: 0.2rem 0 0.6rem; }}
+.pn-cflow span {{ background: #EEF2FF; color: #1E3A8A; font-weight: 800; font-size: 0.88rem; border-radius: 999px; padding: 0.25rem 0.7rem; }}
+.pn-cflow i {{ font-style: normal; color: #1E3A8A; font-weight: 900; }}
+.pn-land {{ display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; margin: 0 0 0.8rem; }}
+.pn-land span {{ font-size: 0.85rem; color: #475569; }}
+a.pn-btn {{ display: inline-block; background: #FACC15; color: #0B1F3A !important; font-weight: 900; text-decoration: none !important; border-radius: 10px; padding: 0.55rem 1rem; }}
+a.pn-btn:hover {{ background: #EAB308; }}
+.pn-abt {{ background: #fff; border: 1px solid #C7D2FE; border-top: 4px solid #1E3A8A; border-radius: 12px; padding: 0.75rem 0.85rem; }}
+.pn-abt-h {{ font-weight: 800; color: #0B1F3A; margin-bottom: 0.4rem; }}
+.pn-abt table {{ width: 100%; border-collapse: collapse; font-size: 0.88rem; }}
+.pn-abt th, .pn-abt td {{ text-align: left; padding: 0.3rem 0.35rem; border-bottom: 1px solid #E2E8F0; vertical-align: top; }}
+.pn-abt th {{ font-size: 0.78rem; color: #475569; }}
+.pn-abt-k {{ margin: 0.5rem 0 0.2rem; font-size: 0.95rem; color: #0B1F3A; }} .pn-abt-k span {{ font-size: 0.75rem; font-weight: 800; color: #1E3A8A; margin-right: 0.4rem; }}
+.pn-abt small, .pn-chk small {{ display: block; font-size: 0.8rem; color: #475569; }}
+.pn-chk {{ margin-top: 0.6rem; background: #F8FAFC; border-left: 4px solid #FACC15; border-radius: 8px; padding: 0.55rem 0.75rem; font-size: 0.9rem; color: #1E293B; }}
+.pn-budget {{ display: flex; gap: 4px; border-radius: 12px; overflow: hidden; margin: 0.2rem 0 0.3rem; }}
+.pn-budget > div {{ background: #1E3A8A; color: #fff; padding: 0.55rem 0.7rem; display: flex; flex-direction: column; min-width: 6rem; }}
+.pn-budget > div:nth-child(2) {{ background: #2563EB; }} .pn-budget > div:nth-child(3) {{ background: #FACC15; color: #0B1F3A; }}
+.pn-budget b {{ font-size: 1.35rem; font-weight: 900; }} .pn-budget span {{ font-size: 0.85rem; font-weight: 700; }} .pn-budget small {{ font-size: 0.78rem; opacity: 0.9; }}
+.pn-final {{ display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem; align-items: center; margin: 0.8rem 0; }}
+.pn-final .pn-art.winner {{ margin: 0; max-width: 340px; }}
+.pn-final .pn-art.winner figcaption b {{ font-size: 0.85rem; }}
 @media (max-width: 900px) {{
-  .pn-arow, .pn-band {{ grid-template-columns: 1fr; }} .pn-band .pn-q {{ font-size: 1.2rem; }}
+  .pn-arow, .pn-band, .pn-chg, .pn-final {{ grid-template-columns: 1fr; }} .pn-band .pn-q {{ font-size: 1.2rem; }}
+  .pn-budget {{ flex-direction: column; }} .pn-qr svg {{ width: 64px; height: 64px; }} .pn-ad2 .bubble {{ font-size: 1.1rem; }}
   .pn-bflow > i {{ display: none; }} .pn-bflow > div, .pn-bflow > div.w {{ flex: 1 1 100%; }}
   .pn-tcards, .pn-two, .pn-day, .pn-kpi {{ grid-template-columns: 1fr; }}
   .pn-photo.strip img {{ height: 170px; }}

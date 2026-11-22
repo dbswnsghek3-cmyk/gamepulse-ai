@@ -131,9 +131,10 @@ def plan(cfg: dict) -> dict:
     n_a = sample_size_two_proportions(a["base_d7"] / 100, (a["base_d7"] + mde) / 100, alpha, power)
     wk_a = math.ceil(2 * n_a / a["weekly"])
     m10_mde = a["participation"] / 100 * a["uplift_m10_viewer"]
-    # B1: 휴면 계정을 캠페인 발송군 / 미발송(홀드아웃) 군으로 무작위 배정 → 30일 내 복귀율(배정 기준) 비교
-    n_r = sample_size_two_proportions(r["base_return"] / 100, (r["base_return"] + r["mde"]) / 100, alpha, power)
-    wk_r = math.ceil(2 * n_r / r["weekly"])
+    # B1: 휴면 계정을 대조군(광고 없음) + 광고 그룹(arms−1개)으로 무작위 배정 → 각 광고 vs 대조군 복귀 로그인율(배정 기준) 비교
+    arms = r.get("arms", 2)
+    n_r = sample_size_two_proportions(r["base_return"] / 100, (r["base_return"] + r["mde"]) / 100, alpha, power)  # 그룹당
+    wk_r = math.ceil(arms * n_r / r["weekly"])
     win = math.ceil(r["window_days"] / 7)
     r0 = r["start_week"]
     sched = {"a_assign": (1, wk_a), "a_d7": wk_a + 1, "a_d30": math.ceil((wk_a * 7 + 30) / 7),
@@ -145,9 +146,9 @@ def plan(cfg: dict) -> dict:
     added = q * mde / 100
     c = cfg["cost"]
     a1_cost = c["A1_effort"] * c["monthly_cost_per_person"]
-    b1_cost = c["B1_effort"] * c["monthly_cost_per_person"] + c.get("B1_reward_budget", 0)
+    b1_cost = c["B1_effort"] * c["monthly_cost_per_person"] + c.get("B1_ad_budget", 0) + c.get("B1_reward_budget", 0)
     return {"A": {"mde": mde, "n": n_a, "assign_weeks": wk_a, "m10_mde": m10_mde},
-            "R": {"mde": r["mde"], "n": n_r, "assign_weeks": wk_r},
+            "R": {"mde": r["mde"], "n": n_r, "assign_weeks": wk_r, "arms": arms},
             "sched": sched, "quarter_added_d7": added, "a1_cost": a1_cost,
             "a1_cost_per_added": a1_cost / added if added else float("nan"),
             "practical_min": a.get("practical_min", mde / 2),

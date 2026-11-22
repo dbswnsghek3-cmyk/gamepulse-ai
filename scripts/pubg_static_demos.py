@@ -1,6 +1,6 @@
 """정적 보고서(GitHub Pages)용 PUBG 페이지 보강 — 서버 없이 브라우저에서 바로 조작.
 
-- 04 탭 A1·A2·B1·C: Streamlit '제안' 칸과 같은 구성(입력 → 결과 카드)을 JavaScript 로 구현한다.
+- 04 탭 A1·A2·B2·C: Streamlit '제안' 칸과 같은 구성(입력 → 결과 카드)을 JavaScript 로 구현한다.
   같은 data/pubg/newstart.json 값을 쓰고, 계산식은 gamepulse/sim/newstart_sim.py 와 같다.
 - export_static.py 가 04 탭의 해당 하위 탭 끝에 덧붙이면, 아래 PAGE_JS 가 각 조작판을 그 하위 탭의 '제안' 칸
   (Streamlit 화면을 옮긴 스냅샷 자리)으로 옮긴다. 조작판은 처음에 hidden 이라 JavaScript 가 없으면
@@ -117,11 +117,11 @@ def demos(root: Path) -> dict[str, str]:
                  f'<small>{escape(f["last"])}</small></label>' for i, f in enumerate(sq["friends"]))
     seg_b = "".join(f'<button type="button" data-k="{i + 1}" aria-pressed="{str(i == 0).lower()}">{i + 1} {escape(s[0])}</button>'
                     for i, s in enumerate(sq["steps"]))
-    b1 = (f'<div class="pg-live nv" data-pg-mount="mock" hidden><div class="seg-l">초대할 친구 (예시 · 친구 목록·초대 링크)</div>'
-          f'<div id="lvS-f">{fr}</div><div class="seg-l">캠페인 단계</div><div class="seg" id="lvS-seg">{seg_b}</div>'
-          f'<div class="pg-demo nv"><h4>RETURN TO BATTLEGROUNDS {B_MOCK} {B_SAMPLE}</h4><div class="pn-prog" id="lvS-p"></div>'
+    b1 = (f'<div class="pg-live nv" data-pg-mount="mock" hidden><div class="seg-l">함께할 친구 (예시 · 친구 목록·초대 링크)</div>'
+          f'<div id="lvS-f">{fr}</div><div class="seg-l">복귀 단계</div><div class="seg" id="lvS-seg">{seg_b}</div>'
+          f'<div class="pg-demo nv"><h4>WELCOME BACK {B_MOCK} {B_SAMPLE}</h4><div class="pn-prog" id="lvS-p"></div>'
           '<div class="act" id="lvS-a"></div><ul class="pn-squad" id="lvS-q"></ul>'
-          '<div class="pn-goal"><span>공동 목표 · 함께 3경기</span><div class="bar"><i id="lvS-bar"></i></div><b id="lvS-g"></b></div>'
+          '<div class="pn-goal"><span>첫날 · 함께 3경기</span><div class="bar"><i id="lvS-bar"></i></div><b id="lvS-g"></b></div>'
           f'<div class="src" id="lvS-n"></div></div>{hint}</div>')
 
     # C BM 내부 분석 (총비용 계산기 · 내부 도구)
@@ -214,5 +214,5 @@ function init(){seg('lvK-seg',function(i){K.i=i;Kr();});seg('lvK-res',function(h
  document.querySelectorAll('details').forEach(function(d){d.addEventListener('toggle',function(){if(d.open)rs();});});}
 if(document.querySelector('.pg-static.js'))init();else document.addEventListener('pg-mounted',init);
 })();</script>"""
-    return {"A1 NEXT MATCH COACH": a1, "A2 FIRST 10 MATCHES": a2, "B1 OLD SQUAD, NEW DROP": b1,
+    return {"A1 NEXT MATCH COACH": a1, "A2 FIRST 10 MATCHES": a2, "B2 복귀 첫 플레이 · D30": b1,
             "C BM 내부 분석": c_top + c_exp + js}

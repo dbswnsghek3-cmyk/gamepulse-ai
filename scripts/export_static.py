@@ -413,7 +413,7 @@ def pubg_body(kind: str) -> tuple[str, int]:
         top = ('<div class="pg-shotlist"><b>디자인 확인용 원본 화면 캡처</b>' + "".join(
             f'<a href="{shots[n]}" target="_blank" rel="noopener">{H.escape(labels[n])}</a>' for n in labels if n in shots) + "</div>")
     note = ('<div class="sx-note">이 페이지는 JavaScript 없이도 01~06 탭 내용을 모두 HTML 글자로 담고 있습니다 '
-            '(JavaScript 가 켜져 있으면 선택한 탭만 표시). 04 탭의 A1·A2·B1·C 데모는 이 페이지에서 직접 조작할 수 있습니다.</div>')
+            '(JavaScript 가 켜져 있으면 선택한 탭만 표시). 04 탭의 A1·A2·B2·C 데모는 이 페이지에서 직접 조작할 수 있고, B1 복귀 랜딩페이지 데모는 별도 페이지로 열립니다.</div>')
     return PAGE_CSS + '<div class="pg-static">' + note + top + body + "</div>" + PAGE_JS, charts
 
 
@@ -586,9 +586,9 @@ def index_html(gen: str) -> str:
              f'{H.escape(rs["cover"]["solution_sub"])}. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 '
              '개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a>',
              '<a class="sx-card feature" href="pubg.html"><div class="k">두 번째 프로젝트 · 실제 자료 기반</div>'
-             '<h3>PUBG · NEW START</h3><p><b>첫 치킨을 맛보기도 전에 떠나는 유저들. 그리고 돌아오지 않는 전우들.</b> — 신규 유저 정착(A 55%) · '
-             '휴면·복귀 유저 재활성화(B 35%) · BM 신뢰·수익성(C 10%). 공식 자료와 Steam 리뷰(신규 45건 · 복귀 21건, 별도 표본)를 근거로 '
-             'A1 경기별 코칭 · B1 옛 스쿼드 재결합 캠페인 데모와 A/B 테스트 설계를 만들었습니다.</p></a>']
+             '<h3>PUBG · NEW START</h3><p><b>첫 치킨을 맛보기도 전에 떠나는 유저들. 그리고 돌아오지 않는 전우들.</b> — 신규 유저 정착(A 50%) · '
+             '휴면 유저 복귀(B 40%) · BM 신뢰·수익성(C 10%). 공식 자료와 Steam 리뷰(신규 45건 · 복귀 21건, 별도 표본)를 근거로 '
+             'A1 경기별 코칭 데모, B1 복귀 광고 캠페인 «PUBG: 다시 낙하할 시간»과 클릭 가능한 랜딩페이지, A/B 테스트 설계를 만들었습니다.</p></a>']
     for pid, f, name, _ in PAGES[2:]:
         one = GAMES[pid].get("one_liner", "") if pid in GAMES else {
             "home": "사이트 전체 소개와 게임별 분석 바로가기", "data_lab": "CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)",
@@ -681,6 +681,9 @@ def main() -> int:
             label = {"real": "실제 자료", "sim": "가정 시뮬레이션", "plan": "기획자 평가", "sample": "예시 데이터"}
             for k, t in ex.kinds:
                 print(f"      [{label[k]}] {t}")
+    from pubg_return_landing import build as build_landing   # B1 복귀 랜딩페이지 데모 (docs/pubg-return.html)
+    written.append(build_landing(ROOT, DOCS))
+    print("  pubg-return.html   B1 복귀 랜딩페이지 데모")
     (DOCS / "index.html").write_text(index_html(gen), encoding="utf-8")
     written.append(DOCS / "index.html")
 
