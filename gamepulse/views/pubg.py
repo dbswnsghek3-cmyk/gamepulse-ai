@@ -198,7 +198,8 @@ def _cover(ns: dict) -> None:
          '<div class="pn-hero-q" role="heading" aria-level="1">왜 떠나고,<br>왜 돌아오지 않을까?</div>'
          '<p class="pn-hero-s">신규 유저 정착 · 휴면 유저 복귀 전략</p></div>' + img_html + '</div>')
     tk = ns["tracks"]
-    bar = "".join(f'<div class="pn-w {t["key"].lower()}" style="flex:{t["weight"]} 1 0"><b>{t["key"]}</b> {t["weight"]}%</div>' for t in tk)
+    short = {"A": "신규 유저 정착", "B": "휴면 유저 복귀", "C": "BM 정책 검토"}
+    bar = "".join(f'<div class="pn-w {t["key"].lower()}" style="flex:{t["weight"]} 1 0"><b>{t["key"]} {t["weight"]}%</b><span>{short[t["key"]]}</span></div>' for t in tk)
     cards = "".join(
         f'<div class="pn-tc {t["key"].lower()}"><div class="pn-tc-k">TRACK {t["key"]} · {escape(t["name"])}</div>'
         f'<b>{escape(t["question"])}</b><small>{" · ".join(escape(s[0] + " " + s[1]) for s in t["solutions"])}</small></div>' for t in tk)
@@ -659,6 +660,7 @@ def demo_b1(ns: dict) -> None:
     ads = {a["key"]: a for a in cp["ads"]}
     html(f'<div class="pn-camp"><div class="t"><span class="pg-tr nv">B1</span><b>{escape(cp["name"])}</b></div><dl>' + "".join(
         f'<div><dt>{escape(k)}</dt><dd>{escape(v)}</dd></div>' for k, v in cp["summary"]) + "</dl></div>")
+    _pfk(ns, "B1")
     html(_poster_mocks(ns))
     html('<div class="pn-chan">' + "".join(f'<div><b>{escape(n)}</b><span>{escape(r)}</span></div>' for n, r in cp["offline"])
          + f'<p>{b_hypo()} 채널별 효과는 검증할 가설 · QR 유입(src)으로 측정 · {escape(ads["ad1"]["label"])}</p></div>')
@@ -923,6 +925,7 @@ def s6(ns: dict, plan: dict) -> None:
     sub("핵심 위험", b_interp())
     table(["위험", "대응"], [[escape(r["risk"]), escape(r["response"])] for r in ns["risks"]])
     cp = ns["campaign"]
+    html('<div class="pn-cflow">' + '<i>→</i>'.join(f'<span>{escape(x)}</span>' for x in cp["kpi_flow"]) + '</div>')
     assert cp["budget"] == ad and sum(w for _, _, w in cp["channels"]) == 100   # 채널 배분 합 = 광고비
     sub(f"B1 광고·콘텐츠 파일럿 {won(ad)} · 채널 배분 (가정)", b_sim())
     html('<div class="pn-budget">' + "".join(

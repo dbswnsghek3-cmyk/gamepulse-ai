@@ -1390,6 +1390,16 @@ a.pn-btn:hover {{ background: #EAB308; }}
   .owx-k4 {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .owx-k4 b {{ font-size: 1.15rem; }}
 }}
 
+/* 최종 가독성: 작은 글씨 확대 (두 게임 공통 ow- 카드) · 게임별 포인트 색은 그대로 */
+.ow-chart-b {{ font-size: 0.9rem !important; color: #334155 !important; }} .ow-chart-u {{ font-size: 0.88rem !important; }}
+.ow-kpi-l {{ font-size: 0.88rem !important; }} .ow-alt-n, .ow-alt-c {{ font-size: 0.9rem !important; }}
+.ow-quote-m {{ font-size: 0.88rem !important; }} .ow-quote-o {{ font-size: 0.92rem !important; }} .ow-tile-s {{ font-size: 0.9rem !important; }}
+.ow-map-s small {{ font-size: 0.92rem !important; }} .ow-tl-b {{ font-size: 0.95rem !important; }}
+.owx-k4 p {{ margin: 0.3rem 0 0; font-size: 0.9rem; color: #1E293B; border-top: 1px dashed #CBD5E1; padding-top: 0.3rem; }} .owx-k4 p b {{ color: #1D4ED8; font-size: inherit; font-weight: 800; line-height: inherit; }}
+.pn-w {{ display: flex; flex-direction: column; line-height: 1.25; padding: 0.4rem 0.7rem !important; }}
+.pn-w b {{ font-size: 1.05rem; font-weight: 900; }} .pn-w span {{ font-size: 0.82rem; font-weight: 700; opacity: 0.95; }}
+@media (max-width: 900px) {{ .pn-w span {{ font-size: 0.7rem; }} .pn-w b {{ font-size: 0.9rem; }} }}
+
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
 /* 모바일 */

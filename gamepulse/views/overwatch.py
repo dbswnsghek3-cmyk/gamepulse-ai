@@ -525,12 +525,13 @@ def _s1_summary(rs: dict, ops: pd.DataFrame, statuses: dict, plan: dict, heroes:
     ret_learning = sum(bool(set(opinion_codes(r)) & LEARNING_CODES) for _, r in ret.iterrows())
     all_learning = sum(bool(set(opinion_codes(r)) & LEARNING_CODES) for _, r in v.iterrows())
     # 상단 카드(문제 → 해결)와 겹치는 문제 정의·결론 박스는 두지 않는다. 해결안 3개 → 의사결정 → 화면 → 근거 순서
-    sub("막히는 지점 3곳 → 해결안 3가지", b_mock())
     core = sorted([x for x in rs["strategies"] if x["core"]], key=lambda x: x.get("phase", ""))
-    html('<div class="ow-map">' + "".join(
-        f'<div class="ow-map-i"><div class="ow-map-p"><span>문제</span>{escape(x["problem"])}</div><div class="ow-map-a">→</div>'
-        f'<div class="ow-map-s"><span>{x["key"]} · {escape(x.get("phase", ""))}</span><b>{escape(x["name"])}</b>'
-        f'<small>{escape(x["tagline"])}</small></div></div>' for x in core) + "</div>")
+    html(f'<div class="owx-int"><b>결론: 영웅 선택과 밸런스는 그대로 두고, 놓친 변경점(A) → 학습 순서(C) → 상대 대응(B) 순으로 정보만 보완한다.</b> {b_mock()}</div>')
+    with st.expander("자세히 보기 · 막히는 지점 3곳 → 해결안 3가지"):
+        html('<div class="ow-map">' + "".join(
+            f'<div class="ow-map-i"><div class="ow-map-p"><span>문제</span>{escape(x["problem"])}</div><div class="ow-map-a">→</div>'
+            f'<div class="ow-map-s"><span>{x["key"]} · {escape(x.get("phase", ""))}</span><b>{escape(x["name"])}</b>'
+            f'<small>{escape(x["tagline"])}</small></div></div>' for x in core) + "</div>")
 
     sub("PM 의사결정 요약")
     html(_decision_cards(rs, plan, sum(1 for h in heroes["heroes"] if h.get("new_2026"))))
@@ -582,7 +583,8 @@ def _s2_evidence(rs: dict, kp: dict, steam: pd.DataFrame, pc: pd.DataFrame, ops:
              f'<div><b>{int(cc.get(k, 0))}건</b><span><b>{escape(k)}</b> · {escape(d)}</span></div>' for k, d in top3)
          + f'</div><div class="opp"><span>반대 의견</span><b>{int(cc.get("긍정적인 학습 경험", 0))}건</b><small>긍정적인 학습 경험</small></div></div>'
          f'<div class="owx-int">{b_interp()} <b>핵심은 영웅 수가 아니라, 바뀐 것을 실전에서 따라잡을 방법이 없다는 점</b>으로 해석한다 · '
-         '자발적 게시글이라 전체 이용자 비율이 아니다</div>')
+         '자발적 게시글이라 전체 이용자 비율이 아니다<br>'
+         f'{b_hypo()} <b>학습 부담 → 반복 패배 → 첫 주 이탈 위험</b> · 검증 전 가설이며 05의 A/B 테스트로 확인한다</div>')
     _opinion_chart(v)                       # 핵심 차트 1 · 실제 자료
     c1, c2 = st.columns(2, gap="medium")
     with c1:
@@ -894,13 +896,7 @@ def _phases(plan: dict) -> str:
 
 
 def _s4_experience(rs: dict, ops: pd.DataFrame, heroes: dict, tl: pd.DataFrame, statuses: dict, plan: dict) -> None:
-    head("A 먼저, C·B는 단계적으로", "영웅·밸런스·매칭은 바꾸지 않는다.", b_mock())
-    html(_spec_cards(rs))
-    with st.expander("자세히 보기 · 흐름·핵심 KPI·구현 난이도 · 출시 순서"):
-        _spec_detail(rs)
-        html(_phases(plan))
-        st.caption("하나씩 출시해 효과를 따로 측정한다.")
-
+    head("A 먼저, C·B는 단계적으로", "영웅·밸런스·매칭은 바꾸지 않는다 · 먼저 직접 눌러 본다", b_mock())
     sub("직접 눌러 보기 · 왼쪽 실제 화면 vs 오른쪽 시안")
     t = st.tabs(["A 복귀 브리핑", "B 전투 학습 카드", "C 첫 10경기 미션", "전략 상세·우선순위"])
     with t[0]:
@@ -911,6 +907,12 @@ def _s4_experience(rs: dict, ops: pd.DataFrame, heroes: dict, tl: pd.DataFrame, 
         _proto_c(statuses)
     with t[3]:
         _strategy_detail(rs, ops, plan)
+    sub("개선안 3개 · 문제 → 해결 → 기대 효과", b_mock())
+    html(_spec_cards(rs))
+    with st.expander("자세히 보기 · 흐름·핵심 KPI·구현 난이도 · 출시 순서"):
+        _spec_detail(rs)
+        html(_phases(plan))
+        st.caption("하나씩 출시해 효과를 따로 측정한다.")
 
 
 LAST_ACCESS = {"2026년 1월 (시즌 1 이전)": "2026-01-31", "2026년 7월": "2026-07-31", "2026년 9월": "2026-09-30"}
@@ -1179,10 +1181,10 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
     early0 = 100 - fn0["first"] * fn0["m3"] / 100                                     # 첫 3경기 전 이탈 (신규 · 가정)
     early1 = 100 - fn0["first"] * (fn0["m3"] + p_new0 / 100 * fn0["up3"]) / 100
     html('<div class="owx-k4">'
-         f'<div><span>복귀 D7</span><b>{r["base"]["D7"]:.0f}% → <em>{r["base"]["D7"] + r["mde"]["D7"]:.0f}%</em></b><small>A 복귀 브리핑 · 목표 +{r["mde"]["D7"]:.1f}%p (가정)</small></div>'
-         f'<div><span>첫 10경기 완료율</span><b>{m10["base"]:.1f}% → <em>{m10["new"]:.1f}%</em></b><small>C 첫 10경기 미션 · 가정</small></div>'
-         f'<div><span>초반 이탈률 (3경기 전)</span><b>{early0:.1f}% → <em>{early1:.1f}%</em></b><small>신규 · 퍼널 가정값</small></div>'
-         f'<div><span>대조군 대비 개선</span><b><em>+{r["mde"]["D7"]:.1f}%p</em> 이상</b><small>95% 신뢰구간 하한 &gt; 0 일 때만 확대</small></div></div>')
+         f'<div><span>복귀 D7</span><b>{r["base"]["D7"]:.0f}% → <em>{r["base"]["D7"] + r["mde"]["D7"]:.0f}%</em></b><small>목표·가정 · +{r["mde"]["D7"]:.1f}%p</small><p>→ <b>A 확대 여부</b> 결정</p></div>'
+         f'<div><span>첫 10경기 완료율</span><b>{m10["base"]:.1f}% → <em>{m10["new"]:.1f}%</em></b><small>가정 · C 미션 선행 신호</small><p>→ <b>C 미션 수정·확대</b> 판단</p></div>'
+         f'<div><span>초반 이탈률 (3경기 전)</span><b>{early0:.1f}% → <em>{early1:.1f}%</em></b><small>신규 · 퍼널 가정값</small><p>→ <b>1~3경기 미션 단계</b> 점검</p></div>'
+         f'<div><span>대조군 대비 개선</span><b><em>+{r["mde"]["D7"]:.1f}%p</em> 이상</b><small>95% 신뢰구간 하한 &gt; 0</small><p>→ <b>확대·조건부·중단</b> 판정</p></div></div>')
     note("실험은 기능 1개씩: 실험 1 A 복귀 브리핑(복귀 D7) → 실험 2 C 첫 10경기 미션(신규 D7) → 실험 3 B 사용성 · 상세는 아래 펼쳐보기")
     tgt = {"MDE": lambda k: (f"+{r['mde']['D7']:.1f}%p (기준 {r['base']['D7']:.0f}% 가정)" if "복귀" in k["name"]
                              else f"+{nw['mde']['D7']:.1f}%p (기준 {nw['base']['D7']:.0f}% 가정)"),
@@ -1474,6 +1476,8 @@ def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
              f"D(보류) {eff['D']}인월 · {cost['D'] / 1e4:,.0f}만 원은 합계 제외", ""]]
     table(["개선안", "공수", "개발·운영 비용", "기대 효과 (가정)", "추가 1명당"], rows)
     st.caption(f"비용 = 공수 × 1인 월 {mc / 1e4:,.0f}만 원 (가정) · 기대 효과 = 분기 유입 × MDE (가정) · 실제 측정 전이라 ROI·매출 증가로 단정하지 않는다")
+    html(f'<div class="owx-int"><b>먼저 검증할 것: A 복귀 브리핑</b> — 공수가 가장 작고({eff["A"]}인월) 추가 1명당 비용도 가장 낮다(약 {cost["A"] / add["A"]:,.0f}원, 가정). '
+         'C는 A 결과 후, B는 수동형 사용성 검증부터.</div>')
     sub("확대 · 수정 · 중단 기준", b_mock())
     table(["결과", "기준"], [[f"<b>{escape(d['result'])}</b>", escape(d["rule"])] for d in rs["decision_rules"]])
 
