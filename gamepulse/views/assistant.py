@@ -27,10 +27,10 @@ COMMON = "4개 게임 공통 KPI 비교"
 
 def _show(content: str, expanded: bool) -> None:
     content = content.replace("~", "\\~")  # '1~2' 가 취소선으로 바뀌는 것 방지
-    head, sep, rest = content.partition("\n\n**근거**")
+    head, sep, rest = content.partition("\n\n**문제와 근거**")
     st.markdown(head)
     if sep:
-        with st.expander("근거 · 개선 전략 · KPI · 출처", expanded=expanded):
+        with st.expander("문제와 근거 · 사업PM 개선 전략 · 핵심 KPI · 관련 페이지", expanded=expanded):
             st.markdown(sep.strip() + rest)
 
 
@@ -41,9 +41,9 @@ def _ask(q: str, game: str | None) -> None:
 
 def render() -> None:
     hero("Portfolio Search Assistant", "사업PM 어시스턴트",
-         "오버워치 · PUBG · FC 온라인 · 던파 분석 자료를 검색해 문제 정의 → 근거 → 개선 전략 → KPI → 출처 순서로 답합니다.")
+         "오버워치 · PUBG · FC 온라인 · 던파 분석 자료를 검색해 핵심 결론 → 문제와 근거 → 사업PM 개선 전략 → 핵심 KPI → 관련 페이지 순서로 답합니다.")
     notice(f"**포트폴리오 기반 검색형 PM 어시스턴트**{'' if current_provider() == 'rule' else ' (LLM 설정됨)'} · 생성형 AI API는 연결되어 있지 않습니다 · "
-           "사이트의 분석 자료 원문만 보여 주며, 자료에 없으면 '현재 분석 자료에서 확인되지 않습니다'라고 답합니다.")
+           "사이트의 분석 자료 원문만 보여 주며, 자료에 없으면 '현재 분석 자료에서 확인되지 않습니다', 어느 게임인지 애매하면 확인을 요청합니다.")
     if "chat" not in st.session_state:
         st.session_state.chat = []
 

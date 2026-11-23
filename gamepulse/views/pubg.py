@@ -312,7 +312,7 @@ def s2(ns: dict, ops: pd.DataFrame, ret: pd.DataFrame, steam: pd.DataFrame, pool
         _review_chart(a, pool)
     with c2:
         html(photo("season_stats", "작성자 신규 계정 · 14경기 평균 60.3위 · 초심 IV (n=1 사례 · 일반화하지 않음)"))
-    html(_quotes(_pick(ops, ["A01", "A11", "A17"]), {"A01": "실력 격차", "A11": "봇 → 실전 전환", "A17": "반복 패배"}))
+    html(_quotes(_pick(ops, ["A01", "A11"]), {"A01": "실력 격차", "A11": "봇 → 실전 전환"}))   # 대표 2건 · 나머지는 아래 전체 표
 
     sub("TRACK B · 휴면·복귀 유저", tr("B"))
     c1, c2 = st.columns([1.35, 1], gap="medium")
@@ -326,7 +326,7 @@ def s2(ns: dict, ops: pd.DataFrame, ret: pd.DataFrame, steam: pd.DataFrame, pool
              f'<div><span>공식 도용 피해 기준 {b_real()}</span><b>반기 1회</b><small>2차 비밀번호 계정의 도용 피해 정지 해제 (2026-06-25 개발자 노트)</small></div>'
              '<p><b>핵에 대한 불신은 복귀 장벽 중 하나다.</b> 유저 주장과 공식 통계는 섞지 않고, '
              '공식 대응의 신뢰성과 실제 플레이 경험을 함께 검증한다.</p></div>')
-    html(_quotes(_pick(ret, ["R02", "R16", "R05"]), {"R02": "계정 도용·정지", "R16": "친구와 복귀 → 핵", "R05": "PC방의 추억"}))
+    html(_quotes(_pick(ret, ["R02", "R16"]), {"R02": "계정 도용·정지", "R16": "친구와 복귀 → 핵"}))   # 대표 2건 · 나머지는 아래 전체 표
     note("리뷰는 직접 고른 사례이며 전체 이용자 여론 비율이 아니다.")
 
     with st.expander(f"자세히 보기 · 의견 6분류 · 신규·BM 리뷰 {len(ops)}건 · 복귀 리뷰 {len(ret)}건 · 게임 화면 {len(SCREENS)}장 · 공식 자료 {len(ns['official'])}건 · 자료 한계"):

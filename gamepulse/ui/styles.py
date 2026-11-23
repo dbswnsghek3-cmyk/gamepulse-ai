@@ -1758,6 +1758,14 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .df-chain p {{ margin: 0; font-size: 0.93rem; line-height: 1.6; color: #1d2b3f; }}
 .df-chain small {{ display: inline-block; font-size: 0.75rem; color: #6b778c; margin-left: 0.3rem; }}
 @media (max-width: 640px) {{ .df-chain li {{ grid-template-columns: 1fr; gap: 0.15rem; }} }}
+/* 던파 첫 화면 핵심 3줄 */
+.df-points {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; max-width: 1100px; margin: -0.3rem auto 1.1rem; }}
+.df-points > div {{ background: #fff; border: 1px solid {C['line']}; border-left: 5px solid #b3261e; border-radius: 10px; padding: 0.6rem 0.8rem; }}
+.df-points > div:last-child {{ border-left-color: #1f5fbf; background: #f4f7fd; }}
+.df-points span {{ display: block; font-size: 0.75rem; font-weight: 800; color: #b3261e; }}
+.df-points > div:last-child span {{ color: #1f5fbf; }}
+.df-points b {{ font-size: 0.98rem; color: {C['navy']}; line-height: 1.45; }}
+@media (max-width: 640px) {{ .df-points {{ grid-template-columns: 1fr; }} }}
 </style>
 """
 

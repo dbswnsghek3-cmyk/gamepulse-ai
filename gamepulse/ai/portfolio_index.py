@@ -28,9 +28,9 @@ TAB_NAMES = {
     "dnf": {"01": "문제 정의", "02": "유저 의견·한계", "03": "원인", "04": "개선안", "05": "시뮬레이터·KPI", "06": "로드맵·판단"},
 }
 GAME_ALIASES = {
-    "overwatch": ["오버워치", "옵치", "overwatch", "ow"],
+    "overwatch": ["오버워치", "옵치", "overwatch", "ow2", "ow"],
     "pubg": ["배그", "배틀그라운드", "pubg", "펍지", "new start"],
-    "fconline": ["fc", "피파", "fc온라인", "fconline", "fc 온라인"],
+    "fconline": ["fc온라인", "fc 온라인", "fconline", "피파", "fc"],
     "dnf": ["던파", "던전앤파이터", "dnf", "던전"],
 }
 # 질문 의도 → 우선 볼 항목 종류
@@ -39,11 +39,13 @@ INTENTS = {
     "cause": ["원인", "가설", "왜"],
     "strategy": ["전략", "개선", "해결", "제안", "방안", "기획", "아이디어"],
     "evidence": ["근거", "의견", "댓글", "유저", "리뷰", "목소리", "한계", "출처"],
-    "plan": ["예산", "비용", "로드맵", "일정", "리스크", "위험", "판단", "우선순위", "실행", "결론"],
-    "problem": ["문제", "불만", "요약", "핵심", "개요", "정리"],
+    "plan": ["예산", "비용", "로드맵", "일정", "리스크", "판단", "우선순위", "실행", "결론"],
+    "problem": ["문제", "불만", "요약", "핵심", "개요", "정리", "이탈", "적응"],
     "priority": ["우선", "먼저", "가장", "1순위", "첫 번째"],
 }
-SYN = {"힘들": ["어려"], "어렵": ["어려"], "광고비": ["예산"], "돈": ["비용"], "짜증": ["불만"], "접": ["이탈"], "떠나": ["이탈"]}
+SYN = {"힘들": ["어려"], "어렵": ["어려"], "광고비": ["예산"], "돈": ["비용"], "짜증": ["불만"], "접": ["이탈"], "떠나": ["이탈"],
+       "접는": ["떠나", "이탈"], "랜덤": ["확률", "운에"], "늘려": ["확대", "전액"], "늘리": ["확대", "전액"], "대응": ["재건", "분석"],
+       "떨어": ["하락"], "적응": ["어려"], "잔존율": ["d7", "잔존"]}
 TAB_OF_KIND = {"problem": "01", "evidence": "02", "cause": "03", "strategy": "04", "kpi": "05", "plan": "06", "priority": "06"}
 STOP = {"알려줘", "알려", "정리해줘", "뭐야", "무엇", "어떻게", "있어", "대해", "관련", "주세요", "은", "는", "이", "가", "의", "좀"}
 
@@ -122,6 +124,12 @@ def _pubg() -> list[Entry]:
     out.append(Entry("pubg", "cause", "휴면 유저 복귀 장벽 (가설)", "복귀를 막는 장벽 4가지",
                      [f"{b['title']}: {b['line']}" for b in d["return_barriers"]],
                      [b.get("pm", "") for b in d["return_barriers"]], [], "03"))
+    ta = next(t for t in d["tracks"] if t["key"] == "A")
+    pa = [x for x in d["proposals"] if x["track"] == "A"]
+    out.append(Entry("pubg", "cause", "신규 유저가 첫 실전 직후 떠나는 이유 (가설)", f"{ta['question']} — {ta['sub']}",
+                     [f"{x['key']}: {x['problem']}" for x in pa],
+                     [f"{x['key']} {x['name'].split(' · ')[0]}: {x['diff']}" for x in pa],
+                     [k[0] for k in d["kpis"]["A"][:3]], "03", "신규 이탈 접는 빨리 떠나 첫 경기 실력 격차 숙련"))
     camp = d["campaign"]
     for p in d["proposals"]:
         ads = [f"광고 {a['no']}: {a['title']}" for a in camp["ads"]] if p["key"] == "B1" else []
@@ -133,7 +141,7 @@ def _pubg() -> list[Entry]:
     dig_w = next(w for n, _, w in camp["channels"] if "디지털" in n)
     dig = camp["budget"] * dig_w / 100
     land = cost["B1_effort"] * cost["monthly_cost_per_person"]
-    man = lambda v: f"{v / 1e4:,.0f}만 원"  # noqa: E731
+    man = lambda v: (f"{v / 1e8:g}억 원" if v >= 1e8 and v % 1e8 == 0 else f"{v / 1e4:,.0f}만 원")  # noqa: E731
     out.append(Entry("pubg", "plan", "B1 광고 예산: 1억 원 전액 대신 디지털 파일럿",
                      "PUBG의 ARPU·LTV를 공개 자료로 확인하지 못해 광고 1억 원의 수익성을 판단할 수 없다 → 전액 집행 보류",
                      [f"기존 제안: 광고 {man(camp['budget'])} (디지털 {dig_w}% · 옥외 · 콘텐츠) + 랜딩 제작 {cost['B1_effort']:g}인월 (가정)",
@@ -200,6 +208,14 @@ def _dnf() -> list[Entry]:
         out.append(Entry("dnf", "strategy", f"{s['k']}. {_clean(s['name'])}", _clean(s["p"]), ops or [f"문제 {s['k']}: {prob.get(s['k'], '')}"],
                          [_clean(s["c"])], [_clean(s.get("v", "")) or next((k[1] for k in d["kpis"] if k[0] == s["k"]), "")], "04",
                          _clean(s.get("r", "")) + " " + prob.get(s["k"], "")))
+    off = {o["src"]: o for o in d["official"]}
+    guide = next((o for o in d["official"] if "1484" in o["url"]), None)
+    pb = next(x for x in d["problems"] if x[0] == "B")
+    out.append(Entry("dnf", "cause", "랜덤 보상이 성취감 문제가 되는 이유 (가설)", pb[2],
+                     ([f"공식 구조: {guide['fact']}"] if guide else [])
+                     + [f"유저 의견 {o['no']} {o['theme']}: “{o['quotes'][0][0]}”" for o in d.get("key_opinions", []) if o["no"] in ("②", "③")],
+                     ["확률 보상의 재미는 유지하고, 운이 나쁜 클리어도 쌓이게 → B 불운 진척 게이지 (04 탭)"],
+                     [k[1] for k in d.get("kpi_main", [])][:3], "03", "랜덤 확률 운 왜 문제 성취감 노력"))
     out.append(Entry("dnf", "strategy", "기존 보장 장치와 B 불운 진척 게이지의 차이",
                      "기존 장치는 평균을 올리거나 별도 재료가 필요 · '이번 클리어의 운 나쁜 결과'를 쌓아 주는 장치는 확인되지 않음",
                      [f"{a}: {b} → 한계: {c}" for a, b, c in d["existing"]],
@@ -261,9 +277,15 @@ def build_index() -> tuple[Entry, ...]:
     return tuple(entries)
 
 
+def _alias_hit(ql: str, a: str) -> bool:
+    if re.fullmatch(r"[a-z0-9 ]+", a):      # 영문 별칭은 단어 단위 (예: 'how' 안의 'ow' 는 무시)
+        return re.search(rf"(?<![a-z]){re.escape(a)}(?![a-z])", ql) is not None
+    return a in ql
+
+
 def detect_games(q: str) -> list[str]:
     ql = q.lower()
-    return [g for g, al in GAME_ALIASES.items() if any(a in ql for a in al)]
+    return [g for g, al in GAME_ALIASES.items() if any(_alias_hit(ql, a) for a in al)]
 
 
 def detect_kinds(q: str) -> list[str]:
@@ -275,7 +297,8 @@ def _terms(q: str) -> list[str]:
     ql = q.lower()
     for al in GAME_ALIASES.values():
         for a in sorted(al, key=len, reverse=True):
-            ql = ql.replace(a, " ")
+            if _alias_hit(ql, a):
+                ql = re.sub(rf"(?<![a-z]){re.escape(a)}(?![a-z])", " ", ql) if re.fullmatch(r"[a-z0-9 ]+", a) else ql.replace(a, " ")
     toks = re.findall(r"[0-9a-z가-힣/]+", ql)
     corpus = " ".join(e.text for e in build_index())
     out = []
@@ -283,8 +306,12 @@ def _terms(q: str) -> list[str]:
         if t.startswith("운") and len(t) <= 4:          # '운이라·운에' → 확률·불운 (한 글자 단어 보완)
             out += ["확률", "불운"]
         t = re.sub(r"(은|는|이|가|을|를|의|에|로|으로|와|과|도|만|에서|해줘|알려줘|줘)$", "", t)
-        while len(t) > 2 and t not in corpus:          # '복귀하면 → 복귀' 처럼 어미를 줄여 가며 자료에 있는 형태 찾기
-            t = t[:-1]
+        if re.fullmatch(r"[a-z0-9/]+", t):
+            if t not in corpus:                         # 영문은 자르지 않음 · 자료에 없는 단어는 버림
+                continue
+        else:
+            while len(t) > 2 and t not in corpus:      # '복귀하면 → 복귀' 처럼 어미를 줄여 가며 자료에 있는 형태 찾기
+                t = t[:-1]
         if len(t) >= 2 and t not in STOP:
             out += [t] + SYN.get(t, [])
     return list(dict.fromkeys(out))
@@ -318,22 +345,39 @@ def search(q: str, game: str | None = None, k: int = 3) -> list[tuple[float, Ent
 
 
 def answer_md(q: str, game: str | None = None, datalab: dict | None = None) -> str:
-    """검색 결과를 '핵심 요약 → 근거 → 실행 전략 → KPI → 출처' 마크다운으로 만든다 (원문 그대로)."""
+    """검색 결과를 '핵심 결론 → 문제와 근거 → 사업PM 개선 전략 → 핵심 KPI → 관련 페이지' 마크다운으로 (원문 그대로)."""
     if not game and not detect_games(q) and any(w in q for w in ("공통", "전체", "모든 게임", "비교", "4개", "네 게임", "4 게임", "각 게임")):
         return _cross_md(q)
     hits = search(q, game)
+    if hits and not game and not detect_games(q):
+        top_s = hits[0][0]
+        gs = list(dict.fromkeys(e.game for sc, e in hits if sc >= top_s - 1))
+        if len(gs) > 1:
+            cands = " · ".join(f"[{NAMES[g]}](?page={g})" for g in gs)
+            return (f"**어느 게임에 대한 질문인지 확인이 필요합니다.** 비슷하게 맞는 자료가 여러 게임에 있습니다: {cands}\n\n"
+                    "질문에 게임 이름(오버워치·배그·FC·던파)을 넣거나 위에서 게임을 선택해 주세요. 4개 게임을 비교하려면 '4개 게임 공통 …'으로 물어보세요.")
     if not hits:
         return f"**{NOT_FOUND}**\n\n질문에 게임 이름(오버워치·배그·FC·던파)과 알고 싶은 항목(문제·근거·전략·KPI·예산)을 함께 넣어 보세요."
     top = hits[0][1]
     label, href = top.links()
-    parts = [f"#### {NAMES[top.game]} · {top.title}", f"**핵심 요약** — {top.problem}"]
-    parts.append("**근거**\n" + "\n".join(f"- {x}" for x in top.evidence[:3]))
+    if top.kind == "strategy" and re.match(r"^[A-D]\d?(-\d)?\. ", top.title):
+        concl = f"{top.summary} → **{top.title}**"
+    elif top.kind == "strategy":
+        concl = top.summary
+    elif top.kind == "problem":
+        concl = top.problem
+    elif top.kind == "kpi":
+        concl = "핵심 KPI: " + " · ".join(top.kpi[:3]) + " (목표·가정)"
+    else:
+        concl = top.summary
+    parts = [f"#### {NAMES[top.game]} · {top.title}", f"**핵심 결론** — {concl}"]
+    parts.append("**문제와 근거**\n" + "\n".join(f"- {x}" for x in top.evidence[:3]))
     strat = top.strategy[:3] or [top.summary]
-    parts.append("**실행 전략**\n" + "\n".join(f"- {x}" for x in strat))
+    parts.append("**사업PM 개선 전략**\n" + "\n".join(f"- {x}" for x in strat))
     if top.kpi:
-        parts.append("**KPI**\n" + "\n".join(f"- {x}" for x in top.kpi[:4]))
-    src = [f"- 분석 페이지: [{label}]({href}) · [정적 페이지]({top.static_url()})"] + [f"- [{t}]({u})" for t, u in top.sources[:3]]
-    parts.append("**출처**\n" + "\n".join(src))
+        parts.append("**핵심 KPI** (목표·가정 · 실측 아님)\n" + "\n".join(f"- {x}" for x in top.kpi[:4]))
+    src = [f"- 분석 페이지: [{label}]({href}) · [정적 페이지]({top.static_url()})"] + [f"- 출처: [{t}]({u})" for t, u in top.sources[:3]]
+    parts.append("**관련 분석 페이지 · 출처**\n" + "\n".join(src))
     if len(hits) > 1:
         parts.append("관련 항목: " + " · ".join(f"[{e.title}]({e.links()[1]})" for _, e in hits[1:]))
     parts.append("_포트폴리오 기반 검색형 답변 · 분석 자료 원문을 그대로 보여 주며 새로운 사실을 만들지 않습니다._")
@@ -349,12 +393,15 @@ def _cross_md(q: str) -> str:
     parts = [f"#### 4개 게임 비교 · {' · '.join(ko.get(k, k) for k in kinds)}"]
     for g in NAMES:
         same = [(0, e) for e in build_index() if e.game == g and e.kind == kinds[0]][:1]
-        hits = same if kinds[0] == "priority" else (search(q, g, k=1) or same)
+        hits = same if kinds[0] in ("priority", "problem") else (search(q, g, k=1) or same)
         if not hits:
             parts.append(f"- **{NAMES[g]}** — {NOT_FOUND}")
             continue
         e = hits[0][1]
-        if e.kind == "priority":
+        if e.kind == "problem":
+            pk = next((x.kpi for x in build_index() if x.game == g and x.kind == "priority"), e.kpi)
+            first = e.strategy[:2] + ([f"KPI: {' · '.join(pk[:3])} (목표·가정)"] if pk else [])
+        elif e.kind == "priority":
             first = e.strategy[:1] + [f"이유: {x}" for x in e.evidence[:1]] + ([f"KPI: {' · '.join(e.kpi[:3])}"] if e.kpi else [])
         else:
             first = (e.kpi or e.strategy or e.evidence or [""])[:3]

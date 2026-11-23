@@ -35,8 +35,8 @@ function sim(N,p,M,K,neu){var r=rng(20261123),P=2000,E=(1-p)+p*M,A=[],BH=[],BG=[
  var SA=st(A),totA=sum(A),base=N*P,sb=1,sc=1;
  if(neu){var hs=sum(BH),gs=sum(BG),cs=sum(CH);if(hs)sb=Math.max(0,(totA-base-gs*(E-1))/(hs*(M-1)));if(cs)sc=Math.max(0,(totA-base)/(cs*(M-1)));}
  var B=BH.map(function(h,k){return N+h*(M-1)*sb+BG[k]*(E-1);}),C=CH.map(function(h){return N+h*(M-1)*sc;});
- var SB=st(B),SC=st(C);function z(v){return Math.abs(v)<0.05?0:v;}
- return {A:SA,B:SB,C:SC,sb:z((SB.mean/SA.mean-1)*100),sc:z((SC.mean/SA.mean-1)*100),jb:1+(M-1)*sb,jc:1+(M-1)*sc,M:M};}
+ var SB=st(B),SC=st(C),g=SA.mean;function z(v){return Math.abs(v)<0.05?0:v;}function rc(x){return x.filter(function(v){return v>=g-1e-9;}).length/P*100;}
+ return {A:SA,B:SB,C:SC,sb:z((SB.mean/SA.mean-1)*100),sc:z((SC.mean/SA.mean-1)*100),jb:1+(M-1)*sb,jc:1+(M-1)*sc,M:M,ra:rc(A),rb:rc(B),rc:rc(C)};}
 function f(x){return x.toLocaleString('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1});}
 function cell(a,v,low){var d=v-a,c=(low?d<0:d>0)?'up':(Math.abs(d)>1e-9?'dn':'');return '<td class="'+c+'"><b>'+f(v)+'</b> <small>('+(d>=0?'+':'')+f(d)+')</small></td>';}
 function row(n,a,b,c,low){return '<tr><td>'+n+'</td><td>'+f(a)+'</td>'+cell(a,b,low)+cell(a,c,low)+'</tr>';}
@@ -52,7 +52,7 @@ function D(){var N=+$('dn').value,p=+$('dp').value/100,M=+$('dm').value,K=+$('dk
  var r=sim(N,p,M,K,neu),A=r.A,B=r.B,C=r.C;
  $('dout').innerHTML='<div class="fc-demo"><h4>현행 vs B 불운 진척 게이지 (제안) vs 천장 (비교) """ + B_SIM.replace("'", "\\'") + """</h4><div class="fc-cmp"><table>'+
   '<tr><th>지표 (이용자 2,000명 · 가정)</th><th>현행</th><th>B 불운 진척 게이지</th><th>천장 (비교)</th></tr>'+
-  row('하위 10% 누적 보상',A.p10,B.p10,C.p10)+row('최저 누적 보상',A.min,B.min,C.min)+row('평균 총보상',A.mean,B.mean,C.mean)+row('보상 편차 (표준편차)',A.sd,B.sd,C.sd,true)+
+  row('하위 10% 누적 보상',A.p10,B.p10,C.p10)+row('최저 누적 보상',A.min,B.min,C.min)+row('평균 총보상',A.mean,B.mean,C.mean)+row('보상 편차 (표준편차)',A.sd,B.sd,C.sd,true)+row('현행 평균 이상 도달 비율 (%)',r.ra,r.rb,r.rc)+
   '<tr><td>보상 재화 공급량 변화</td><td>—</td><td>'+sup(r.sb)+'</td><td>'+sup(r.sc)+'</td></tr>'+
   '<tr><td>고배율 보상 크기 (×)</td><td>'+M+'</td><td><b>'+r.jb.toFixed(1)+'</b></td><td><b>'+r.jc.toFixed(1)+'</b></td></tr></table></div>'+
   '<div class="fc-act">'+ins(r)+'</div>'+

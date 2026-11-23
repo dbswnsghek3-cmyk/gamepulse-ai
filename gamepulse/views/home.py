@@ -91,7 +91,7 @@ def render() -> None:
 
     section("사업PM 어시스턴트", "4개 게임 분석 내용을 질문으로 빠르게 찾습니다.")
     grid([card("포트폴리오 기반 검색형 PM 어시스턴트",
-               "게임별 자주 묻는 질문을 누르거나 직접 질문하면 핵심 요약 → 근거 → 실행 전략 → KPI → 출처 순서로 답합니다.",
+               "게임별 자주 묻는 질문을 누르거나 직접 질문하면 핵심 결론 → 문제와 근거 → 사업PM 개선 전략 → 핵심 KPI → 관련 페이지 순서로 답합니다.",
                meta="생성형 AI API 미연결 · 사이트 분석 자료 원문만 검색 · 자료에 없으면 '현재 분석 자료에서 확인되지 않습니다'")])
     st.button("사업PM 어시스턴트 열기 →", key="go_assistant", on_click=_go, args=("assistant",), use_container_width=True)
 

@@ -114,6 +114,7 @@ def fig(im: dict, cls: str = "") -> None:
 def s1(d: dict) -> None:
     it = d["intro"]
     fig(d["hero_img"], "hero")
+    html('<div class="df-points">' + "".join(f'<div><span>{escape(k)}</span><b>{escape(v)}</b></div>' for k, v in d["cover"]["points"]) + "</div>")
     html(f'<div class="fc-intro dnf"><b>던전앤파이터란?</b><p>{escape(it["line"])}</p></div>')
     html('<div class="fc-evs">' + "".join(
         f'<div class="fc-ev off"><span class="t">{escape(k)} · 공식·보도</span><b>{escape(v)}</b><small>{link(u, s + " ↗")}</small></div>'
@@ -184,6 +185,9 @@ def s3(d: dict) -> None:
 
 def s4(d: dict) -> None:
     head("개선안: 확률은 그대로, 성장과 기대는 쌓이게", "기존 공식 장치와 겹치지 않는 부분만 (기획 시안)", b_mock())
+    sub("기존 장치 → 남는 문제 → 추가 제안 → 효과·부작용", b_interp())
+    table(["현재 게임의 장치 (공식)", "현재 장치로 남는 문제", "GamePulse AI 추가 제안", "기대 효과 / 부작용·대응"],
+          [[f"<b>{escape(a)}</b>", escape(b), f"<b>{escape(c)}</b>", escape(e)] for a, b, c, e in d["gap"]])
     html('<div class="fc-sols">' + "".join(sol_card(x, x["k"].lower()) for x in d["solutions"][:2]) + "</div>")
     html('<div class="fc-sols one">' + sol_card(d["solutions"][2], "c") + "</div>")
     sub("B 불운 진척 게이지 · 화면 시안", b_mock())
@@ -191,6 +195,8 @@ def s4(d: dict) -> None:
          '<h5>상급 던전 클리어 결과</h5><div class="res"><span>이번 보상: 기대 배율 미만</span><b>진척 게이지 +1</b></div>'
          '<div class="bar"><i></i></div><div class="cap"><span>불운 진척도 7 / 10</span><span>10칸이 차면 다음 보상 = 기대 배율 하한 보장</span></div>'
          '<div class="note">확률·고배율은 그대로 · 연속 실패가 아니어도 쌓임 · 교환 불가 · 주간 상한 · 수치는 예시</div></div>')
+    sub("검토한 대안과 판단", b_interp())
+    table(["판단", "대안", "이유"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["alternatives"]])
     with st.expander("자세히 보기 · 기존 공식 장치와 중복 확인"):
         fig(d["convert_img"], "sm")
         table(["기존 장치", "하는 일", "B 불운 진척 게이지와의 차이"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["existing"]], badge_html=b_real())
@@ -214,6 +220,7 @@ def sim_html(r: dict, note: str) -> str:
             '<tr><th>지표 (이용자 2,000명 · 가정)</th><th>현행</th><th>B 불운 진척 게이지</th><th>천장 (비교)</th></tr>'
             + row("하위 10% 누적 보상", A["p10"], B["p10"], C["p10"]) + row("최저 누적 보상", A["min"], B["min"], C["min"])
             + row("평균 총보상", A["mean"], B["mean"], C["mean"]) + row("보상 편차 (표준편차)", A["sd"], B["sd"], C["sd"], True)
+            + row("현행 평균 이상 도달 비율 (%)", r["reach_a"], r["reach_b"], r["reach_c"])
             + f'<tr><td>보상 재화 공급량 변화</td><td>—</td><td>{sup(r["supply_b"])}</td><td>{sup(r["supply_c"])}</td></tr>'
             + f'<tr><td>고배율 보상 크기 (×)</td><td>{r["mult"]:g}</td><td><b>{r["jack_b"]:.1f}</b></td><td><b>{r["jack_c"]:.1f}</b></td></tr>'
             + '</table></div>'
@@ -238,6 +245,7 @@ def s5(d: dict) -> None:
     head("시뮬레이터·KPI: 운이 나쁜 구간이 얼마나 줄어드는지 본다", "모든 수치는 가정 · 실제 던파 확률이 아님", b_mock())
     sub("대표 KPI 4개", b_mock())
     html('<div class="df-kpi">' + "".join(f'<div><span>{escape(t)}</span><b>{escape(n)}</b><small>{escape(x)}</small></div>' for t, n, x in d["kpi_main"]) + "</div>")
+    html('<div class="fc-cav">' + " · ".join(escape(x) for x in d["experiment"] if x.startswith(("성공", "롤백"))) + " (기준값은 제안 · 파일럿 전 합의)</div>")
     sub("B 불운 진척 게이지 시뮬레이션 · 천장 방식과 비교", b_sim())
     c1, c2 = st.columns([1, 1.6], gap="medium")
     with c1:
