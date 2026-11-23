@@ -1252,6 +1252,13 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .pn-b1 span {{ font-size: 0.85rem; font-weight: 900; color: #1E3A8A; }} .pn-b1 b {{ font-size: 1.08rem; color: #0B1F3A; line-height: 1.45; }} .pn-b1 small {{ font-size: 0.9rem; color: #334155; }}
 .pn-b1h {{ font-size: 1.08rem; font-weight: 900; color: #0B1F3A; margin: 0.9rem 0 0.35rem; }}
 .pn-b1k {{ font-size: 1rem; color: #1E293B; margin: 0.4rem 0 0.6rem; }}
+.pn-biz {{ background: #FFFBEB; border: 1px solid #FDE68A; border-left: 5px solid #CA8A04; border-radius: 12px; padding: 0.6rem 0.9rem; margin: 0.2rem 0 0.5rem; }}
+.pn-biz p {{ margin: 0; font-size: 0.98rem; line-height: 1.6; color: #1E293B; }}
+.pn-journey {{ display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin: 0.2rem 0 0.3rem; }}
+.pn-journey > i {{ font-style: normal; color: #64748B; }}
+.pn-journey span {{ display: flex; flex-direction: column; border-radius: 10px; padding: 0.35rem 0.6rem; border: 1px solid #CBD5E1; background: #fff; }}
+.pn-journey span.real {{ border-color: #86EFAC; background: #F0FDF4; }} .pn-journey span.mock {{ border-style: dashed; }}
+.pn-journey b {{ font-size: 0.95rem; color: #0B1F3A; }} .pn-journey small {{ font-size: 0.78rem; color: #475569; }}
 .fc-gal[data-gal^="pgad"] .fc-gal-s img {{ max-height: 80vh; }}
 .pn-peakhero {{ grid-template-columns: 1fr !important; background-image: linear-gradient(90deg, rgba(8,20,45,0.92) 0%, rgba(8,20,45,0.78) 55%, rgba(8,20,45,0.35) 100%), var(--bg) !important;
   background-size: cover !important; background-position: center !important; min-height: 330px; }}

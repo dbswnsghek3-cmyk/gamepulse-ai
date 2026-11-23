@@ -204,30 +204,3 @@ def dnf_attempts_until_drop(p: float, pity: int | None, n: int = 20000) -> np.nd
     if pity:
         x = np.minimum(x, pity)
     return x
-
-
-def lol_mode_share() -> pd.DataFrame:
-    levels = ["1 (낮음)", "2", "3", "4", "5 (높음)"]
-    data = {
-        "솔로랭크": [62, 54, 43, 31, 19],
-        "칼바람 나락": [18, 23, 29, 34, 33],
-        "기타 일반 모드": [14, 15, 17, 18, 18],
-        "미접속(이탈 위험)": [6, 8, 11, 17, 30],
-    }
-    rows = []
-    for mode, vals in data.items():
-        for lv, v in zip(levels, vals):
-            rows.append({"fatigue": lv, "mode": mode, "share": v})
-    return pd.DataFrame(rows)
-
-
-def lol_reentry_curve(effects: dict[str, float]) -> pd.DataFrame:
-    """피해 경험 후 14일 누적 솔로랭크 재참여율: 대조군 vs 회복 프로그램 (시뮬레이션)."""
-    days = np.arange(0, 15)
-    base_max, k = 55.0, 0.28
-    boost = sum(effects.values())
-    rows = []
-    for d in days:
-        rows.append({"day": d, "group": "현재(대조군)", "rate": round(base_max * (1 - np.exp(-k * d)), 1)})
-        rows.append({"day": d, "group": "회복 프로그램 적용", "rate": round(min(base_max + boost, 95) * (1 - np.exp(-(k + boost / 100) * d)), 1)})
-    return pd.DataFrame(rows)

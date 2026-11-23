@@ -22,10 +22,10 @@ class Column:
 
 COMMENT_SCHEMA: list[Column] = [
     Column("comment_id", True, "str", "댓글 고유 ID (중복 불가)", "c_000123"),
-    Column("game_id", True, "str", "게임 ID 또는 게임 이름 (overwatch / pubg / fconline / dnf / lol, '오버워치' 등 한글명도 허용)", "lol"),
+    Column("game_id", True, "str", "게임 ID 또는 게임 이름 (overwatch / pubg / fconline / dnf, '오버워치' 등 한글명도 허용)", "overwatch"),
     Column("source", True, "str", "수집 출처 (커뮤니티, 앱 리뷰, SNS, 설문 등)", "커뮤니티"),
     Column("posted_at", True, "date", "작성 일시 (YYYY-MM-DD 또는 YYYY-MM-DD HH:MM)", "2026-10-01"),
-    Column("text", True, "str", "댓글 본문", "연패 오니까 솔랭은 너무 스트레스라 칼바람만 해요"),
+    Column("text", True, "str", "댓글 본문", "처음 시작했는데 영웅이 너무 많아서 뭘 해야 할지 모르겠어요"),
     Column("rating", False, "float", "별점 등 수치 평가 (1~5, 없으면 비움)", "2"),
     Column("user_segment", False, "str", "이용자 구분 (신규 / 기존 / 복귀 등, 알 수 있을 때만)", "기존"),
     Column("category", False, "str", "사람이 직접 붙인 불만 유형 라벨 (있으면 분류기 결과와 비교 가능)", "연패 스트레스·경쟁 피로"),

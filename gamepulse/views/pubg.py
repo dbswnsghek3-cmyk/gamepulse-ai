@@ -192,6 +192,15 @@ def _pick(df: pd.DataFrame, ids: list[str]) -> pd.DataFrame:
 
 # ----------------------------------------------------------------------
 # 첫 화면 (탭 위에 항상 표시)
+def _tier(t: dict) -> str:
+    """핵심 전략 2개(A1·B1)를 앞세우고 나머지는 후속·보조로 표시."""
+    sol = t["solutions"]
+    if t["key"] == "C":
+        return "보조 · " + " · ".join(escape(s[0] + " " + s[1]) for s in sol)
+    rest = " · ".join(escape(s[0]) for s in sol[1:])
+    return f'<b>핵심 {escape(sol[0][0] + " " + sol[0][1])}</b>' + (f" · 후속 {rest}" if rest else "")
+
+
 def _cover(ns: dict) -> None:
     cv = ns["cover"]
     logo, drop = ASSETS / "brand" / "pubg_logo.png", ASSETS / "drop.png"
@@ -211,7 +220,7 @@ def _cover(ns: dict) -> None:
     bar = "".join(f'<div class="pn-w {t["key"].lower()}" style="flex:{t["weight"]} 1 0"><b>{t["key"]} {t["weight"]}%</b><span>{short[t["key"]]}</span></div>' for t in tk)
     cards = "".join(
         f'<div class="pn-tc {t["key"].lower()}"><div class="pn-tc-k">TRACK {t["key"]} · {escape(t["name"])}</div>'
-        f'<b>{escape(t["question"])}</b><small>{" · ".join(escape(s[0] + " " + s[1]) for s in t["solutions"])}</small></div>' for t in tk)
+        f'<b>{escape(t["question"])}</b><small>{_tier(t)}</small></div>' for t in tk)
     html(f'<div class="pn-weights" aria-label="포트폴리오 비중">{bar}</div><div class="pn-tcards">{cards}</div>')
 
 
@@ -661,7 +670,7 @@ def ad_gallery(ns: dict, key: str = "pgad") -> str:
             mime = "png" if path.suffix == ".png" else "jpeg"
             media = (f'<img src="data:image/{mime};base64,{_png_b64(str(path), path.stat().st_mtime)}" '
                      f'alt="광고 {ad["no"]} 시안: {escape(ad["copy"])}" loading="lazy">')
-        slides.append((media, f'광고 {ad["no"]} · {ad["copy"]}', f'{ad["msg"]} · {ad["label"]}'))
+        slides.append((media, f'광고 {ad["no"]} · {ad["copy"]}', f'{ad["msg"]} · {ad["label"]} · 포트폴리오용 가상 캠페인 (KRAFTON 실제 광고 아님)'))
     return gallery_html(key, slides)
 
 
@@ -699,7 +708,11 @@ def demo_b1(ns: dict) -> None:
     html('<div class="pn-b1h">⑤ 광고 노출 채널</div>')
     html('<div class="pn-chan">' + "".join(f'<div><b>{escape(n)}</b><span>{escape(r)}</span></div>' for n, r in cp["offline"])
          + f'<p>{b_hypo()} 채널별 효과는 검증할 가설 · QR 유입(src)으로 측정</p></div>')
-    html('<div class="pn-b1h">⑥ 복귀 후 게임 안에서 — 광고 3의 답 «그래서 뭐가 달라졌냐고?»</div>')
+    html('<div class="pn-b1h">⑥ 복귀 이후 여정 — 단계마다 이탈을 측정</div>')
+    steps = [("광고", "시안"), ("랜딩 · 달라진 점", "시안"), ("게임 로그인", "실재"), ("첫 매치", "실재"), ("친구와 스쿼드 3경기", "B2 제안"), ("D7 재방문", "측정")]
+    html('<div class="pn-journey">' + '<i>→</i>'.join(f'<span class="{"real" if k == "실재" else "mock"}"><b>{escape(n)}</b><small>{k}</small></span>' for n, k in steps)
+         + '</div><div class="pn-cav2">측정: 노출→랜딩(UTM) · 랜딩→로그인 · 로그인→첫 매치 완료 · 3경기 완료 · D7·D30 — 어느 단계에서 빠지는지 보고 고칠 곳을 정한다</div>')
+    html('<div class="pn-b1h">광고 3의 답 «그래서 뭐가 달라졌냐고?» · 공식 자료로 확인한 변경만</div>')
     html(_changes(cp))
     html(f'<div class="pn-land"><a class="pn-btn" href="{escape(cp["landing"], quote=True)}?src=portfolio" target="_blank" rel="noopener">'
          '복귀 랜딩페이지 데모 열기 →</a><span>클릭 가능한 HTML 데모 · 실제 게임·결제와 연결되지 않음 · 복귀 첫날 경험은 B2 탭</span></div>')
@@ -868,7 +881,25 @@ def s5(ns: dict, plan: dict) -> None:
     html(f'<div class="pn-abt"><div class="pn-abt-h">{b_mock()} B1 광고 A/B 테스트 · 대조군 포함 4그룹</div>'
          '<table><tr><th>그룹</th><th>광고</th><th>가설</th></tr>' + "".join(
              f'<tr><td><b>{escape(g)}</b></td><td>{escape(ad)}</td><td>{escape(h)}</td></tr>' for g, ad, h in cp["abtest"]) + '</table>'
-         '<div class="pn-abt-k"><span>비교</span><b>복귀 전환율</b> + <b>복귀 D30</b></div></div>')
+         '<div class="pn-abt-k"><span>비교</span><b>복귀 전환율</b> + <b>복귀 D30</b> · 배정된 전원 기준(ITT) 비교 · 클릭한 사람만 비교하지 않음 · CTR은 보조</div></div>')
+    dig = cp["budget"] * next(w for n, _, w in cp["channels"] if "디지털" in n) / 100
+    land = ex["cost"]["B1_effort"] * ex["cost"]["monthly_cost_per_person"]
+    pilot = dig + land
+    full_u, pilot_u = plan["b1_cost"] / add_n, pilot / add_n
+    sub("B1 사업성 판단 · 결론: 전액 집행 보류 → 디지털 소규모 파일럿", b_sim())
+    html(f'<div class="pn-biz"><p><b>손익분기 조건</b> 순증 복귀자 1명이 남은 기간 동안 내는 기대 매출이 <b>약 {full_u / 1e4:,.0f}만 원 이상</b>이어야 전액 집행이 정당화된다. '
+         'PUBG의 ARPU·LTV는 공개 자료로 확인하지 못해 <b>수익성은 판단 불가</b> → 1억 원 전액 집행은 보류한다.</p></div>')
+    table(["안", "비용", "순증 측정", "순증 복귀 유저당", "판단"],
+          [["<b>전액</b> (디지털·옥외·콘텐츠 + 제작)", won(plan["b1_cost"]), "디지털만 무작위 · 옥외는 측정 불가", f"약 {full_u / 1e4:,.0f}만 원", "보류 (수익성 미확인)"],
+           [f"<b>디지털 파일럿</b> (리타깃팅 {won(dig)} + 랜딩·UTM {won(land)})", won(pilot), "4그룹 무작위 · 그대로 측정", f"약 {pilot_u / 1e4:,.0f}만 원", "<b>권고</b> · 소재별 성과 확인 후 확대"],
+           ["<b>소재 조기 중단</b>", "파일럿 안에서", "2주 차 중간 점검", "—", "대조군과 차이 없는 소재 중단 → 남은 예산을 상위 소재로"],
+           ["<b>옥외(지하철·정류장·PC방)</b>", f"{won(plan['b1_cost'] - pilot)}", "QR 유입만 참고", "—", "파일럿에서 순증·D30이 확인된 뒤 검토"]],
+          badge_html=b_sim())
+    table(["복귀 후 D30 잔존 (가정)", "20%", "30%", "40%"],
+          [["재정착 유저당 비용 · 전액", *[f"약 {full_u / r / 1e4:,.0f}만 원" for r in (0.2, 0.3, 0.4)]],
+           ["재정착 유저당 비용 · 파일럿", *[f"약 {pilot_u / r / 1e4:,.0f}만 원" for r in (0.2, 0.3, 0.4)]]])
+    st.caption(f"재정착 유저당 비용 = 순증 복귀 유저당 비용 ÷ 복귀 후 D30 잔존율 · 순증 복귀자 약 {add_n:,.0f}명은 같은 실험 설계(광고 3그룹 × {pr['n']:,}명 × +{pr['mde']:.1f}%p) · "
+               "D30 20·30·40%는 민감도 확인용 가정 · 광고 목표는 클릭·로그인이 아니라 재정착(D30)")
     note("C는 실험 없이 구매 전환율·ARPPU·구매 만족도를 내부 시나리오·설문으로 본다.")
 
     with st.expander("자세히 보기 · 가정 시뮬레이션 · 판정 기준 · 비용 계산"):

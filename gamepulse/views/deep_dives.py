@@ -162,37 +162,4 @@ def dnf():
 
 
 # ----------------------------------------------------------------------
-def lol():
-    section("경쟁 피로도 단계별 모드 이용 비중", "가설 H1: 피로도가 높을수록 솔로랭크 비중↓, 칼바람·미접속 비중↑", sample_badge())
-    df = sample.lol_mode_share()
-    fig = px.bar(df, x="fatigue", y="share", color="mode",
-                 labels={"fatigue": "경쟁 피로도 단계(예시 지수)", "share": "다음 2주 이용 비중(%)", "mode": ""},
-                 color_discrete_sequence=[C["navy"], C["blue"], C["sky"], "#C9D3E3"])
-    fig.update_layout(barmode="stack")
-    _plot(style(fig, "피로도 단계별 다음 2주 모드 이용 비중 (예시 데이터)", height=420))
-    notice("관점: 칼바람 비중 증가를 '이탈'로만 보지 않고, **이탈(미접속)로 가기 전 머무는 회복 구간**으로 볼 수 있는지가 핵심 검증 포인트입니다 (가설 H2).")
-
-    section("피해 이용자 회복 프로그램 시뮬레이션", "피해 경기 이후 14일간 솔로랭크 재참여율 (North Star)", sample_badge())
-    c1, c2, c3 = st.columns(3)
-    effects = {}
-    if c1.checkbox("신고 결과 피드백", True, key="lol_fb"):
-        effects["feedback"] = c1.slider("효과 가정(%p)", 0, 10, 4, key="lol_fb_v")
-    if c2.checkbox("휴식 넛지 + 칼바람 회복 루트", True, key="lol_nudge"):
-        effects["nudge"] = c2.slider("효과 가정(%p)", 0, 10, 3, key="lol_nudge_v")
-    if c3.checkbox("솔로랭크 복귀 미션", False, key="lol_mission"):
-        effects["mission"] = c3.slider("효과 가정(%p)", 0, 10, 3, key="lol_mission_v")
-
-    curve = sample.lol_reentry_curve(effects)
-    fig2 = px.line(curve, x="day", y="rate", color="group", markers=True,
-                   labels={"day": "피해 경기 후 경과일", "rate": "누적 솔로랭크 재참여율(%)", "group": ""},
-                   color_discrete_sequence=[C["sky"], C["blue"]])
-    _plot(style(fig2, "누적 솔로랭크 재참여율: 대조군 vs 회복 프로그램 (예시 시뮬레이션)"))
-    d14 = curve[curve["day"] == 14].set_index("group")["rate"]
-    m1, m2 = st.columns(2)
-    m1.metric("14일 재참여율(대조군·예시)", f"{d14['현재(대조군)']:.1f}%")
-    m2.metric("14일 재참여율(프로그램·시뮬레이션)", f"{d14['회복 프로그램 적용']:.1f}%",
-              f"{d14['회복 프로그램 적용'] - d14['현재(대조군)']:+.1f}%p")
-    st.caption("실제 효과는 A/B 테스트로 측정해야 하며, 동시에 '전체 게임 이탈률'과 '칼바람 만족도'를 가드레일로 확인합니다.")
-
-
-DEEP_DIVES = {"overwatch": overwatch, "pubg": pubg, "fconline": fconline, "dnf": dnf, "lol": lol}
+DEEP_DIVES = {"overwatch": overwatch, "pubg": pubg, "fconline": fconline, "dnf": dnf}

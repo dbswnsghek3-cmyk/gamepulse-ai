@@ -39,7 +39,10 @@ def demos(root: Path) -> str:
     a1 = ('<div class="fc-live" data-k="a1" hidden><div class="ctl">'
           f'<label>시장 전체 하락률 (% · 가정) <b id="amkv"></b><input type="range" id="amk" min="0" max="80" value="{ad["market"]}"></label>{sl}'
           f'<label>보유 BP (억 · 가정)<input type="number" id="ahold" value="{ad["hold"]}" min="0" step="0.1"></label>'
-          f'<label>판매 수수료율 (% · 가정) <b id="afeev"></b><input type="range" id="afee" min="0" max="60" value="{ad["fee"]}"></label></div>'
+          f'<label>판매 수수료율 (% · 가정) <b id="afeev"></b><input type="range" id="afee" min="0" max="60" value="{ad["fee"]}"></label>'
+          '<div class="seg" id="asw"><span style="font-size:.9rem;color:#1E293B;font-weight:700">A-2 · 교체할 선수 (기본값 = 추천)</span>'
+          + "".join(f'<label style="flex-direction:row;align-items:center;gap:.3rem"><input type="checkbox" id="as{i}">{escape(nm)}</label>' for i, (nm, _, _) in enumerate(ad["players"]))
+          + '<button type="button" id="asr">추천으로 되돌리기</button></div></div>'
           f'<div id="aout"></div>{hint}</div>')
     c5 = ('<div class="fc-live" data-k="c5" hidden><div class="ctl"><div class="seg" id="c5p">'
           '<button type="button" data-k="c1" aria-pressed="true">C-1 · 대각선·연속 입력 성공률</button>'
@@ -57,22 +60,27 @@ function bp(x){x=Math.round(x);var s=x<0?'−':'';x=Math.abs(x);var jo=Math.floo
  var p=[];if(jo)p.push(jo.toLocaleString('ko-KR')+'조');if(eok)p.push(eok.toLocaleString('ko-KR')+'억');if(man)p.push(man.toLocaleString('ko-KR')+'만');return s+(p.join(' ')||x.toLocaleString('ko-KR'))+' BP';}
 function e8(v){return bp(v*1e8);}
 function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var touched=false;
 function A(){var mk=+$('amk').value/100,hold=Math.max(0,+$('ahold').value||0),fee=+$('afee').value/100;$('amkv').textContent=$('amk').value+'%';$('afeev').textContent=$('afee').value+'%';
  var rows=[],pk=0,nw=0,mt=0,ot=0;PL.forEach(function(p,i){var dr=+$('ap'+i).value/100;$('ap'+i+'v').textContent=$('ap'+i).value+'%';
-  var peak=p[1],now=peak*(1-dr),loss=Math.max(0,peak-now),m=Math.min(loss,peak*mk),o=loss-m;rows.push({i:i,peak:peak,now:now,loss:loss,m:m,o:o,sw:o>m});pk+=peak;nw+=now;mt+=m;ot+=o;});
- var lt=mt+ot,sw=rows.filter(function(r){return r.sw;}),sale=sw.reduce(function(a,r){return a+r.now;},0)*(1-fee),bud=hold+sale,tg=sw.reduce(function(a,r){return a+r.peak;},0),gap=Math.max(0,tg-bud);
- var drop=pk>0?lt/pk:0,rec=drop<1?drop/(1-drop)*100:Infinity,cov=tg>0?bud/tg*100:100,mx=Math.max.apply(null,rows.map(function(r){return r.loss;}))||1;
- var bars=rows.map(function(r){var sh=lt>0?r.loss/lt*100:0;return '<div class="bar"><span>'+esc(PL[r.i][0])+'</span><div class="t"><i class="mk" style="width:'+(r.m/mx*100).toFixed(1)+'%"></i><i class="own" style="width:'+(r.o/mx*100).toFixed(1)+'%"></i></div><em class="'+(r.sw?'sw':'')+'">'+sh.toFixed(0)+'% · '+(r.sw?'교체 검토':'유지')+'</em></div>';}).join('');
- $('aout').innerHTML='<div class="fc-demo"><h4>구단 가치 분석·재건 """ + B_SIM.replace("'", "\\'") + """</h4><div class="fc-m">'+
+  var peak=p[1],now=peak*(1-dr),loss=Math.max(0,peak-now),m=Math.min(loss,peak*mk),o=loss-m,rec=o>m;
+  if(!touched)$('as'+i).checked=rec; var sw=$('as'+i).checked,sale=sw?now*(1-fee):0,repl=sw?peak*(1-mk):0;
+  rows.push({i:i,peak:peak,now:now,loss:loss,m:m,o:o,rec:rec,sw:sw,sale:sale,repl:repl,after:sw?repl:now});pk+=peak;nw+=now;mt+=m;ot+=o;});
+ var lt=mt+ot,swr=rows.filter(function(r){return r.sw;}),sale=swr.reduce(function(a,r){return a+r.sale;},0),cost=swr.reduce(function(a,r){return a+r.repl;},0),
+  net=cost-sale,left=hold-net,gap=Math.max(0,-left),after=rows.reduce(function(a,r){return a+r.after;},0),nrec=rows.filter(function(r){return r.rec;}).length;
+ var drop=pk>0?lt/pk:0,rec=drop<1?drop/(1-drop)*100:Infinity,mx=Math.max.apply(null,rows.map(function(r){return r.loss;}))||1;
+ var bars=rows.map(function(r){var sh=lt>0?r.loss/lt*100:0;return '<div class="bar"><span>'+esc(PL[r.i][0])+'</span><div class="t"><i class="mk" style="width:'+(r.m/mx*100).toFixed(1)+'%"></i><i class="own" style="width:'+(r.o/mx*100).toFixed(1)+'%"></i></div><em class="'+(r.sw?'sw':'')+'">'+sh.toFixed(0)+'% · '+(r.sw?'교체':'유지')+(r.rec?' (추천)':'')+'</em></div>';}).join('');
+ var res=left>=0?('남은 BP '+e8(left)):('<span class="dn">부족 '+e8(gap)+'</span>');
+ $('aout').innerHTML='<div class="fc-demo"><h4>구단 가치 분석·재건 <span class="gp-badge k-sim">가정 시뮬레이션</span></h4><div class="fc-m">'+
   '<div><small>구단 가치</small><b>'+e8(nw)+'</b><em class="dn">−'+(drop*100).toFixed(0)+'% · 고점 '+e8(pk)+'</em></div>'+
-  '<div><small>시장 요인 · 개별 요인</small><b>'+(lt?mt/lt*100:0).toFixed(0)+'% · '+(lt?ot/lt*100:0).toFixed(0)+'%</b><em>하락분 구성</em></div>'+
+  '<div><small>A-1 · 시장 요인 · 개별 요인</small><b>'+(lt?mt/lt*100:0).toFixed(0)+'% · '+(lt?ot/lt*100:0).toFixed(0)+'%</b><em>하락분 구성</em></div>'+
   '<div><small>고점 회복에 필요한 상승</small><b class="up">+'+rec.toFixed(0)+'%</b><em>시세 회복은 보장 불가</em></div></div>'+
   '<div class="fc-bars"><div class="lg"><i class="mk"></i>시장 요인 <i class="own"></i>개별 요인 · 막대 = 선수별 하락액</div>'+bars+'</div>'+
-  '<div class="fc-m two"><div><small>① 현재 스쿼드 유지</small><b>'+e8(nw)+'</b><em>지출 0 · 경기력 그대로</em></div>'+
-  '<div><small>② 교체 검토 '+sw.length+'명 재편</small><b>예산 '+e8(bud)+'</b><em>보유 BP + 판매 수익 · 고점의 '+cov.toFixed(0)+'%</em></div></div>'+
-  '<ol class="fc-path"><li><b>진단</b> 개별 하락 '+sw.length+'명 · 시장 하락 '+(rows.length-sw.length)+'명</li><li><b>유지</b> 시장과 함께 내린 선수</li>'+
-  '<li><b>재편</b> 교체 검토 선수 판매 → 재편 예산 '+e8(bud)+'</li><li><b>이벤트 연계</b> 남은 목표 '+e8(gap)+' → 이벤트·패스 보상 목표 (BP 지급 아님)</li></ol>'+
-  '<div class="src">가상 선수 · 모든 값은 가정 · 실제 시세·수수료 아님</div></div>';}
+  '<div class="fc-m two"><div><small>A-2 · ① 전원 유지</small><b>'+e8(nw)+'</b><em>지출 0 · 경기력 그대로</em></div>'+
+  '<div><small>A-2 · ② 선택안 (교체 '+swr.length+'명)</small><b>'+e8(after)+'</b><em>순비용 '+e8(net)+' · '+res+'</em></div></div>'+
+  '<ol class="fc-path"><li><b>진단</b> 개별 하락이 큰 선수 '+nrec+'명 (추천 교체)</li><li><b>유지</b> 시장과 함께 내린 선수 · 능력치 그대로</li>'+
+  '<li><b>교체</b> 판매 수익 '+e8(sale)+' → 대체 비용 '+e8(cost)+'</li><li><b>이벤트 연계</b> '+(gap>0?'부족분 '+e8(gap)+' → 진행 중 이벤트·패스 보상으로 채울 단계 목표':'보유 BP 안에서 가능 · 추가 목표 없음')+' (BP 지급 아님)</li></ol>'+
+  '<div class="src">가상 선수 5명 · 모든 값은 가정 · 실제 시세·수수료가 아님 · 대체 비용 = 고점 × (1 − 시장 하락률) 가정</div></div>';}
 var EXP={c1:['입력 성공률',78,86],c2:['방향 일치율',84,88]},ex='c1',VER={
  '확대':'격차가 목표만큼 줄고 패드·매칭 지표 악화 없음 → 적용 범위 확대',
  '수정':'격차는 줄었지만 목표(30%) 미달 → 판정 조건 수정 후 재실험',
@@ -91,6 +99,7 @@ function C(){var kb=+$('c5k').value,pd=+$('c5pd').value,up=+$('c5u').value,pc=+$
 function mount(){document.querySelectorAll('.fc-live').forEach(function(el){var a=document.querySelector('.fc-anchor[data-k="'+el.dataset.k+'"]');
   var row=a&&a.closest('.sx-row');if(row){row.replaceWith(el);el.hidden=false;}});
  ['amk','ahold','afee'].concat(PL.map(function(_,i){return 'ap'+i;})).forEach(function(i){$(i).addEventListener('input',A);});
+ PL.forEach(function(_,i){$('as'+i).addEventListener('change',function(){touched=true;A();});}); $('asr').addEventListener('click',function(){touched=false;A();});
  ['c5k','c5pd','c5u','c5c','c5q'].forEach(function(i){$(i).addEventListener('input',C);});
  $('c5p').querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){$('c5p').querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed','false');});
   b.setAttribute('aria-pressed','true');ex=b.dataset.k;$('c5k').value=EXP[ex][1];$('c5pd').value=EXP[ex][2];C();});});

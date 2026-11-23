@@ -24,27 +24,38 @@ def recover_pct(drop: float) -> float:
     return drop / (1 - drop) * 100 if drop < 1 else float("inf")
 
 
-def rebuild(players: list[tuple[float, float]], market_drop: float, hold: float, fee: float) -> dict:
-    """players = [(고점, 현재)] · market_drop·fee 0~1 · hold = 보유 BP (같은 단위)."""
+def rebuild(players: list[tuple[float, float]], market_drop: float, hold: float, fee: float,
+            swaps: list[bool] | None = None) -> dict:
+    """players = [(고점, 현재)] · market_drop·fee 0~1 · hold = 보유 BP (같은 단위).
+    swaps = 선수별 교체 선택 (None 이면 추천값 = 개별 요인 > 시장 요인).
+    교체 시: 판매 수익 = 현재가 × (1 − 수수료) · 대체 선수 비용 = 고점 × (1 − 시장 하락률)
+            (= 시장과 같이만 내린 같은 급 선수의 현재가로 가정) · 순비용 = 대체 비용 − 판매 수익"""
     rows, peak_t, now_t, mk_t, own_t = [], 0.0, 0.0, 0.0, 0.0
     for i, (peak, now) in enumerate(players):
         loss = max(0.0, peak - now)
         mk = min(loss, peak * market_drop)
         own = loss - mk
-        rows.append({"i": i, "peak": peak, "now": now, "loss": loss, "market": mk, "own": own, "swap": own > mk})
+        rec = own > mk
+        sw = rec if swaps is None else bool(swaps[i])
+        sale = now * (1 - fee) if sw else 0.0
+        repl = peak * (1 - market_drop) if sw else 0.0
+        rows.append({"i": i, "peak": peak, "now": now, "loss": loss, "market": mk, "own": own, "rec": rec, "swap": sw,
+                     "sale": sale, "repl": repl, "net": repl - sale, "after": repl if sw else now})
         peak_t, now_t, mk_t, own_t = peak_t + peak, now_t + now, mk_t + mk, own_t + own
     loss_t = mk_t + own_t
     for r in rows:
         r["share"] = r["loss"] / loss_t * 100 if loss_t > 0 else 0.0
     swap = [r for r in rows if r["swap"]]
-    sale = sum(r["now"] for r in swap) * (1 - fee)
-    budget = hold + sale
-    target = sum(r["peak"] for r in swap)
+    sale = sum(r["sale"] for r in swap)
+    cost = sum(r["repl"] for r in swap)
+    net = cost - sale
+    left = hold - net
+    after = sum(r["after"] for r in rows)
     drop = loss_t / peak_t if peak_t > 0 else 0.0
     return {"rows": rows, "peak": peak_t, "now": now_t, "loss": loss_t, "market": mk_t, "own": own_t, "drop_pct": drop * 100,
             "recover_pct": recover_pct(drop), "n_swap": len(swap), "n_keep": len(rows) - len(swap), "sale": sale,
-            "budget": budget, "target": target, "gap": max(0.0, target - budget),
-            "cover_pct": budget / target * 100 if target > 0 else 100.0}
+            "cost": cost, "net": net, "left": left, "gap": max(0.0, -left), "after": after,
+            "budget": hold + sale, "n_rec": sum(r["rec"] for r in rows)}
 
 
 # ----------------------------------------------------------------------
