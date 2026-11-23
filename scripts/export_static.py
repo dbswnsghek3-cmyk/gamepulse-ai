@@ -712,12 +712,12 @@ def main() -> int:
             for gid in ("overwatch", "pubg", "fconline", "dnf"):
                 for j in range(3):
                     at.button(key=f"faq_{gid}_{j}").click().run()
-            for qk in ("qa_cmp_priority", "qa_cmp_budget", "qa_iv_nodata"):   # 비교·면접 예시 답변
+            for qk in ("qa_cmp_priority", "qa_cmp_budget"):   # 비교·우선순위 예시 답변
                 at.button(key=qk).click().run()
         body = ex.children(at.main, 0)
         if pid == "assistant":
             body = (f'<div class="sx-live"><b>직접 질문하기</b> · GitHub Pages는 정적 화면이라 질문 입력이 동작하지 않습니다 → '
-                    f'<a href="{LIVE_URL}?page=assistant">Streamlit 원본 앱에서 질문하기 ↗</a> · 아래는 게임별 자주 묻는 질문 12개와 비교·면접 예시 3개의 실제 검색 답변입니다 · 비교·면접 질문 전체는 원본 앱에서.</div>') + body
+                    f'<a href="{LIVE_URL}?page=assistant">Streamlit 원본 앱에서 질문하기 ↗</a> · 아래는 게임별 자주 묻는 질문 12개와 비교·우선순위 예시 2개의 실제 검색 답변입니다 · 비교·우선순위 질문 전체는 원본 앱에서.</div>') + body
         desc = GAMES[pid].get("one_liner", name) if pid in GAMES else name
         toc = ex.toc
         doc = save_images(page_html(name, desc, fname, body, toc, ex.charts > 0, gen))

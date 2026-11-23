@@ -50,7 +50,7 @@ def render() -> None:
 
     html('<div class="as-label">추천 질문 · 누르면 바로 답변</div>')
     clicked = None
-    t_game, t_cmp, t_iv = st.tabs(["게임별 (문제·전략·KPI)", "비교·우선순위 (비용·매출·예산)", "면접 대비"])
+    t_game, t_cmp = st.tabs(["게임별 (문제·전략·KPI)", "비교·우선순위 (비용·매출·예산)"])
     with t_game:
         cols = st.columns(2)
         for i, gid in enumerate(GAME_ORDER):
@@ -62,14 +62,11 @@ def render() -> None:
         if st.button(COMMON, key="faq_common", use_container_width=True):
             clicked = (COMMON, None)
     qa = qa_items()
-    for tab, cat in ((t_cmp, "비교·우선순위"), (t_iv, "면접")):
-        with tab:
-            cols = st.columns(2)
-            for k, it in enumerate([x for x in qa if x["cat"] == cat]):
-                if cols[k % 2].button(it["q"], key=f"qa_{it['id']}", use_container_width=True):
-                    clicked = (it["q"], None)
-            if cat == "면접":
-                st.caption("면접 답변은 이 포트폴리오의 분석 내용만으로 정리한 예시 답변입니다 · 실제 내부 데이터는 없다는 전제를 숨기지 않습니다.")
+    with t_cmp:
+        cols = st.columns(2)
+        for k, it in enumerate([x for x in qa if x["cat"] == "비교·우선순위"]):
+            if cols[k % 2].button(it["q"], key=f"qa_{it['id']}", use_container_width=True):
+                clicked = (it["q"], None)
 
     game = st.selectbox("직접 질문할 게임 (선택하지 않으면 질문에서 자동 인식)", [None] + GAME_ORDER,
                         format_func=lambda x: "자동 인식 · 공통 질문" if x is None else NAMES[x], key="as_game")

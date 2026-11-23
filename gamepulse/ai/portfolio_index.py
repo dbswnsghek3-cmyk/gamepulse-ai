@@ -536,7 +536,7 @@ def _fill(text: str) -> str:
 
 
 def qa_match(q: str) -> dict | None:
-    """게임 이름이 없는 비교·면접 질문을 qa.json 에서 찾는다 (긴 핵심어 1점 · 짧은 핵심어 0.5점)."""
+    """게임 이름이 없는 비교·우선순위 질문을 qa.json 에서 찾는다 (긴 핵심어 1점 · 짧은 핵심어 0.5점)."""
     ns = re.sub(r"\s+", "", q.lower())
     best, top = None, 0.0
     for it in _qa():
