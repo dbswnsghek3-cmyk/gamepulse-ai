@@ -58,6 +58,21 @@ def rebuild(players: list[tuple[float, float]], market_drop: float, hold: float,
             "budget": hold + sale, "n_rec": sum(r["rec"] for r in rows)}
 
 
+def cushion(players: list[tuple[float, float]], market_drop: float, held: list[bool], threshold: float) -> dict:
+    """A 급락 완충 프로그램 대상 판정 (모두 가정값).
+    players = [(7일 전 가치, 현재 가치)] · market_drop 0~1 = 시장 전체 7일 하락률 · held = 급락 전부터 보유 여부
+    대상 = 급락 전 보유 선수만 합산한 7일 하락률 >= threshold (0~1) · 시장/개별 분해는 rebuild 와 같은 식"""
+    base = rebuild(players, market_drop, 0.0, 0.0)
+    rows = [r for r, h in zip(base["rows"], held) if h]
+    peak = sum(r["peak"] for r in rows)
+    loss = sum(r["loss"] for r in rows)
+    mk = sum(r["market"] for r in rows)
+    drop = loss / peak if peak > 0 else 0.0
+    return {"all": base, "n_held": len(rows), "held_drop_pct": drop * 100, "market_pct": market_drop * 100,
+            "gap_pct": drop * 100 - market_drop * 100, "market_share": mk / loss * 100 if loss > 0 else 0.0,
+            "eligible": peak > 0 and drop >= threshold, "threshold_pct": threshold * 100}
+
+
 # ----------------------------------------------------------------------
 POLICIES = {"1": "완전 분리 매칭", "2": "선택형 우선 매칭", "3": "통합 유지 + 입력 판정 개선"}
 

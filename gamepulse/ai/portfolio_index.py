@@ -47,7 +47,7 @@ INTENTS = {
     "priority": ["우선", "먼저", "가장", "1순위", "첫 번째"],
 }
 SYN = {"힘들": ["어려"], "어렵": ["어려"], "광고비": ["예산"], "돈": ["비용"], "짜증": ["불만"], "접": ["이탈"], "떠나": ["이탈"],
-       "접는": ["떠나", "이탈"], "랜덤": ["확률", "운에"], "늘려": ["확대", "전액"], "늘리": ["확대", "전액"], "대응": ["재건", "분석"],
+       "접는": ["떠나", "이탈"], "랜덤": ["확률", "운에"], "늘려": ["확대", "전액"], "늘리": ["확대", "전액"], "대응": ["재참여", "분석"],
        "떨어": ["하락"], "적응": ["어려"], "잔존율": ["d7", "잔존"], "논란": ["비판", "논란"], "개발진": ["개발사"], "운영진": ["개발사"], "대처": ["대응"], "접근": ["전략", "개선"], "달라지": ["격차", "갈리"], "bm": ["bm", "과금", "매출"], "과금": ["bm", "매출"], "가챠": ["확률", "bm"], "부작용": ["리스크", "위험"]}
 TAB_OF_KIND = {"problem": "01", "evidence": "02", "cause": "03", "strategy": "04", "kpi": "05", "plan": "06", "priority": "06"}
 STOP = {"알려줘", "알려", "정리해줘", "뭐야", "무엇", "어떻게", "있어", "대해", "관련", "주세요", "은", "는", "이", "가", "의", "좀"}
@@ -201,7 +201,7 @@ def _fconline() -> list[Entry]:
                      [f"{a}: {b} {c}" for a, b, c in d["c_why"]] + [d["c_why_note"]],
                      [f"{x['key']}안 {x['name']}: {x['pro']} / {x['con']}" for x in d["c_policies"]] + [f"하지 않는 것: {d['c_not']}"],
                      d["kpis"]["C"][:4], "04", "분리 매칭 통합 유지 이유 키보드 패드 나누 분리하지"))
-    out.append(Entry("fconline", "priority", "우선 실행: A 구단 가치 원인 분석 → 재건 가이드", d.get("final_dir", ""),
+    out.append(Entry("fconline", "priority", "우선 실행: A 구단 가치 급락 완충 프로그램", d.get("final_dir", ""),
                      [f"{p[0]} {p[1]}: {p[3]}" for p in d["priority"]],
                      [f"{p[0]} {p[1]}: {p[2]}" for p in d["priority"]], d["kpis"]["A"][:3], "06", "우선 먼저 순서 1순위"))
     out.append(Entry("fconline", "plan", "실행 우선순위 · 예산 · 리스크", d.get("final_dir", ""),
@@ -404,6 +404,8 @@ def detect_kinds(q: str) -> list[str]:
         kinds.remove("problem")
     if "problem" in kinds and "cause" in kinds:          # '왜 문제야' → 원인 항목 우선
         kinds.remove("problem")
+    if "problem" in kinds and "strategy" in kinds and any(w in ql for w in ("어떻게", "해결", "접근", "방법")):
+        kinds.remove("problem")                           # '문제는 어떻게 접근해?' → 전략 항목 우선
     return kinds
 
 
@@ -424,7 +426,8 @@ def _terms(q: str) -> list[str]:
     for t in toks:
         if t.startswith("운") and len(t) <= 4:          # '운이라·운에' → 확률·불운 (한 글자 단어 보완)
             out += ["확률", "불운"]
-        t = re.sub(r"(은|는|이|가|을|를|의|에|로|으로|와|과|도|만|에서|해줘|알려줘|줘)$", "", t)
+        st_ = re.sub(r"(은|는|이|가|을|를|의|에|로|으로|와|과|도|만|에서|해줘|알려줘|줘)$", "", t)
+        t = st_ if len(st_) >= 2 or t not in corpus else t   # '성과'처럼 떼면 한 글자가 되는 단어는 그대로
         if re.fullmatch(r"[a-z0-9/]+", t):
             if t not in corpus:                         # 영문은 자르지 않음 · 자료에 없는 단어는 버림
                 continue
@@ -475,7 +478,7 @@ def search(q: str, game: str | None = None, k: int = 3) -> list[tuple[float, Ent
         if e.kind in kinds:
             s += 2.0
         s += sum(w[t] for t in terms if t in e.text)
-        s += 0.5 * sum(1 for t in terms if t in e.title.lower())   # 제목과 많이 겹칠수록 가산
+        s += 0.8 * sum(1 for t in terms if t in e.title.lower())   # 제목과 많이 겹칠수록 가산
         if s > 0:
             scored.append((s, e))
     scored.sort(key=lambda x: -x[0])

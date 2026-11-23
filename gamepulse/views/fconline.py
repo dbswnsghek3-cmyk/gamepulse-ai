@@ -128,6 +128,43 @@ def render() -> None:
 
 # ======================================================================
 # 01 문제 정의
+def chain_flow(d: dict) -> None:
+    """구단 가치 급락 → … → 이탈 위험 (검증 대상 가설) 단계별 흐름도."""
+    steps = "".join(f'<li><span>{i}</span><b>{escape(a)}</b><small>{escape(b)}</small></li>' for i, (a, b) in enumerate(d["chain"], 1))
+    html(f'<div class="fc-chain"><div class="h"><b>이탈 위험 흐름</b><em>검증 대상 가설</em></div><ol>{steps}</ol>'
+         f'<p>{escape(d["chain_note"])}</p></div>')
+
+
+def plan_card(d: dict, k: str) -> None:
+    """전략 카드: 문제 · 해결 기능 · 운영 조건 · 악용 방지 · 기대 효과 · 운영 리스크 · 기획 의도."""
+    x = d["plans"][k]
+    li = lambda xs: "".join(f"<li>{escape(t)}</li>" for t in xs)  # noqa: E731
+    html(f'<div class="fc-plan {k.lower()}"><div class="h"><span>{k}안</span><b>{escape(x["name"])}</b></div>'
+         f'<div class="pb"><span>문제</span><p>{escape(x["problem"])}</p></div>'
+         f'<div class="pb"><span>해결 기능</span><ul>{li(x["features"])}</ul></div>'
+         f'<div class="g2"><div class="pb"><span>운영 조건</span><ul>{li(x["ops"])}</ul></div>'
+         f'<div class="pb"><span>악용 방지</span><ul>{li(x["abuse"])}</ul></div></div>'
+         f'<div class="g2"><div class="pb ok"><span>기대 효과</span><p>{escape(x["effect"])}</p></div>'
+         f'<div class="pb ng"><span>운영 리스크</span><ul>{li(x["risks"])}</ul></div></div>'
+         f'<div class="it"><span>기획 의도</span>{escape(x["intent"])}</div></div>')
+
+
+def ui_mock(kind: str) -> None:
+    """기능 UI 예시 (기획 시안 · 실제 게임 화면 아님 · 수치는 예시)."""
+    tag = '<span class="tag">GamePulse AI 기획 시안 · 실제 게임 화면 아님 · 수치는 예시</span>'
+    if kind == "A":
+        html(f'<div class="fc-mock">{tag}<h5>구단 가치 급락 완충 프로그램</h5>'
+             '<div class="cmp"><div><small>내 구단 (최근 7일)</small><b class="dn">−X%</b></div><div><small>시장 전체 (최근 7일)</small><b>−Y%</b></div>'
+             '<div><small>하락 구성</small><b>시장 요인 · 개별 요인</b></div></div>'
+             '<ol class="ms"><li class="done">공식경기 3경기 <em>완료</em></li><li class="now">공식경기 7경기 <em>진행 중</em></li><li>공식경기 10경기</li></ol>'
+             '<div class="rw">보상: 임대 선수(기간제) · 비거래성 아이템 · 경기 보상 부스트(제한적) · BP 직접 지급 없음 · 계정당 횟수 제한</div></div>')
+    else:
+        html(f'<div class="fc-mock b">{tag}<h5>강화 실패 후 재기 프로그램 · 선택 참여</h5>'
+             '<div class="bar"><i style="width:40%"></i></div><div class="cap"><span>재기 진행률 2 / 5 단계</span><span>임대 선수 사용 기간 남음</span></div>'
+             '<ol class="ms"><li class="done">임대 선수 수령 <em>완료</em></li><li class="now">공식경기 참여 미션 <em>진행 중</em></li><li>공식경기 완료 미션</li></ol>'
+             '<div class="rw">강화 실패 금액과 무관한 소규모 고정 보상 · 강화 재료 무조건 지급 없음 · 재참여 대기기간 있음</div></div>')
+
+
 def core_box(d: dict) -> None:
     c = d["core"]
     html(f'<div class="fc-core"><span>대표 문제 (A + B)</span><b>{escape(c["problem"])}</b><p>{escape(c["conclusion"])}</p><small>{escape(c["sub"])}</small></div>')
@@ -190,7 +227,8 @@ def s2(d: dict) -> None:
 # 03 원인 · 게임 화면
 def s3(d: dict) -> None:
     cs = d["c_sides"]
-    head("원인: A 자산 급락 · B 늦은 적응 · C 조작 조건 갈등", "인과는 실험으로만 판단", b_hypo())
+    head("원인: 구단 가치 급락 → 고위험 강화 → 이탈 위험 (가설)", "인과는 실험으로만 판단", b_hypo())
+    chain_flow(d)
     lead("A", "열심히 키운 구단, 왜 내 노력의 가치는 떨어질까?", "자산 급락 → 성장 박탈감")
     html('<div class="fc-types">' + "".join(f'<div><b>{escape(a)}</b><small>{escape(c)}</small></div>' for a, b, c in d["a_types"]) + "</div>")
     html(f'<div class="fc-cav">{escape(d["a_types_note"])}</div>')
@@ -199,7 +237,7 @@ def s3(d: dict) -> None:
     with st.expander("자세히 보기 · 가격 사례 검증 (카드 · 시즌 · 강화 · 기준 · 시점 · 단위)"):
         table(pc["head"], [[f"<b>{escape(r[0])}</b>", *[escape(x) for x in r[1:]]] for r in pc["rows"]], badge_html=b_real())
         st.markdown(f"- {pc['note']}")
-    lead("B", "강화 한 번의 실패가 떠나는 계기가 될 수 있다", "늦은 코치 세팅 → 초기 이탈")
+    lead("B", "강화 한 번의 실패가 떠나는 계기가 될 수 있다", "손실 만회를 위한 고위험 강화 → 실패 → 복구가 어렵다는 인식 (가설)")
     gallery("b", d["galleries"]["B"])
     lead("C", "키보드 vs 패드, 같은 경기인데 공정한가?", "조작의 자유인가, 경쟁의 형평성인가?")
 
@@ -220,58 +258,57 @@ def sol_card(x: dict, t: str) -> str:
 
 def s4(d: dict) -> None:
     ap, so, role = d["a_plan"], d["solutions"], d["role"]
-    head("해결: 시세 보장·보상 확대·매칭 분리 대신", "대표 A·B (자산 손실) → 보조 C (입력 환경) · 기획 시안", b_mock())
+    head("해결: 가치를 보전하거나 실패를 보상하지 않고, 다시 경기할 이유와 경로를 준다", "대표 A·B → 보조 C · 모두 기획 시안", b_mock())
     core_box(d)
-    with st.expander("사업PM 관점 · 손실 과정 → 이탈 가설 → 완화 전략 → 기존 시스템과 차이 → 영향 → 부작용", expanded=True):
-        table(["관점", "정리"], [[f"<b>{escape(a)}</b>", escape(b)] for a, b in d["core"]["pm"]])
-    lead("A", f"{role['A']} · 구단 가치 하락 원인 분석 + 보유 자산 기반 재건", "데모는 05 탭")
+    lead("A", f"{role['A']} · 구단 가치 급락 완충 프로그램", "05 탭에서 대상 판정 데모")
     html('<div class="fc-flow3">' + '<i>→</i>'.join(f'<div><span>{escape(a)}</span><b>{escape(b)}</b><small>{escape(c)}</small></div>' for a, b, c in d["a_flow"]) + "</div>")
-    html('<div class="fc-sols">' + "".join(sol_card(x, "a") for x in so["A"]) + "</div>")
-    with st.expander("자세히 보기 · 기존 기능과 차별화 · 경제 부작용 검토"):
+    plan_card(d, "A")
+    ui_mock("A")
+    with st.expander("자세히 보기 · 기존 운영과 차이 · 경제 부작용 대응"):
         table(["구분", "하는 일", "범위"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in ap["diff"]])
         table(["부작용", "대응"], [[escape(a), f"<b>{escape(b)}</b>"] for a, b in ap["side"]], badge_html=b_interp())
-    conclude("시세를 보장하는 대신, 다시 성장할 수 있는 경로를 제공한다.")
-    lead("B", f"{role['B']} · 강화 실패 · 훈련코치 초기 적응", "A와 같은 자산 손실 문제 · 강화 실패 이후 추가 강화·이탈은 검증 전 가설 · 강화 시뮬레이터 없음")
-    html('<div class="fc-sols">' + "".join(sol_card(x, "b") for x in so["B"]) + "</div>")
-    with st.expander("자세히 보기 · 훈련코치 현황 · 기존 지원과 중복 확인"):
+    conclude("구단 가치를 보전하지 않고, 급락을 겪은 유저가 다시 경기할 이유를 준다.")
+    lead("B", f"{role['B']} · 강화 실패 후 재기 프로그램", "강화 실패 이후 추가 강화·이탈은 검증 전 가설 · 강화 시뮬레이터 없음")
+    plan_card(d, "B")
+    ui_mock("B")
+    with st.expander("자세히 보기 · 강화·훈련코치 현황 · 기존 제도와 중복 확인"):
         table(["구분", "확인한 내용", "출처"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["b_facts"]], badge_html=b_real())
         table(["기존 제도 · 제안", "역할", "확인"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["existing"]], badge_html=b_real())
-    conclude("보상을 무조건 늘리기보다, 경쟁에 적응하는 시간을 줄인다.")
-    lead("C", f"{role['C']} · 통합 매칭 유지 + 키보드 입력 판정 개선", "유저 의견에서 출발한 검증 가설 · 결함으로 확정된 것 아님")
+    conclude("강화 실패를 보상하지 않고, 실패 이후에도 계속 플레이할 경로를 준다.")
+    lead("C", f"{role['C']} · 조작 환경 공정성 개선", "유저 의견에서 출발한 검증 가설 · 패드 우위는 확인된 사실 아님")
+    plan_card(d, "C")
     html('<div class="fc-sols">' + "".join(sol_card(x, "c") for x in so["C"]) + "</div>")
-    html(f'<div class="fc-excl">{escape(d["c_excluded"])}</div>')
+    html(f'<div class="fc-excl"><b>제외</b> {escape(d["c_not"])} · {escape(d["c_excluded"])}</div>')
     with st.expander("자세히 보기 · 실행 순서 · 유저 근거 → 결정"):
-        html('<div class="fc-planc"><b>실행 순서</b><ol>' + "".join(f"<li>{escape(x)}</li>" for x in d["c_plan"]) + f'</ol><small>{escape(d["c_not"])}</small></div>')
+        html('<div class="fc-planc"><b>실행 순서</b><ol>' + "".join(f"<li>{escape(x)}</li>" for x in d["c_plan"]) + "</ol></div>")
         html('<div class="fc-facts why">' + "".join(f'<div><span>{escape(a)}</span><b>{escape(b)}</b><small>{escape(c)}</small></div>' for a, b, c in d["c_why"]) + "</div>")
         st.markdown(f"- {d['c_why_note']}")
-    conclude("매칭을 나누기보다, 같은 경기에서 납득할 수 있는 조작 환경을 만든다.")
+    conclude("유저를 입력장치로 나누지 않고, 실제 조작 불편을 검증하고 개선한다.")
 
 
 # ======================================================================
 # 05 데모·KPI·실험
-def a_demo_html(r: dict, names: list[str]) -> str:
-    mx = max((x["loss"] for x in r["rows"]), default=0) or 1
-    e = lambda v: bp(v * 1e8)  # noqa: E731
-    bars = "".join(
-        f'<div class="bar"><span>{escape(names[x["i"]])}</span><div class="t"><i class="mk" style="width:{x["market"] / mx * 100:.1f}%"></i>'
-        f'<i class="own" style="width:{x["own"] / mx * 100:.1f}%"></i></div><em class="{"sw" if x["swap"] else ""}">{x["share"]:.0f}% · '
-        f'{"교체" if x["swap"] else "유지"}{" (추천)" if x["rec"] else ""}</em></div>' for x in r["rows"])
-    res = (f'남은 BP {e(r["left"])}' if r["left"] >= 0 else f'<span class="dn">부족 {e(r["gap"])}</span>')
-    return (f'<div class="fc-demo"><h4>구단 가치 분석·재건 {b_sim()}</h4><div class="fc-m">'
-            f'<div><small>구단 가치</small><b>{e(r["now"])}</b><em class="dn">−{r["drop_pct"]:.0f}% · 고점 {e(r["peak"])}</em></div>'
-            f'<div><small>A-1 · 시장 요인 · 개별 요인</small><b>{r["market"] / r["loss"] * 100 if r["loss"] else 0:.0f}% · {r["own"] / r["loss"] * 100 if r["loss"] else 0:.0f}%</b><em>하락분 구성</em></div>'
-            f'<div><small>고점 회복에 필요한 상승</small><b class="up">+{r["recover_pct"]:.0f}%</b><em>시세 회복은 보장 불가</em></div></div>'
+def a_cushion_html(r: dict, names: list[str]) -> str:
+    """A 급락 완충 대상 판정 결과 (가정 시뮬레이션)."""
+    a = r["all"]
+    mx = max((x["loss"] for x in a["rows"]), default=0) or 1
+    bars = "".join(f'<div class="bar"><span>{escape(names[x["i"]])}</span><div class="t"><i class="mk" style="width:{x["market"] / mx * 100:.1f}%"></i>'
+                   f'<i class="own" style="width:{x["own"] / mx * 100:.1f}%"></i></div><em>{x["share"]:.0f}%</em></div>' for x in a["rows"])
+    ok = r["eligible"]
+    verdict = (f'<b>대상</b> · 급락 전 보유 선수 하락률 {r["held_drop_pct"]:.0f}% ≥ 기준 {r["threshold_pct"]:.0f}% → 공식경기 단계 미션 + 비거래성 소규모 보상 제안'
+               if ok else f'<b>대상 아님</b> · 급락 전 보유 선수 하락률 {r["held_drop_pct"]:.0f}% &lt; 기준 {r["threshold_pct"]:.0f}% → 변동률 비교 정보만 제공')
+    why = ("시장 전체 하락이 대부분 → '내 선수 문제가 아니다'를 먼저 안내" if r["market_share"] >= 50 else "특정 선수 하락이 큼 → 시장 대비 개별 하락을 구분해 안내")
+    return (f'<div class="fc-demo"><h4>급락 완충 대상 판정 {b_sim()}</h4><div class="fc-m">'
+            f'<div><small>내 구단 (급락 전 보유 · 7일)</small><b class="dn">−{r["held_drop_pct"]:.0f}%</b><em>보유 선수 {r["n_held"]}명 기준</em></div>'
+            f'<div><small>시장 전체 (7일)</small><b>−{r["market_pct"]:.0f}%</b><em>차이 {r["gap_pct"]:+.0f}%p</em></div>'
+            f'<div><small>하락 구성 · 시장 요인</small><b>{r["market_share"]:.0f}%</b><em>나머지 = 개별 요인</em></div></div>'
             f'<div class="fc-bars"><div class="lg"><i class="mk"></i>시장 요인 <i class="own"></i>개별 요인 · 막대 = 선수별 하락액</div>{bars}</div>'
-            f'<div class="fc-m two"><div><small>A-2 · ① 전원 유지</small><b>{e(r["now"])}</b><em>지출 0 · 경기력 그대로</em></div>'
-            f'<div><small>A-2 · ② 선택안 (교체 {r["n_swap"]}명)</small><b>{e(r["after"])}</b><em>순비용 {e(r["net"])} · {res}</em></div></div>'
-            f'<ol class="fc-path"><li><b>진단</b> 개별 하락이 큰 선수 {r["n_rec"]}명 (추천 교체)</li>'
-                        f'<li><b>교체</b> 판매 수익 {e(r["sale"])} → 대체 비용 {e(r["cost"])}</li>'
-            f'<li><b>이벤트 연계</b> {"부족분 " + e(r["gap"]) + " → 진행 중 이벤트·패스 보상으로 채울 단계 목표" if r["gap"] > 0 else "보유 BP 안에서 가능 · 추가 목표 없음"} (BP 지급 아님)</li></ol>'
-            '<div class="src">가상 선수 · 모든 값은 가정 · 대체 비용 = 고점 × (1 − 시장 하락률)</div></div>')
+            f'<div class="fc-act {"rec" if ok else ""}">{verdict}</div><div class="fc-act">{why}</div>'
+            '<div class="src">가상 선수 · 모든 값은 가정 · 대상 기준 40~50%는 확정 기준이 아닌 파일럿 검토용 · 급락 직전 매수 선수는 제외 · 손실 비례 BP 보상 없음 · 계정당 지급 횟수 제한</div></div>')
 
 
-C_EXP = {"c1": ("C-1 · 대각선·연속 입력 성공률", 78, 86, "입력 성공률"),
-         "c2": ("C-2 · 입력-패스 방향 일치율", 84, 88, "방향 일치율")}
+C_EXP = {"c1": ("기능 1 · 대각선·연속 입력 성공률", 78, 86, "입력 성공률"),
+         "c2": ("기능 1 · 입력-패스 방향 일치율", 84, 88, "방향 일치율")}
 VERDICT = {"확대": "격차가 목표만큼 줄고 패드·매칭 지표 악화 없음 → 적용 범위 확대",
            "수정": "격차는 줄었지만 목표(30%) 미달 → 판정 조건 수정 후 재실험",
            "중단": "격차가 줄지 않거나 패드·매칭 지표 악화 → 중단 · 의견은 수비 AI·밸런스 과제로"}
@@ -293,29 +330,26 @@ def c_exp_html(r: dict, metric: str) -> str:
 
 def s5(d: dict) -> None:
     head("데모·KPI: 직접 계산하고, 판단 기준을 정한다", "수치는 모두 가정 · 실제 성과 아님", b_mock())
-    sub("핵심 KPI · 자산 손실 (A + B)", b_mock())
+    sub("전략별 KPI · 공통 가드레일", b_mock())
     table(["구분", "KPI", "대상", "비교군", "측정 시점·기간"],
           [[f"<b>{escape(a)}</b>", f"<b>{escape(b)}</b>", escape(c), escape(e), escape(f)] for a, b, c, e, f in d["core"]["kpi"]])
     st.caption("실제 FC 온라인 내부 데이터가 없어 기준값·목표치는 파일럿 전 로그로 정한다 · 기간·비교 방식은 가정")
     ad = d["a_demo"]
-    sub("A · 구단 가치 분석·재건 시뮬레이터", b_sim())
+    sub("A · 구단 가치 급락 완충 프로그램 · 대상 판정 데모", b_sim())
     c1, c2 = st.columns([1, 1.45], gap="medium")
     with c1:
         anchor("a1")
-        mk = st.slider("시장 전체 하락률 (% · 가정)", 0, 80, ad["market"], key="fc_a_mk")
-        drops = [st.slider(f"{nm} 하락률 (고점 {pk:g}억)", 0, 90, int(round((1 - now / pk) * 100)), key=f"fc_a_p{i}")
-                 for i, (nm, pk, now) in enumerate(ad["players"])]
-        hold = st.number_input("보유 BP (억 · 가정)", 0.0, 1000.0, float(ad["hold"]), step=0.1, key="fc_a_hold")
-        fee = st.slider("판매 수수료율 (% · 가정)", 0, 60, ad["fee"], key="fc_a_fee")
+        mk = st.slider("시장 전체 7일 하락률 (% · 가정)", 0, 80, ad["market"], key="fc_a_mk")
+        thr = st.slider("대상 기준: 보유 선수 7일 하락률 (% · 파일럿 검토용 가정 40~50)", 40, 50, 45, key="fc_a_thr")
+        drops, held = [], []
+        for i, (nm, pk, now) in enumerate(ad["players"]):
+            drops.append(st.slider(f"{nm} 7일 하락률 (7일 전 {pk:g}억)", 0, 90, int(round((1 - now / pk) * 100)), key=f"fc_a_p{i}"))
+            held.append(st.checkbox(f"{nm} · 급락 전부터 보유", True, key=f"fc_a_h{i}"))
     players = [(pk, pk * (1 - dr / 100)) for (_, pk, _), dr in zip(ad["players"], drops)]
-    names = [p[0] for p in ad["players"]]
-    rec = [x["rec"] for x in F.rebuild(players, mk / 100, hold, fee / 100)["rows"]]
-    with c1:
-        pick = st.multiselect("A-2 · 교체할 선수 (기본값 = 추천)", names, default=[n for n, x in zip(names, rec) if x], key="fc_a_swap")
-    r = F.rebuild(players, mk / 100, hold, fee / 100, [n in pick for n in names])
+    r = F.cushion(players, mk / 100, held, thr / 100)
     with c2:
-        html(a_demo_html(r, names))
-    sub("C · 조작 개선 실험 비교 (통합 매칭 유지)", b_sim())
+        html(a_cushion_html(r, [p[0] for p in ad["players"]]))
+    sub("C 기능 1 · 키보드 조작 최적화 실험 비교 (통합 매칭 유지)", b_sim())
     c1, c2 = st.columns([1, 1.45], gap="medium")
     with c1:
         anchor("c5")
@@ -352,18 +386,18 @@ def budget_rows(d: dict) -> tuple[list[list[str]], float, float]:
 
 
 def s6(d: dict) -> None:
-    head("실행: 1차 A → 2차 C → 3차 B", "예산은 실제 견적이 아닌 기획 추정치", b_mock())
+    head("실행: 1차 A → 2차 B → 3차 C", "예산은 실제 견적이 아닌 기획 추정치", b_mock())
     mc0 = d["cost"]["monthly_cost_per_person"]
     a_eff = sum(x[2] for x in d["a_cost"])
-    sub("대표 전략 한눈에 · A 구단 가치 (먼저 실행)", b_mock())
+    sub("대표 전략 한눈에 · A 구단 가치 급락 완충 프로그램 (먼저 실행)", b_mock())
     table(["단계", "내용"], [
-        ["<b>문제</b>", "구단 가치가 왜 떨어졌는지 모른 채, 들인 시간과 이벤트 노력이 허무해진다"],
+        ["<b>문제</b>", "구단 가치가 급락하면 투자한 시간·노력이 사라졌다고 느끼고, 손실 만회를 위한 고위험 강화로 이어질 수 있다 (가설)"],
         ["<b>근거</b>", "인벤 실제 경험·관찰 7건 (8/20 이후) · 같은 기준 가격 캡처 3장 · 공식 이적시장 안정화 공지 1건"],
-        ["<b>해결책</b>", "A-1 시장 전체 / 선수별 하락 분리 → A-2 유지·교체 비용 비교 + 이벤트 보상 단계 목표"],
-        ["<b>비용</b>", f"{a_eff:g}인월 × {mc0 / 1e4:,.0f}만 원 = <b>{won(a_eff * mc0)}</b> (일회성 · 가정) · 유지보수 별도"],
-        ["<b>KPI</b>", "원인 분석 화면 사용률 · 재건 계획 완료율 · 선수 교체 실행률 · D7·D30 (대조군 대비)"],
-        ["<b>실험</b>", "구단 가치 −30% 이상 계정 무작위 50:50 · 가드레일: 특정 선수 매도 쏠림·거래량 급변"],
-        ["<b>사업적 판단</b>", "<b>소규모 파일럿</b> — A-1 먼저 출시 → 사용률·D30 신호 확인 후 A-2 · 사용률만으로 잔존 효과를 주장하지 않음"]])
+        ["<b>해결책</b>", "급락 전 보유 선수 기준 대상 판정 → 내 구단 vs 시장 변동률 비교 → 공식경기 단계 미션 + 비거래성 소규모 보상"],
+        ["<b>악용 방지</b>", "손실 비례 BP 보상 금지 · 급락 직전 매수 제외 · 계정당 지급 횟수 제한 · 거래량 가드레일"],
+        ["<b>비용</b>", f"{a_eff:g}인월 × {mc0 / 1e4:,.0f}만 원 = <b>{won(a_eff * mc0)}</b> (일회성 · 가정) · 보상 아이템·모니터링 별도"],
+        ["<b>KPI</b>", "급락 경험 유저 D7 잔존율 · 급락 이후 공식경기 참여율 · 미션 참여·완료율 (대조군 대비 · 목표치는 파일럿 후)"],
+        ["<b>사업적 판단</b>", "<b>소규모 파일럿</b> — 기준(7일 하락률 40~50%)은 가정 · 악용률·경제 가드레일 통과 시 B와 함께 확대"]])
     with st.expander("자세히 보기 · A 개발 범위 (인월 시나리오)"):
         table(["기능", "작업 범위 (인월)", "합계"], [[f"<b>{escape(a)}</b>", escape(b), f"{c:g}인월"] for a, b, c in d["a_cost"]], badge_html=b_sim())
         st.caption(d["a_cost_note"])
@@ -377,4 +411,7 @@ def s6(d: dict) -> None:
     st.caption(f"검산: {eff_t:g}인월 × {mc / 1e4:,.0f}만 원 = {won(eff_t * mc)} (단가는 가정 · 다른 프로젝트와 같은 기준)")
     with st.expander("자세히 보기 · 리스크와 대응"):
         table(["리스크", "대응"], [[escape(a), f"<b>{escape(b)}</b>"] for a, b in d["risks"]], badge_html=b_interp())
-    html('<div class="fc-final"><b>A 성장 경험 회복 · B 초기 적응 개선 · C 통합 매칭 유지와 조작 환경 개선</b></div>')
+    sub("사업PM 관점 · 기대 효과와 운영 리스크", b_interp())
+    table(["전략", "기대 효과 (가설)", "운영 리스크", "대응"], [[f"<b>{escape(a)}</b>", escape(b), escape(c), escape(e)] for a, b, c, e in d["pm_effects"]])
+    st.caption("기대 효과는 검증 전 가설 · 실제 성과·이탈률·설문 결과가 아님")
+    html('<div class="fc-final"><b>A 급락 완충 · B 강화 실패 후 재기 · C 분리 없는 조작 공정성 개선</b></div>')

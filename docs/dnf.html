@@ -1811,6 +1811,54 @@ a.pn-btn:hover { background: #EAB308; }
 .df-pos span { display: block; line-height: 1.55; margin: 0.15rem 0; }
 .df-pos small { color: #6b778c; font-size: 0.76rem; }
 @media (max-width: 640px) { .df-vocsum { grid-template-columns: 1fr; } }
+/* FC 최종: 가설 흐름도 · 전략 카드 · UI 시안 */
+.fc-chain { background: #fff; border: 1px solid #DDE4EF; border-radius: 14px; padding: 0.9rem 1rem; margin: 0.4rem 0 1rem; }
+.fc-chain .h { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.6rem; }
+.fc-chain .h b { color: #0B1F3A; font-size: 1rem; }
+.fc-chain .h em { font-style: normal; font-size: 0.74rem; font-weight: 800; color: #9a3412; background: #fff1e6; border: 1px dashed #f0a868; padding: 1px 8px; border-radius: 999px; }
+.fc-chain ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.45rem; }
+.fc-chain li { position: relative; background: #f4f7fb; border-radius: 10px; padding: 0.55rem 0.6rem 0.6rem; border-top: 4px solid #1f5fbf; }
+.fc-chain li:last-child { border-top-color: #b3261e; background: #fdf1f0; }
+.fc-chain li span { display: inline-block; font-size: 0.72rem; font-weight: 800; color: #fff; background: #1f5fbf; border-radius: 999px; width: 1.3rem; height: 1.3rem; text-align: center; line-height: 1.3rem; }
+.fc-chain li:last-child span { background: #b3261e; }
+.fc-chain li b { display: block; font-size: 0.9rem; color: #0B1F3A; margin: 0.25rem 0 0.15rem; }
+.fc-chain li small { font-size: 0.78rem; color: #44546a; line-height: 1.45; }
+.fc-chain li:not(:last-child)::after { content: "→"; position: absolute; right: -0.45rem; top: 45%; color: #8a99ad; font-weight: 800; }
+.fc-chain p { margin: 0.6rem 0 0; font-size: 0.8rem; color: #6b778c; line-height: 1.5; }
+@media (max-width: 900px) { .fc-chain ol { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fc-chain li::after { display: none; } }
+@media (max-width: 520px) { .fc-chain ol { grid-template-columns: 1fr; } }
+.fc-plan { background: #fff; border: 1px solid #DDE4EF; border-left: 6px solid #1f5fbf; border-radius: 14px; padding: 0.9rem 1rem; margin: 0.5rem 0 0.8rem; }
+.fc-plan.b { border-left-color: #b45309; } .fc-plan.c { border-left-color: #6d28d9; }
+.fc-plan .h { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+.fc-plan .h span { font-size: 0.75rem; font-weight: 800; color: #fff; background: #1f5fbf; padding: 2px 8px; border-radius: 6px; }
+.fc-plan.b .h span { background: #b45309; } .fc-plan.c .h span { background: #6d28d9; }
+.fc-plan .h b { font-size: 1.05rem; color: #0B1F3A; }
+.fc-plan .pb { margin: 0.35rem 0; }
+.fc-plan .pb > span { display: block; font-size: 0.74rem; font-weight: 800; color: #6b778c; margin-bottom: 0.15rem; }
+.fc-plan .pb.ok > span { color: #1e6b2c; } .fc-plan .pb.ng > span { color: #b3261e; }
+.fc-plan p, .fc-plan li { font-size: 0.89rem; line-height: 1.55; color: #22324a; margin: 0; }
+.fc-plan ul { margin: 0; padding-left: 1.1rem; }
+.fc-plan .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+.fc-plan .it { margin-top: 0.5rem; padding: 0.5rem 0.7rem; background: #f4f7fb; border-radius: 8px; font-size: 0.89rem; color: #0f2a4a; }
+.fc-plan .it span { font-size: 0.74rem; font-weight: 800; color: #1f5fbf; margin-right: 0.4rem; }
+@media (max-width: 700px) { .fc-plan .g2 { grid-template-columns: 1fr; } }
+.fc-mock { max-width: 760px; margin: 0.3rem auto 1rem; background: linear-gradient(160deg, #0d2b1a, #14432a); border: 2px solid #4ade80; border-radius: 14px; padding: 0.9rem 1.1rem; color: #e7f8ec; }
+.fc-mock.b { background: linear-gradient(160deg, #2a1a08, #45290c); border-color: #f59e0b; color: #fdf3e2; }
+.fc-mock .tag { display: inline-block; font-size: 0.72rem; font-weight: 800; background: #ffffff26; color: #fff; padding: 2px 8px; border-radius: 6px; margin-bottom: 0.45rem; }
+.fc-mock h5 { margin: 0 0 0.55rem; color: #fff; font-size: 1.02rem; }
+.fc-mock .cmp { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-bottom: 0.55rem; }
+.fc-mock .cmp div { background: #00000040; border-radius: 8px; padding: 0.45rem 0.55rem; }
+.fc-mock .cmp small { display: block; font-size: 0.74rem; opacity: 0.85; }
+.fc-mock .cmp b { font-size: 0.98rem; } .fc-mock .cmp b.dn { color: #fca5a5; }
+.fc-mock .ms { list-style: none; padding: 0; margin: 0.3rem 0; display: grid; gap: 0.3rem; }
+.fc-mock .ms li { background: #00000033; border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.88rem; display: flex; justify-content: space-between; }
+.fc-mock .ms li.done { opacity: 0.7; } .fc-mock .ms li.now { outline: 2px solid #ffffff66; }
+.fc-mock .ms em { font-style: normal; font-size: 0.76rem; opacity: 0.9; }
+.fc-mock .bar { height: 16px; background: #00000055; border-radius: 8px; overflow: hidden; }
+.fc-mock .bar i { display: block; height: 100%; background: linear-gradient(90deg, #f59e0b, #fde68a); }
+.fc-mock .cap { display: flex; justify-content: space-between; font-size: 0.8rem; margin: 0.3rem 0 0.4rem; opacity: 0.9; }
+.fc-mock .rw { margin-top: 0.45rem; font-size: 0.8rem; opacity: 0.88; line-height: 1.5; }
+@media (max-width: 520px) { .fc-mock .cmp { grid-template-columns: 1fr; } }
 </style>
 <style>
 body { margin: 0; background: #fff; color: #0B1F3A; }
@@ -1895,7 +1943,7 @@ html { scroll-behavior: smooth; }
   .sx-row { flex-direction: column; } .sx-col { flex: 1 1 auto !important; width: 100%; }
   .sx-tab-h { font-size: 1.2rem; }
 }
-</style></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="" href="index.html">보고서 첫 화면</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="" href="pubg.html">PUBG · NEW START</a><a class="" href="fconline.html">FC 온라인 · 축구 게임인가, 주식 게임인가?</a><a class="on" href="dnf.html">던전앤파이터 · 클리어했는데 왜 성장한 느낌이 없을까?</a><a class="" href="assistant.html">사업PM 어시스턴트</a></nav></div></header><main class="sx-main"><div class="sx-note"><b>정적 보고서</b> · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> 스냅샷 (2026-11-24 02:08 KST) · 01~06 탭으로 섹션 전환 · 버튼·슬라이더는 기본값 · 차트 수치는 "차트 데이터 표"에</div><style>
+</style></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="" href="index.html">보고서 첫 화면</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="" href="pubg.html">PUBG · NEW START</a><a class="" href="fconline.html">FC 온라인 · 축구 게임인가, 주식 게임인가?</a><a class="on" href="dnf.html">던전앤파이터 · 클리어했는데 왜 성장한 느낌이 없을까?</a><a class="" href="assistant.html">사업PM 어시스턴트</a></nav></div></header><main class="sx-main"><div class="sx-note"><b>정적 보고서</b> · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> 스냅샷 (2026-11-24 03:10 KST) · 01~06 탭으로 섹션 전환 · 버튼·슬라이더는 기본값 · 차트 수치는 "차트 데이터 표"에</div><style>
 /* ---- PUBG 정적 페이지 전용 (Streamlit 화면과 맞춤) ---- */
 /* Streamlit 본문 글꼴: 앱에 포함된 "Source Sans" 가변 글꼴(SIL OFL) 그대로 + 한글은 시스템 sans-serif → 글자 폭·줄바꿈 일치 */
 @font-face{font-family:"Source Sans";font-weight:100 900;font-style:normal;font-display:swap;src:url(assets/fonts/SourceSansVF-Upright.woff2) format("woff2")}
@@ -2034,4 +2082,4 @@ function mount(){var el=document.querySelector('.fc-live[data-k="d1"]'),a=docume
  if(el&&row){row.replaceWith(el);el.hidden=false;}
  ['dn','dp','dm','dk'].forEach(function(i){$(i).addEventListener('input',D);});$('dneu').addEventListener('change',D);D();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
-})();</script></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-24 02:08 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>
+})();</script></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-24 03:10 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>

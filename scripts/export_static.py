@@ -427,7 +427,7 @@ def fconline_body(kind: str) -> tuple[str, int]:
     from fc_static_demos import demos as fc_demos
     from pubg_static_demos import PAGE_CSS, PAGE_JS   # 같은 글꼴·하위 탭 처리 재사용
     body, charts = tabbed_body("fconline", FC_TABS, "fc_tab", kind, {}, all_visible=True)
-    note = '<div class="sx-note">이 페이지는 JavaScript 없이도 01~06 내용을 모두 담고 있습니다. A1 구단 가치 분석기와 C 매칭 정책 비교는 이 페이지에서 직접 조작할 수 있습니다.</div>'
+    note = '<div class="sx-note">이 페이지는 JavaScript 없이도 01~06 내용을 모두 담고 있습니다. A 급락 완충 대상 판정과 C 조작 최적화 실험 비교는 이 페이지에서 직접 조작할 수 있습니다.</div>'
     return PAGE_CSS + '<div class="pg-static">' + note + body + "</div>" + PAGE_JS + fc_demos(ROOT), charts
 
 
@@ -617,9 +617,9 @@ def index_html(gen: str) -> str:
              '휴면 유저 복귀(B 40%) · BM 신뢰·수익성(C 10%). 공식 자료와 Steam 리뷰(신규 45건 · 복귀 21건, 별도 표본)를 근거로 '
              'A1 경기별 코칭 데모, B1 복귀 광고 캠페인 «PUBG: 다시 낙하할 시간»과 클릭 가능한 랜딩페이지, A/B 테스트 설계를 만들었습니다.</p></a>']
     cards.append('<a class="sx-card feature" href="fconline.html"><div class="k">세 번째 프로젝트 · 실제 자료 기반</div>'
-                 '<h3>FC 온라인 · 축구 게임인가, 주식 게임인가?</h3><p><b>구단 가치 하락과 강화 실패로 발생하는 자산 손실 체감과 이탈 위험</b> — '
-                 '대표 A 구단 가치 하락 · B 강화 실패, 보조 C 키보드·패드 입력 환경. 공식 강화 확률·이적시장 안정화 공지, 작성자 캡처, 인벤 게시글을 근거로 '
-                 '하락 원인 분석·재건 가이드(재화 지급 0)와 통합 매칭 유지 + 입력 판정 검증을 제안했습니다.</p></a>')
+                 '<h3>FC 온라인 · 축구 게임인가, 주식 게임인가?</h3><p><b>구단 가치 급락과 강화 실패로 인한 이탈 위험, 그리고 조작 환경의 공정성 문제</b> — '
+                 'A 구단 가치 급락 완충 프로그램 · B 강화 실패 후 재기 프로그램 · C 분리 없는 조작 공정성 개선. 공식 강화 확률·이적시장 안정화 공지, 작성자 캡처, 인벤 게시글을 근거로 '
+                 'BP 직접 보상 없는 재참여 미션·비거래성 소규모 보상과 악용 방지, 통합 매칭 유지 + 조작 최적화·성과 분석·훈련을 제안했습니다.</p></a>')
     dn = json.loads((ROOT / "data" / "dnf" / "dnf.json").read_text(encoding="utf-8"))
     cards.append('<a class="sx-card feature" href="dnf.html"><div class="k">네 번째 프로젝트 · 실제 자료 기반</div>'
                  f'<h3>던전앤파이터 · 시즌의 가치 회복</h3><p><b>{H.escape(dn["intro"]["question"])}</b> — '
