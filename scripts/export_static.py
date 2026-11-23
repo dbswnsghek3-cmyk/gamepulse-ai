@@ -617,14 +617,14 @@ def index_html(gen: str) -> str:
              '휴면 유저 복귀(B 40%) · BM 신뢰·수익성(C 10%). 공식 자료와 Steam 리뷰(신규 45건 · 복귀 21건, 별도 표본)를 근거로 '
              'A1 경기별 코칭 데모, B1 복귀 광고 캠페인 «PUBG: 다시 낙하할 시간»과 클릭 가능한 랜딩페이지, A/B 테스트 설계를 만들었습니다.</p></a>']
     cards.append('<a class="sx-card feature" href="fconline.html"><div class="k">세 번째 프로젝트 · 실제 자료 기반</div>'
-                 '<h3>FC 온라인 · 축구 게임인가, 주식 게임인가?</h3><p><b>구단 가치는 떨어지고, 경기는 멈췄다.</b> — 구단 가치 하락(A 40%) · '
-                 '강화·훈련코치 진입장벽(B 25%) · 키보드 vs 패드(C 35%). 공식 강화 확률, 이적시장 캡처, 인벤 게시글·유튜브 요약을 근거로 '
-                 '구단 가치 분석기와 매칭 정책 비교 데모를 만들고, 통합 매칭 유지 + 조작 환경 개선을 권고했습니다.</p></a>')
+                 '<h3>FC 온라인 · 축구 게임인가, 주식 게임인가?</h3><p><b>구단 가치 하락과 강화 실패로 발생하는 자산 손실 체감과 이탈 위험</b> — '
+                 '대표 A 구단 가치 하락 · B 강화 실패, 보조 C 키보드·패드 입력 환경. 공식 강화 확률·이적시장 안정화 공지, 작성자 캡처, 인벤 게시글을 근거로 '
+                 '하락 원인 분석·재건 가이드(재화 지급 0)와 통합 매칭 유지 + 입력 판정 검증을 제안했습니다.</p></a>')
     dn = json.loads((ROOT / "data" / "dnf" / "dnf.json").read_text(encoding="utf-8"))
     cards.append('<a class="sx-card feature" href="dnf.html"><div class="k">네 번째 프로젝트 · 실제 자료 기반</div>'
                  f'<h3>던전앤파이터 · 시즌의 가치 회복</h3><p><b>{H.escape(dn["intro"]["question"])}</b> — '
-                 '시즌 성장 가치(A) · 고난도 보상 성취감(B) · 다음 시즌 기대(C). 공식 가이드·개발자 노트와 유튜브 댓글(아이디 가림)을 근거로 '
-                 f'기존 보장 시스템과 겹치지 않는 «불운 진척도»를 제안하고 확률 보상 시뮬레이터를 만들었습니다. 판단: {H.escape(dn["decision"])}</p></a>')
+                 '2026 미카엘라 하드 레이드의 전투·클리어·보상 장면(유튜브 임베드), 공식 업데이트·특별 경매 공지, 2026 공식 게시판 유저 글을 근거로 '
+                 f'기존 보장 시스템과 겹치지 않는 «지정 장비 진척 게이지»를 제안하고 확률 보상 시뮬레이터를 만들었습니다. 판단: {H.escape(dn["decision"])}</p></a>')
     for pid, f, name, _ in PAGES[4:]:
         one = GAMES[pid].get("one_liner", "") if pid in GAMES else {
             "home": "프로젝트 소개 · 4개 게임 핵심 문제 · 사업PM 어시스턴트 바로가기",
@@ -712,10 +712,12 @@ def main() -> int:
             for gid in ("overwatch", "pubg", "fconline", "dnf"):
                 for j in range(3):
                     at.button(key=f"faq_{gid}_{j}").click().run()
+            for qk in ("qa_cmp_priority", "qa_cmp_budget", "qa_iv_nodata"):   # 비교·면접 예시 답변
+                at.button(key=qk).click().run()
         body = ex.children(at.main, 0)
         if pid == "assistant":
             body = (f'<div class="sx-live"><b>직접 질문하기</b> · GitHub Pages는 정적 화면이라 질문 입력이 동작하지 않습니다 → '
-                    f'<a href="{LIVE_URL}?page=assistant">Streamlit 원본 앱에서 질문하기 ↗</a> · 아래는 자주 묻는 질문 12개의 실제 검색 답변입니다.</div>') + body
+                    f'<a href="{LIVE_URL}?page=assistant">Streamlit 원본 앱에서 질문하기 ↗</a> · 아래는 게임별 자주 묻는 질문 12개와 비교·면접 예시 3개의 실제 검색 답변입니다 · 비교·면접 질문 전체는 원본 앱에서.</div>') + body
         desc = GAMES[pid].get("one_liner", name) if pid in GAMES else name
         toc = ex.toc
         doc = save_images(page_html(name, desc, fname, body, toc, ex.charts > 0, gen))

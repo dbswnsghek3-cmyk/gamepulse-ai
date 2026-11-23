@@ -128,8 +128,14 @@ def render() -> None:
 
 # ======================================================================
 # 01 문제 정의
+def core_box(d: dict) -> None:
+    c = d["core"]
+    html(f'<div class="fc-core"><span>대표 문제 (A + B)</span><b>{escape(c["problem"])}</b><p>{escape(c["conclusion"])}</p><small>{escape(c["sub"])}</small></div>')
+
+
 def s1(d: dict) -> None:
     it = d["intro"]   # 게임 소개: 메인 화면 1장은 여기(01)에만
+    core_box(d)
     html(f'<div class="fc-intro"><b>FC 온라인이란?</b><p>{escape(it["line"])}</p><ol>'
          + "".join(f"<li>{tr(t)}{escape(x)}</li>" for t, x in it["topics"]) + "</ol></div>")
     gallery("intro", [it["img"]])
@@ -214,7 +220,10 @@ def sol_card(x: dict, t: str) -> str:
 
 def s4(d: dict) -> None:
     ap, so, role = d["a_plan"], d["solutions"], d["role"]
-    head("해결: 시세 보장·보상 확대·매칭 분리 대신", "A 대표 · C 차별화 · B 보조 (기획 시안)", b_mock())
+    head("해결: 시세 보장·보상 확대·매칭 분리 대신", "대표 A·B (자산 손실) → 보조 C (입력 환경) · 기획 시안", b_mock())
+    core_box(d)
+    with st.expander("사업PM 관점 · 손실 과정 → 이탈 가설 → 완화 전략 → 기존 시스템과 차이 → 영향 → 부작용", expanded=True):
+        table(["관점", "정리"], [[f"<b>{escape(a)}</b>", escape(b)] for a, b in d["core"]["pm"]])
     lead("A", f"{role['A']} · 구단 가치 하락 원인 분석 + 보유 자산 기반 재건", "데모는 05 탭")
     html('<div class="fc-flow3">' + '<i>→</i>'.join(f'<div><span>{escape(a)}</span><b>{escape(b)}</b><small>{escape(c)}</small></div>' for a, b, c in d["a_flow"]) + "</div>")
     html('<div class="fc-sols">' + "".join(sol_card(x, "a") for x in so["A"]) + "</div>")
@@ -222,6 +231,12 @@ def s4(d: dict) -> None:
         table(["구분", "하는 일", "범위"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in ap["diff"]])
         table(["부작용", "대응"], [[escape(a), f"<b>{escape(b)}</b>"] for a, b in ap["side"]], badge_html=b_interp())
     conclude("시세를 보장하는 대신, 다시 성장할 수 있는 경로를 제공한다.")
+    lead("B", f"{role['B']} · 강화 실패 · 훈련코치 초기 적응", "A와 같은 자산 손실 문제 · 강화 실패 이후 추가 강화·이탈은 검증 전 가설 · 강화 시뮬레이터 없음")
+    html('<div class="fc-sols">' + "".join(sol_card(x, "b") for x in so["B"]) + "</div>")
+    with st.expander("자세히 보기 · 훈련코치 현황 · 기존 지원과 중복 확인"):
+        table(["구분", "확인한 내용", "출처"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["b_facts"]], badge_html=b_real())
+        table(["기존 제도 · 제안", "역할", "확인"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["existing"]], badge_html=b_real())
+    conclude("보상을 무조건 늘리기보다, 경쟁에 적응하는 시간을 줄인다.")
     lead("C", f"{role['C']} · 통합 매칭 유지 + 키보드 입력 판정 개선", "유저 의견에서 출발한 검증 가설 · 결함으로 확정된 것 아님")
     html('<div class="fc-sols">' + "".join(sol_card(x, "c") for x in so["C"]) + "</div>")
     html(f'<div class="fc-excl">{escape(d["c_excluded"])}</div>')
@@ -230,12 +245,6 @@ def s4(d: dict) -> None:
         html('<div class="fc-facts why">' + "".join(f'<div><span>{escape(a)}</span><b>{escape(b)}</b><small>{escape(c)}</small></div>' for a, b, c in d["c_why"]) + "</div>")
         st.markdown(f"- {d['c_why_note']}")
     conclude("매칭을 나누기보다, 같은 경기에서 납득할 수 있는 조작 환경을 만든다.")
-    lead("B", f"{role['B']} · 강화 실패 · 훈련코치 초기 적응", "두 문제를 하나의 원인으로 묶지 않음 · 강화 시뮬레이터 없음")
-    html('<div class="fc-sols">' + "".join(sol_card(x, "b") for x in so["B"]) + "</div>")
-    with st.expander("자세히 보기 · 훈련코치 현황 · 기존 지원과 중복 확인"):
-        table(["구분", "확인한 내용", "출처"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["b_facts"]], badge_html=b_real())
-        table(["기존 제도 · 제안", "역할", "확인"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["existing"]], badge_html=b_real())
-    conclude("보상을 무조건 늘리기보다, 경쟁에 적응하는 시간을 줄인다.")
 
 
 # ======================================================================
@@ -284,6 +293,10 @@ def c_exp_html(r: dict, metric: str) -> str:
 
 def s5(d: dict) -> None:
     head("데모·KPI: 직접 계산하고, 판단 기준을 정한다", "수치는 모두 가정 · 실제 성과 아님", b_mock())
+    sub("핵심 KPI · 자산 손실 (A + B)", b_mock())
+    table(["구분", "KPI", "대상", "비교군", "측정 시점·기간"],
+          [[f"<b>{escape(a)}</b>", f"<b>{escape(b)}</b>", escape(c), escape(e), escape(f)] for a, b, c, e, f in d["core"]["kpi"]])
+    st.caption("실제 FC 온라인 내부 데이터가 없어 기준값·목표치는 파일럿 전 로그로 정한다 · 기간·비교 방식은 가정")
     ad = d["a_demo"]
     sub("A · 구단 가치 분석·재건 시뮬레이터", b_sim())
     c1, c2 = st.columns([1, 1.45], gap="medium")

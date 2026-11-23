@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import difflib
 import json
 import re
 from dataclasses import dataclass, field
@@ -18,6 +19,8 @@ from gamepulse.ai.base import ChatMessage, PMChatbot
 
 DATA = Path(__file__).resolve().parents[2] / "data"
 NOT_FOUND = "현재 분석 자료에서 확인되지 않습니다."
+OTHER_GAMES = ("발로란트", "롤", "리그 오브 레전드", "리그오브레전드", "lol", "메이플", "로스트아크", "로아", "원신", "마인크래프트", "배틀필드",
+               "서든", "카트라이더", "메이플스토리", "디아블로", "스타크래프트", "세븐나이츠", "리니지", "나혼렙", "몬길")
 STATIC_BASE = "https://dbswnsghek3-cmyk.github.io/gamepulse-ai/"
 STATIC_FILE = {"overwatch": "overwatch.html", "pubg": "pubg.html", "fconline": "fconline.html", "dnf": "dnf.html"}
 NAMES = {"overwatch": "오버워치", "pubg": "PUBG: NEW START", "fconline": "FC 온라인", "dnf": "던전앤파이터"}
@@ -39,13 +42,13 @@ INTENTS = {
     "cause": ["원인", "가설", "왜"],
     "strategy": ["전략", "개선", "해결", "제안", "방안", "기획", "아이디어", "어떻게", "접근"],
     "evidence": ["근거", "의견", "댓글", "유저", "리뷰", "목소리", "한계", "출처"],
-    "plan": ["예산", "비용", "로드맵", "일정", "리스크", "판단", "우선순위", "실행", "결론"],
+    "plan": ["예산", "비용", "로드맵", "일정", "리스크", "부작용", "가드레일", "판단", "우선순위", "실행", "결론", "bm", "과금"],
     "problem": ["문제", "불만", "요약", "핵심", "개요", "정리", "이탈", "적응"],
     "priority": ["우선", "먼저", "가장", "1순위", "첫 번째"],
 }
 SYN = {"힘들": ["어려"], "어렵": ["어려"], "광고비": ["예산"], "돈": ["비용"], "짜증": ["불만"], "접": ["이탈"], "떠나": ["이탈"],
        "접는": ["떠나", "이탈"], "랜덤": ["확률", "운에"], "늘려": ["확대", "전액"], "늘리": ["확대", "전액"], "대응": ["재건", "분석"],
-       "떨어": ["하락"], "적응": ["어려"], "잔존율": ["d7", "잔존"], "논란": ["비판", "논란"], "개발진": ["개발사"], "운영진": ["개발사"], "대처": ["대응"], "접근": ["전략", "개선"], "달라지": ["격차", "갈리"]}
+       "떨어": ["하락"], "적응": ["어려"], "잔존율": ["d7", "잔존"], "논란": ["비판", "논란"], "개발진": ["개발사"], "운영진": ["개발사"], "대처": ["대응"], "접근": ["전략", "개선"], "달라지": ["격차", "갈리"], "bm": ["bm", "과금", "매출"], "과금": ["bm", "매출"], "가챠": ["확률", "bm"], "부작용": ["리스크", "위험"]}
 TAB_OF_KIND = {"problem": "01", "evidence": "02", "cause": "03", "strategy": "04", "kpi": "05", "plan": "06", "priority": "06"}
 STOP = {"알려줘", "알려", "정리해줘", "뭐야", "무엇", "어떻게", "있어", "대해", "관련", "주세요", "은", "는", "이", "가", "의", "좀"}
 
@@ -169,12 +172,20 @@ def _pubg() -> list[Entry]:
 def _fconline() -> list[Entry]:
     d = _load("fconline/fc.json")
     i = d["intro"]
-    out = [Entry("fconline", "problem", "FC 온라인 핵심 문제 3가지", i["line"], [],
-                 [f"{k}. {t} ({d['role'].get(k, '')})" for k, t in i["topics"]], [], "01", d.get("final_dir", ""))]
+    co = d.get("core", {})
+    out = [Entry("fconline", "problem", "FC 온라인 대표 문제 (A·B 자산 손실 · C 보조)", co.get("problem", i["line"]),
+                 [f"{x}: {y}" for x, y in co.get("pm", [])[:3]],
+                 [f"{k}. {t} ({d['role'].get(k, '')})" for k, t in i["topics"]] + ([co["conclusion"]] if co else []),
+                 [f"{b}" for _, b, *_ in co.get("kpi", [])[:3]], "01", d.get("final_dir", "") + " 대표 핵심 문제 자산 손실 이탈")]
     for track, sols in d["solutions"].items():
         for s in sols:
             out.append(Entry("fconline", "strategy", f"{s['k']}. {s['name']}", _clean(s["p"]), [],
                              [_clean(s["c"]), f"부작용: {_clean(s.get('r', ''))}"], [_clean(s.get("v", ""))] + d["kpis"].get(track, []), "04"))
+    if d.get("core"):
+        out.append(Entry("fconline", "kpi", "핵심 KPI · 자산 손실 (A + B)", d["core"]["problem"],
+                         [f"{a} · {b}: 대상 {c} · 비교 {e} · {f}" for a, b, c, e, f in d["core"]["kpi"]],
+                         [d["core"]["conclusion"]], [f"{b} ({a})" for a, b, *_ in d["core"]["kpi"]], "05",
+                         "핵심 kpi 지표 측정 비교군 기간 잔존 재접속 재도전 cs 문의"))
     out.append(Entry("fconline", "kpi", "KPI · 실험", "트랙별 측정 지표와 실험 설계",
                      [f"[{e[0]}] 대조 {e[1]} vs 실험 {e[2]} · 대상 {e[3]}" for e in d["experiments"]],
                      [f"중단 조건: {e[5]}" for e in d["experiments"] if len(e) > 5],
@@ -307,9 +318,24 @@ def _alias_hit(ql: str, a: str) -> bool:
     return a in ql
 
 
+def _fuzzy_alias(ql: str) -> list[str]:
+    """띄어쓰기를 지운 문자열 · 오타(예: 오버위치)로도 게임을 찾는다."""
+    ns = re.sub(r"\s+", "", ql)
+    found = [g for g, al in GAME_ALIASES.items() if any(len(a) >= 3 and a.replace(" ", "") in ns for a in al)]
+    if found:
+        return found
+    flat = {a: g for g, al in GAME_ALIASES.items() for a in al if len(a) >= 3 and not re.fullmatch(r"[a-z0-9 ]+", a)}
+    for tok in re.findall(r"[가-힣]{3,}", ql):
+        m = difflib.get_close_matches(tok[: max(3, len(tok) - 1)], list(flat), n=1, cutoff=0.75) or difflib.get_close_matches(tok, list(flat), n=1, cutoff=0.75)
+        if m:
+            found.append(flat[m[0]])
+    return list(dict.fromkeys(found))
+
+
 def detect_games(q: str) -> list[str]:
     ql = q.lower()
-    return [g for g, al in GAME_ALIASES.items() if any(_alias_hit(ql, a) for a in al)]
+    hit = [g for g, al in GAME_ALIASES.items() if any(_alias_hit(ql, a) for a in al)]
+    return hit or _fuzzy_alias(ql)
 
 
 def infer_game(q: str) -> str | None:
@@ -328,7 +354,16 @@ def infer_game(q: str) -> str | None:
 
 def detect_kinds(q: str) -> list[str]:
     ql = q.lower()
-    return [k for k, words in INTENTS.items() if any(w in ql for w in words)]
+    kinds = [k for k, words in INTENTS.items() if any(w in ql for w in words)]
+    weak = not any(w in ql for w in ("문제", "불만", "이탈", "적응", "개요"))
+    if "problem" in kinds and len(kinds) > 1 and weak:
+        kinds.remove("problem")
+    return kinds
+
+
+@lru_cache(maxsize=1)
+def _vocab() -> list[str]:
+    return sorted({w for e in build_index() for w in re.findall(r"[가-힣]{2,}", e.text)})
 
 
 def _terms(q: str) -> list[str]:
@@ -348,6 +383,10 @@ def _terms(q: str) -> list[str]:
             if t not in corpus:                         # 영문은 자르지 않음 · 자료에 없는 단어는 버림
                 continue
         else:
+            if len(t) >= 3 and t not in corpus:         # 오타 교정 (자료에 있는 가까운 단어)
+                m = difflib.get_close_matches(t, _vocab(), n=1, cutoff=0.8)
+                if m:
+                    t = m[0]
             while len(t) > 2 and t not in corpus:      # '복귀하면 → 복귀' 처럼 어미를 줄여 가며 자료에 있는 형태 찾기
                 t = t[:-1]
         if len(t) >= 2 and t not in STOP:
@@ -404,11 +443,85 @@ def search(q: str, game: str | None = None, k: int = 3) -> list[tuple[float, Ent
     return scored[:k]
 
 
+@lru_cache(maxsize=1)
+def _qa() -> list[dict]:
+    return _load("assistant/qa.json")["items"]
+
+
+@lru_cache(maxsize=1)
+def _costs() -> dict[str, float]:
+    """제안별 공수(인월) · 각 게임 JSON에서 계산 (가정값)."""
+    ow, pb, fc, dn = _load("overwatch/restart.json"), _load("pubg/newstart.json"), _load("fconline/fc.json"), _load("dnf/dnf.json")
+    c: dict[str, float] = {f"ow:{x['key']}": float(x["effort"]) for x in ow["rice"]["items"]}
+    pc = pb["experiment"]["cost"]
+    c["pubg:A1"], c["pubg:B1"] = float(pc["A1_effort"]), float(pc["B1_effort"])
+    dig_w = next(w for n, _, w in pb["campaign"]["channels"] if "디지털" in n)
+    c["won:pubg:B1pilot"] = pb["campaign"]["budget"] * dig_w / 100 + pc["B1_effort"] * pc["monthly_cost_per_person"]
+    for name, mm, *_ in fc["cost"]["items"]:
+        if name.startswith("A1"):
+            c["fc:A1"] = float(mm)
+        if name.startswith("A2"):
+            c["fc:A2"] = float(mm)
+    for name, mm in dn["cost"]["items"]:
+        if name.startswith("B "):
+            c["dnf:B"] = float(mm)
+    return c
+
+
+def _man(v: float) -> str:
+    return f"{v / 1e8:g}억 원" if v >= 1e8 and v % 1e7 == 0 else f"약 {v / 1e4:,.0f}만 원"
+
+
+def _fill(text: str) -> str:
+    c, mon = _costs(), 6_000_000
+
+    def cost(m):
+        k = m.group(1)
+        if k == "pubg:B1pilot":
+            return f"{_man(c['won:pubg:B1pilot'])} (가정)"
+        return f"{c[k]:g}인월 · {_man(c[k] * mon)} (가정)"
+
+    def total(m):
+        return f"{_man(sum(c[k.strip()] for k in m.group(1).split(',')) * mon)} (가정)"
+    text = re.sub(r"\{cost:([a-z]+:[A-Za-z0-9]+)\}", cost, text)
+    return re.sub(r"\{sum:([^}]+)\}", total, text)
+
+
+def qa_match(q: str) -> dict | None:
+    """게임 이름이 없는 비교·면접 질문을 qa.json 에서 찾는다 (긴 핵심어 1점 · 짧은 핵심어 0.5점)."""
+    ns = re.sub(r"\s+", "", q.lower())
+    best, top = None, 0.0
+    for it in _qa():
+        sc = sum((1.0 if len(k.replace(" ", "")) >= 3 else 0.5) for k in it["keys"] if k.replace(" ", "").lower() in ns)
+        if sc > top:
+            best, top = it, sc
+    return best if top >= 1 else None
+
+
+def qa_md(it: dict) -> str:
+    link = lambda a, pg, tb: f"[{a}](?page={pg}{'&tab=' + tb if tb else ''})"  # noqa: E731
+    parts = [f"#### {it['cat']} · {it['q']}", f"**핵심 결론** — {_fill(it['conclusion'])}",
+             "**문제와 근거**\n" + "\n".join(f"- {_fill(x)}" for x in it["points"]),
+             "**사업PM 개선 전략**\n" + "\n".join(f"- {_fill(x)}" for x in it["strategy"])]
+    if it.get("kpi"):
+        parts.append("**핵심 KPI** (목표·가정 · 실측 아님)\n" + "\n".join(f"- {x}" for x in it["kpi"]))
+    parts.append("**관련 분석 페이지 · 출처**\n" + " · ".join(link(*x) for x in it["links"]) + f"\n\n_{it['note']}_")
+    parts.append("_포트폴리오 기반 검색형 답변 · 4개 게임 분석 자료에서 정리했으며 새로운 사실을 만들지 않습니다._")
+    return "\n\n".join(parts)
+
+
 def answer_md(q: str, game: str | None = None, datalab: dict | None = None) -> str:
     """검색 결과를 '핵심 결론 → 문제와 근거 → 사업PM 개선 전략 → 핵심 KPI → 관련 페이지' 마크다운으로 (원문 그대로)."""
+    if not game and not detect_games(q):
+        it = qa_match(q)
+        if it:
+            return qa_md(it)
     if not game and not detect_games(q) and (any(w in q for w in ("공통", "전체", "모든 게임", "비교", "4개", "네 게임", "4 게임", "각 게임"))
                                              or "priority" in detect_kinds(q)):
         return _cross_md(q)
+    if not game and not detect_games(q) and any(o in q.lower() for o in OTHER_GAMES):
+        return (f"**{NOT_FOUND}** 이 포트폴리오는 오버워치 · PUBG · FC 온라인 · 던전앤파이터 4개 게임만 분석했습니다. "
+                "다른 게임에 대한 수치나 의견은 만들지 않습니다.")
     if not game and not detect_games(q):
         game = infer_game(q)
     miss = _missing_metric(q, game)

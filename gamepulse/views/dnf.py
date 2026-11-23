@@ -134,11 +134,16 @@ def yt(vid: str, start: int, title: str) -> str:
 def s2(d: dict) -> None:
     m = d["media"]
     head("근거 (2026): 전투 → 클리어 → 실제 보상 → 유저 의견 → 개발사 대응", "실제 플레이는 제3자 유튜브 영상 임베드·시점 링크 · 유저 주장과 공식 발표를 구분", b_real())
-    sub("① 전투 · 미카엘라 하드 레이드", b_real())
+    sub("① 전투 → 클리어 → 보상 · 실제 영상 장면 5개 (좌우로 넘기기)", b_real())
     c = m["clear"]
-    html(yt(c["id"], c["start"], c["title"]) + f'<div class="df-ytcap"><b>{escape(c["title"])}</b> · {escape(c["meta"])} · {link(c["url"], "유튜브에서 보기 ↗")}'
-         '<br>제3자 유저 영상 (본인·GamePulse AI 플레이 아님) · 재게시 허락이 확인되지 않아 캡처 대신 공식 임베드·시점 링크만 사용</div>')
-    html('<div class="df-media">' + "".join(f'<div><span>{escape(k)} · {escape(t)}</span><b>{link(u, n + " ↗")}</b></div>' for k, t, n, u in m["chapters"]) + "</div>")
+    vid = c["id"]
+    slides = [(f'<div class="df-yt in"><iframe src="https://www.youtube-nocookie.com/embed/{vid}?start={a}&end={b}" title="{escape(t)}" '
+               'loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>',
+               f"{k} · {t}", f"{n} · 재생하면 이 장면부터 시작") for k, t, a, b, n in m["scenes"]]
+    html(gallery_html("dfscene", slides))
+    html(f'<div class="df-ytcap"><b>{escape(c["title"])}</b> · 유튜브 · 2026-08-09 업로드 · 30:26 · {link(m["video_url"], "원본 영상 ↗")}'
+         '<br>제3자 유저 영상 (본인·GamePulse AI 플레이 아님) · 재게시 허락이 확인되지 않아 캡처 이미지 대신 공식 임베드로 장면을 보여 줌 · '
+         '한 번의 클리어 영상으로 전체 유저의 경험을 단정하지 않음</div>')
     sub("② 클리어 · ③ 실제 보상 (영상 화면을 직접 확인한 내용)", b_real())
     r = d["reward_obs"]
     html('<div class="df-reward"><div class="h"><b>하드모드 정화 성공 · 클리어 타임 29분 26초</b><small>영상 29:59</small></div>'
@@ -280,7 +285,8 @@ def s5(d: dict) -> None:
         html(sim_html(r, d["sim_note"]))
         if k:
             html(f'<div class="fc-cav"><b>예측 가능한 상한</b> 목표 1회까지 최대 <b>기대 미만 클리어 {k}번</b> (설계값 K · 공식 확률이 없어 평균 횟수는 계산하지 않음)</div>')
-    with st.expander("자세히 보기 · 개선안별 전체 KPI · 실험 설계 (대조군·실험군 · 성공·롤백 기준)"):
+    st.caption(d["kpi_note"])
+    with st.expander("자세히 보기 · 개선안별 전체 KPI · 실험 설계 (대조군·실험군 · 성공·롤백 기준)", expanded=False):
         table(["개선안", "KPI"], [[tr(a), escape(b)] for a, b in d["kpis"]])
         st.markdown("\n".join(f"- {x}" for x in d["experiment"]))
         st.caption("이전 버전의 '평균 공급을 맞추려고 모든 이용자 보상을 일괄 축소'하는 방식은 하위 10%를 59.0 → 56.4로 낮춰 폐기 · "

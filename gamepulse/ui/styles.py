@@ -1798,6 +1798,16 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .df-reward p.off span {{ background: #e6f0ff; color: #1f5fbf; }}
 .df-reward .pm {{ margin-top: 0.5rem; font-size: 0.88rem; line-height: 1.55; }}
 .df-reward .pm span {{ background: #b3261e; color: #fff; }}
+/* FC 대표 문제 박스 */
+.fc-core {{ background: #0f2a4a; color: #fff; border-radius: 14px; padding: 0.95rem 1.15rem; margin: 0.3rem 0 1rem; }}
+.fc-core span {{ display: inline-block; font-size: 0.74rem; font-weight: 800; background: #ffffff22; padding: 2px 8px; border-radius: 6px; }}
+.fc-core b {{ display: block; font-size: 1.12rem; line-height: 1.45; margin: 0.35rem 0; }}
+.fc-core p {{ margin: 0 0 0.3rem; font-size: 0.92rem; line-height: 1.55; color: #dbe7ff; }}
+.fc-core small {{ font-size: 0.8rem; color: #b8c7e0; }}
+/* 던파 장면 갤러리: 임베드 슬라이드 */
+.fc-gal[data-gal="dfscene"] .df-yt.in {{ max-width: none; margin: 0; border-radius: 0; }}
+.fc-gal[data-gal="dfscene"] .zin {{ pointer-events: none; }}
+.fc-gal[data-gal="dfscene"] .zin iframe {{ pointer-events: auto; }}
 </style>
 """
 

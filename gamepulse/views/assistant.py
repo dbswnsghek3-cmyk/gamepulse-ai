@@ -12,6 +12,7 @@ import streamlit as st
 from gamepulse.ai.base import ChatMessage
 from gamepulse.ai.factory import current_provider, get_chatbot
 from gamepulse.ai.portfolio_index import NAMES
+from gamepulse.ai.portfolio_index import _qa as qa_items
 from gamepulse.content.games import GAME_ORDER
 from gamepulse.ui.components import hero, html, notice
 
@@ -47,21 +48,32 @@ def render() -> None:
     if "chat" not in st.session_state:
         st.session_state.chat = []
 
-    html('<div class="as-label">자주 묻는 질문 · 누르면 바로 답변</div>')
+    html('<div class="as-label">추천 질문 · 누르면 바로 답변</div>')
     clicked = None
-    cols = st.columns(2)
-    for i, gid in enumerate(GAME_ORDER):
-        with cols[i % 2]:
-            html(f'<div class="as-game">{NAMES[gid]}</div>')
-            for j, q in enumerate(FAQ[gid]):
-                if st.button(q, key=f"faq_{gid}_{j}", use_container_width=True):
-                    clicked = (q, gid)
-    if st.button(COMMON, key="faq_common", use_container_width=True):
-        clicked = (COMMON, None)
+    t_game, t_cmp, t_iv = st.tabs(["게임별 (문제·전략·KPI)", "비교·우선순위 (비용·매출·예산)", "면접 대비"])
+    with t_game:
+        cols = st.columns(2)
+        for i, gid in enumerate(GAME_ORDER):
+            with cols[i % 2]:
+                html(f'<div class="as-game">{NAMES[gid]}</div>')
+                for j, q in enumerate(FAQ[gid]):
+                    if st.button(q, key=f"faq_{gid}_{j}", use_container_width=True):
+                        clicked = (q, gid)
+        if st.button(COMMON, key="faq_common", use_container_width=True):
+            clicked = (COMMON, None)
+    qa = qa_items()
+    for tab, cat in ((t_cmp, "비교·우선순위"), (t_iv, "면접")):
+        with tab:
+            cols = st.columns(2)
+            for k, it in enumerate([x for x in qa if x["cat"] == cat]):
+                if cols[k % 2].button(it["q"], key=f"qa_{it['id']}", use_container_width=True):
+                    clicked = (it["q"], None)
+            if cat == "면접":
+                st.caption("면접 답변은 이 포트폴리오의 분석 내용만으로 정리한 예시 답변입니다 · 실제 내부 데이터는 없다는 전제를 숨기지 않습니다.")
 
     game = st.selectbox("직접 질문할 게임 (선택하지 않으면 질문에서 자동 인식)", [None] + GAME_ORDER,
                         format_func=lambda x: "자동 인식 · 공통 질문" if x is None else NAMES[x], key="as_game")
-    prompt = st.chat_input("질문 입력 · 예: 던파 불운 진척도 KPI는?")
+    prompt = st.chat_input("질문 입력 · 예: 던파 지정 장비 진척 게이지 KPI는?")
     if prompt or clicked:
         q, g = (prompt, game) if prompt else clicked
         _ask(q, g)
@@ -74,6 +86,10 @@ def render() -> None:
                 _show(m.content, expanded=i == n - 1)
             else:
                 st.markdown(m.content.replace("~", "\\~"))
+    asked = [m.content for m in st.session_state.chat if m.role == "user"]
+    if len(asked) > 1:
+        with st.expander(f"이전 질문 기록 {len(asked)}개"):
+            st.markdown("\n".join(f"{i}. {q}" for i, q in enumerate(asked, 1)))
     if st.session_state.chat and st.button("대화 지우기", key="as_clear"):
         st.session_state.chat = []
         st.rerun()
