@@ -133,13 +133,21 @@ def yt(vid: str, start: int, title: str) -> str:
 
 def s2(d: dict) -> None:
     m = d["media"]
-    head("근거 (2026): 실제 도전 → 유저 문제 제기 → 개발사 대응", "실제 플레이 영상은 유튜브 임베드 · 유저 주장과 공식 발표를 구분", b_real())
-    sub("① 실제 고난도 도전 · 미카엘라 하드 레이드", b_real())
+    head("근거 (2026): 전투 → 클리어 → 실제 보상 → 유저 의견 → 개발사 대응", "실제 플레이는 제3자 유튜브 영상 임베드·시점 링크 · 유저 주장과 공식 발표를 구분", b_real())
+    sub("① 전투 · 미카엘라 하드 레이드", b_real())
     c = m["clear"]
     html(yt(c["id"], c["start"], c["title"]) + f'<div class="df-ytcap"><b>{escape(c["title"])}</b> · {escape(c["meta"])} · {link(c["url"], "유튜브에서 보기 ↗")}'
-         '<br>유저 영상 (본인·GamePulse AI 플레이 아님) · 캡처를 재게시하지 않고 공식 임베드로만 연결</div>')
-    html('<div class="df-media">' + "".join(f'<div><span>{escape(k)}</span><b>{link(u, t + " ↗")}</b><small>{escape(n)}</small></div>' for k, t, u, n in m["links"]) + "</div>")
-    sub("② 유저 문제 제기 · 2026년 공식 게시판 3건", b_real())
+         '<br>제3자 유저 영상 (본인·GamePulse AI 플레이 아님) · 재게시 허락이 확인되지 않아 캡처 대신 공식 임베드·시점 링크만 사용</div>')
+    html('<div class="df-media">' + "".join(f'<div><span>{escape(k)} · {escape(t)}</span><b>{link(u, n + " ↗")}</b></div>' for k, t, n, u in m["chapters"]) + "</div>")
+    sub("② 클리어 · ③ 실제 보상 (영상 화면을 직접 확인한 내용)", b_real())
+    r = d["reward_obs"]
+    html('<div class="df-reward"><div class="h"><b>하드모드 정화 성공 · 클리어 타임 29분 26초</b><small>영상 29:59</small></div>'
+         '<ul>' + "".join(f"<li>{escape(x)}</li>" for x in r["items"]) + f'</ul><small>{escape(r["note"])}</small>'
+         f'<p>{escape(r["auction"])}</p><p class="off"><span>공식 기준</span>{escape(r["official"])}</p>'
+         f'<div class="pm"><span>사업PM 해석</span>{escape(r["pm"])}</div></div>')
+    with st.expander("자세히 보기 · 다른 영상·공식 프리뷰·공략 링크"):
+        html('<div class="df-media">' + "".join(f'<div><span>{escape(k)}</span><b>{link(u, t + " ↗")}</b><small>{escape(n)}</small></div>' for k, t, u, n in m["links"]) + "</div>")
+    sub("④ 유저 의견 · 2026년 공식 게시판 3건", b_real())
     html(f'<div class="fc-cav">{escape(d["opinion_scope"])}</div>')
     cards = []
     for o in d["key_opinions"]:
@@ -151,10 +159,10 @@ def s2(d: dict) -> None:
                      f'<div class="ev"><span>확인된 근거</span>{escape(o["evidence"])}</div>'
                      f'<div class="pm"><span>사업PM 해석</span>{escape(o["pm"])}</div></div>')
     html('<div class="df-ops">' + "".join(cards) + "</div>")
-    sub("③ 개발사 대응 · 공식 발표와 보도", b_real())
+    sub("⑤ 개발사 대응 · 공식 발표와 보도", b_real())
     html('<div class="fc-evs">' + "".join(f'<div class="fc-ev off"><span class="t">{escape(a)}</span><b>{escape(b)}</b><small>{link(u, "원문 ↗")}</small></div>'
                                           for a, b, u in d["dev_response"]) + "</div>")
-    html(f'<div class="df-gapnote"><b>④ 남은 문제</b> {escape(d["dev_gap"])}</div>')
+    html(f'<div class="df-gapnote"><b>남은 문제</b> {escape(d["dev_gap"])} → 기존 시스템과 다른 개선안은 04 탭 · KPI는 05 탭</div>')
     conclude("유저 의견은 문제를 찾는 출발점 · 효과 판단은 로그와 실험(05 탭)으로 한다.")
     with st.expander("자세히 보기 · 보조 자료 (이전 유튜브 댓글 캡처·지인 인터뷰 · 작성 시점이 2026 근거보다 불명확) · 검증 한계"):
         gallery("dfev", d["evidence_images"])

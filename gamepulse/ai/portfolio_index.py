@@ -227,6 +227,15 @@ def _dnf() -> list[Entry]:
                      [op_line(o) for o in ops_all if o["no"] in ("②", "③")] + [f"{a}: {b}" for a, b, _ in d["dev_response"][:1]],
                      [d["dev_gap"], "→ B 지정 장비 진척 게이지로 '반복 클리어 → 예측 가능한 목표' 연결 (04 탭)"],
                      [k[1] for k in d.get("kpi_main", [])][:3], "02", "미카엘라 레이드 하드 보상 논란 비판 왜"))
+    ro = d.get("reward_obs")
+    if ro:
+        out.append(Entry("dnf", "evidence", "미카엘라 하드 클리어와 실제 보상 (영상 확인)",
+                         "하드모드 정화 성공 · 클리어 타임 29분 26초 · 클리어 보상과 입찰 전리품 화면을 영상에서 확인",
+                         ["클리어 보상 (캐릭터 1명): " + " · ".join(ro["items"]), ro["auction"], ro["official"]],
+                         [ro["pm"], "→ B 지정 장비 진척 게이지로 '반복 클리어 → 예측 가능한 목표' 연결 (04 탭)"],
+                         [k[1] for k in d.get("kpi_main", [])][:3], "02", "클리어 보상 결과 실제 화면 영상 전투 하드 레이드 빛망울 입찰 전리품 업그레이드"))
+        out[-1].sources = [("유튜브 · 하드 미카엘라 클리어 (2026-08-09)", d["media"]["clear"]["url"]),
+                           ("공식 7/29 업데이트 (퍼스트서버)", "https://df.nexon.com/community/news/update/2928057")]
     out.append(Entry("dnf", "evidence", "개발사의 실제 대응 (2026-10)", "10/27 라이브에서 하드 보상 부족을 인정하고, 10/29부터 8주간 특별 경매를 임시 조치로 운영",
                      [f"{a}: {b}" for a, b, _ in d["dev_response"]],
                      [d["dev_gap"], "GamePulse AI 제안은 이 대응을 대체하지 않고 보완: 입찰 없는 본인 귀속 목표 · 확률·경매 유지"],

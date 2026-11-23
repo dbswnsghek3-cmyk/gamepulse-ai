@@ -1786,6 +1786,18 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .df-op .ev span {{ background: #e6f0ff; color: #1f5fbf; }}
 .df-gapnote {{ background: #fff7ed; border: 1px solid #f3c98b; border-radius: 10px; padding: 0.65rem 0.9rem; font-size: 0.92rem; line-height: 1.6; margin: 0.4rem 0 1rem; }}
 .df-fig.sm2 {{ max-width: 760px; }}
+/* 던파: 영상에서 확인한 클리어·보상 카드 */
+.df-reward {{ background: #fff; border: 1px solid {C['line']}; border-left: 5px solid #c77700; border-radius: 12px; padding: 0.85rem 1rem; margin: 0.4rem 0 1rem; }}
+.df-reward .h {{ display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.3rem; margin-bottom: 0.4rem; }}
+.df-reward .h b {{ font-size: 1rem; color: {C['navy']}; }}
+.df-reward .h small, .df-reward > small {{ font-size: 0.76rem; color: #6b778c; }}
+.df-reward ul {{ display: flex; flex-wrap: wrap; gap: 0.3rem 0.4rem; list-style: none; padding: 0; margin: 0.2rem 0 0.3rem; }}
+.df-reward li {{ font-size: 0.85rem; background: #fbf6f2; border: 1px solid #f0dcc8; border-radius: 8px; padding: 2px 8px; }}
+.df-reward p {{ font-size: 0.88rem; line-height: 1.6; margin: 0.45rem 0 0; color: #22324a; }}
+.df-reward p.off span, .df-reward .pm span {{ display: inline-block; font-size: 0.72rem; font-weight: 800; padding: 1px 7px; border-radius: 6px; margin-right: 0.4rem; }}
+.df-reward p.off span {{ background: #e6f0ff; color: #1f5fbf; }}
+.df-reward .pm {{ margin-top: 0.5rem; font-size: 0.88rem; line-height: 1.55; }}
+.df-reward .pm span {{ background: #b3261e; color: #fff; }}
 </style>
 """
 
