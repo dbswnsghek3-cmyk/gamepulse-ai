@@ -579,22 +579,22 @@ def _s2_evidence(rs: dict, kp: dict, steam: pd.DataFrame, pc: pd.DataFrame, ops:
     top3 = [("영웅·스킬 학습 부담", "새 영웅·스킬을 익히기 버겁다"), ("복귀 적응·변경점 파악", "무엇이 바뀌었는지 모른다"),
             ("상대 영웅 대응 이해 부족", "왜 졌는지, 어떻게 대응할지 모른다")]
     html(f'<div class="owx-ev"><div class="big"><span>{b_real()} 유저 의견</span><b><em>{learn}</em> / {len(v)}건</b>'
-         '<small>학습·적응 어려움을 말한 의견 (중복 집계)</small></div><div class="types">' + "".join(
+         '<small>학습·적응 어려움을 말한 의견 · 의견 1건은 1번만 셈 (오른쪽 유형별 건수는 한 의견이 여러 유형에 걸치면 각각 세므로 합이 더 큼)</small></div><div class="types">' + "".join(
              f'<div><b>{int(cc.get(k, 0))}건</b><span><b>{escape(k)}</b> · {escape(d)}</span></div>' for k, d in top3)
          + f'</div><div class="opp"><span>반대 의견</span><b>{int(cc.get("긍정적인 학습 경험", 0))}건</b><small>긍정적인 학습 경험</small></div></div>'
          f'<div class="owx-int">{b_interp()} <b>핵심은 영웅 수가 아니라, 바뀐 것을 실전에서 따라잡을 방법이 없다는 점</b>으로 해석한다 · '
          '자발적 게시글이라 전체 이용자 비율이 아니다<br>'
          f'{b_hypo()} <b>학습 부담 → 반복 패배 → 첫 주 이탈 위험</b> · 검증 전 가설이며 05의 A/B 테스트로 확인한다</div>')
-    _opinion_chart(v)                       # 핵심 차트 1 · 실제 자료
-    c1, c2 = st.columns(2, gap="medium")
-    with c1:
-        _steam_chart(steam)                 # 핵심 차트 2 · 실제 자료
-    with c2:
-        _pc_chart(pc)                       # 핵심 차트 3 · 실제 자료
+    _opinion_chart(v)                       # 핵심 차트 · 실제 자료
     html('<div class="ow-limits"><b>읽는 법</b>'
          f'<span>의견 {len(v)}건 = 자발적 게시글 · 비율·이탈 원인 아님</span>'
-         '<span>Steam·PC방 = 시장 반응 참고 · 복귀 이탈과 인과 연결 안 함</span>'
          '<span>원인 확인은 05의 A/B 테스트로</span></div>')
+    with st.expander("자세히 보기 · 시장 지표 참고 (Steam 동시 접속 · PC방 점유율) — 복귀 이탈과 인과 연결 안 함"):
+        c1, c2 = st.columns(2, gap="medium")
+        with c1:
+            _steam_chart(steam)             # 참고 차트 · 실제 자료
+        with c2:
+            _pc_chart(pc)                   # 참고 차트 · 실제 자료
     t = st.tabs([f"유저 의견 {len(v)}건", "게임 화면", "공식 업데이트", "지표 원자료"])
     with t[0]:
         _opinions(rs, ops)

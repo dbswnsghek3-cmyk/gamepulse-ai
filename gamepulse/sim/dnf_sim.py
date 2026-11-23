@@ -1,12 +1,14 @@
-"""던전앤파이터 · 랜덤 보상 vs 누적 보장 병행 비교 (가정 기반 몬테카를로 · UI 와 분리).
+"""던전앤파이터 · 현행 확률 보상 vs B 진척 게이지(제안) vs 천장(비교) — 가정 기반 몬테카를로 (UI 와 분리).
 
 모든 확률·배율·보상은 사용자가 넣는 가정값이며 실제 던파 확률이 아니다.
 
-- 현행(A): 클리어 1회 보상 = 기본 1 × (확률 p 로 배율 M, 아니면 1)
-- 누적 보장 병행(B): A 와 같은 확률 보상 + '천장' K — 배율이 K회 연속 안 나오면 다음 클리어는 배율 확정
-  · 공급 중립(옵션): B 의 평균 총보상이 A 와 같도록 B 보상 전체를 같은 비율로 낮춘다 → 재화 공급량 변화 0
-- 이용자 수 n 명을 같은 난수열(mulberry32, 시드 고정)로 시뮬레이션 → 정적 페이지 JS 와 같은 결과
-- 출력: 평균 총보상 · 표준편차 · 하위 10%(P10) · 최저 · 목표(= A 의 평균) 도달 비율 · 공급량 변화
+- 현행(A): 클리어 1회 보상 = 기본 1 × (확률 p 로 고배율 M, 아니면 1) · 1회 기대 보상 E = (1-p) + p·M
+- B 진척 게이지(04 탭 대표안): 기대 미만 클리어마다 게이지 +1 (연속일 필요 없음) → K칸이 차면 그 클리어 보상을
+  '기대 배율 하한 E'까지 올려 준다 · 확률·고배율은 그대로 → 운의 재미 유지, 운이 나쁜 날도 쌓임
+- 천장(비교·반례): K회 '연속' 기대 미만이면 다음 클리어를 고배율 M으로 확정 (기존 장치와 겹치고 공급 충격이 큼)
+- 공급 중립(옵션): 늘어난 보상만큼 '고배율 보상 크기'를 줄여 평균 총보상을 현행과 같게 맞춘다
+  (모든 이용자 보상을 일괄 축소하면 혜택을 못 받은 하위 이용자가 손해 → 그 방식은 쓰지 않는다)
+- 같은 난수열(mulberry32, 시드 고정) · 정적 페이지 JS(scripts/dnf_static_demos.py)와 같은 식
 """
 
 from __future__ import annotations
@@ -32,31 +34,55 @@ def _stats(xs: list[float]) -> dict:
     n = len(s)
     mean = sum(s) / n
     sd = math.sqrt(sum((x - mean) ** 2 for x in s) / n)
-    return {"mean": mean, "sd": sd, "p10": s[int(n * 0.1)], "p50": s[n // 2], "p90": s[int(n * 0.9)], "min": s[0]}
+    return {"mean": mean, "sd": sd, "p10": s[int(n * 0.1)], "p50": s[n // 2], "min": s[0]}
 
 
-def simulate(clears: int, p: float, mult: float, pity: int, neutral: bool, players: int = 2000, seed: int = 20261123) -> dict:
-    """p 는 0~1, pity = 천장 K (0 이면 천장 없음)."""
+def simulate(clears: int, p: float, mult: float, gauge: int, neutral: bool, players: int = 2000, seed: int = 20261123) -> dict:
+    """p 는 0~1 · gauge = K (0 이면 장치 없음) · neutral = 고배율 크기 조정으로 공급 중립."""
     rnd = _mulberry32(seed)
-    a_tot, b_tot = [], []
+    E = (1 - p) + p * mult
+    a_tot, bh, bg, ch = [], [], [], []      # 현행 총보상 · B 고배율 횟수 · B 게이지 보장 횟수 · 천장 고배율 횟수
     for _ in range(players):
-        a = b = 0.0
-        miss = 0
+        a = 0.0
+        hb = gb = hc = 0
+        g = miss = 0
         for _ in range(clears):
-            u = rnd()
-            hit = u < p
+            hit = rnd() < p
             a += mult if hit else 1.0
-            if not hit and pity and miss >= pity:      # K회 연속 미당첨 → 이번 클리어 배율 확정
-                hit = True
-            b += mult if hit else 1.0
-            miss = 0 if hit else miss + 1
+            # B 진척 게이지 (누적)
+            if hit:
+                hb += 1
+            else:
+                g += 1
+                if gauge and g >= gauge:
+                    gb += 1
+                    g = 0
+            # 천장 (연속)
+            forced = (not hit) and gauge and miss >= gauge
+            if hit or forced:
+                hc += 1
+                miss = 0
+            else:
+                miss += 1
         a_tot.append(a)
-        b_tot.append(b)
+        bh.append(hb)
+        bg.append(gb)
+        ch.append(hc)
     A = _stats(a_tot)
-    scale = A["mean"] / (sum(b_tot) / players) if neutral else 1.0
-    b_tot = [x * scale for x in b_tot]
-    B = _stats(b_tot)
+    tot_a = sum(a_tot)
+    base = clears * players
+    sb = sc = 1.0                             # 고배율 보너스(M-1) 조정 비율
+    if neutral:
+        hb_sum, gb_sum, hc_sum = sum(bh), sum(bg), sum(ch)
+        sb = max(0.0, (tot_a - base - gb_sum * (E - 1)) / (hb_sum * (mult - 1))) if hb_sum else 1.0
+        sc = max(0.0, (tot_a - base) / (hc_sum * (mult - 1))) if hc_sum else 1.0
+    b_tot = [clears + h * (mult - 1) * sb + k * (E - 1) for h, k in zip(bh, bg)]
+    c_tot = [clears + h * (mult - 1) * sc for h in ch]
+    B, C = _stats(b_tot), _stats(c_tot)
     goal = A["mean"]
-    return {"A": A, "B": B, "goal": goal, "scale": scale,
-            "reach_a": sum(x >= goal for x in a_tot) / players * 100, "reach_b": sum(x >= goal for x in b_tot) / players * 100,
-            "supply_pct": (B["mean"] / A["mean"] - 1) * 100, "expected_per_clear": (1 - p) + p * mult}
+    reach = lambda xs: sum(x >= goal - 1e-9 for x in xs) / players * 100  # noqa: E731
+    return {"A": A, "B": B, "C": C, "goal": goal, "E": E,
+            "reach_a": reach(a_tot), "reach_b": reach(b_tot), "reach_c": reach(c_tot),
+            "supply_b": (B["mean"] / A["mean"] - 1) * 100, "supply_c": (C["mean"] / A["mean"] - 1) * 100,
+            "jack_b": 1 + (mult - 1) * sb, "jack_c": 1 + (mult - 1) * sc, "mult": mult,
+            "fills_b": sum(bg) / players}

@@ -1,0 +1,377 @@
+"""PM 어시스턴트용 검색(Retrieval) 인덱스 — 4개 게임 분석 데이터(JSON)에서만 답을 찾는다.
+
+- 생성형 AI 가 아니다: 질문을 키워드로 나눠 아래 '항목(Entry)' 과 겹치는 정도로 점수를 매기고, 점수가 가장 높은 항목의 원문을 그대로 보여 준다.
+- 항목의 문장은 모두 data/<game>/*.json 에 이미 있는 분석 내용 → 새로운 수치·사실을 만들지 않는다.
+- 맞는 항목이 없으면 NOT_FOUND 를 돌려준다.
+- 나중에 LLM 을 붙일 때: search() 결과(Entry 목록)를 근거 컨텍스트로 넘기면 된다 (RAG). ai/llm.py 의 구현체가 이 모듈을 재사용하도록 설계.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from dataclasses import dataclass, field
+from functools import lru_cache
+from pathlib import Path
+
+from gamepulse.ai.base import ChatMessage, PMChatbot
+
+DATA = Path(__file__).resolve().parents[2] / "data"
+NOT_FOUND = "현재 분석 자료에서 확인되지 않습니다."
+STATIC_BASE = "https://dbswnsghek3-cmyk.github.io/gamepulse-ai/"
+STATIC_FILE = {"overwatch": "overwatch.html", "pubg": "pubg.html", "fconline": "fconline.html", "dnf": "dnf.html"}
+NAMES = {"overwatch": "오버워치", "pubg": "PUBG: NEW START", "fconline": "FC 온라인", "dnf": "던전앤파이터"}
+TAB_NAMES = {
+    "overwatch": {"01": "문제와 결론", "02": "실제 근거", "03": "원인 가설", "04": "개선안 체험", "05": "KPI·A/B 테스트", "06": "실행·제안"},
+    "pubg": {"01": "문제·결론", "02": "실제 유저 근거", "03": "원인 가설", "04": "해결책 데모", "05": "KPI·A/B 테스트", "06": "실행·사업 판단"},
+    "fconline": {"01": "문제 정의", "02": "실제 유저 근거", "03": "원인 · 게임 화면", "04": "해결 전략", "05": "데모·KPI·실험", "06": "실행·예산·리스크"},
+    "dnf": {"01": "문제 정의", "02": "유저 의견·한계", "03": "원인", "04": "개선안", "05": "시뮬레이터·KPI", "06": "로드맵·판단"},
+}
+GAME_ALIASES = {
+    "overwatch": ["오버워치", "옵치", "overwatch", "ow"],
+    "pubg": ["배그", "배틀그라운드", "pubg", "펍지", "new start"],
+    "fconline": ["fc", "피파", "fc온라인", "fconline", "fc 온라인"],
+    "dnf": ["던파", "던전앤파이터", "dnf", "던전"],
+}
+# 질문 의도 → 우선 볼 항목 종류
+INTENTS = {
+    "kpi": ["kpi", "지표", "잔존", "d7", "d30", "측정", "성과", "a/b", "ab", "실험", "테스트"],
+    "cause": ["원인", "가설", "왜"],
+    "strategy": ["전략", "개선", "해결", "제안", "방안", "기획", "아이디어"],
+    "evidence": ["근거", "의견", "댓글", "유저", "리뷰", "목소리", "한계", "출처"],
+    "plan": ["예산", "비용", "로드맵", "일정", "리스크", "위험", "판단", "우선순위", "실행", "결론"],
+    "problem": ["문제", "불만", "요약", "핵심", "개요", "정리"],
+    "priority": ["우선", "먼저", "가장", "1순위", "첫 번째"],
+}
+SYN = {"힘들": ["어려"], "어렵": ["어려"], "광고비": ["예산"], "돈": ["비용"], "짜증": ["불만"], "접": ["이탈"], "떠나": ["이탈"]}
+TAB_OF_KIND = {"problem": "01", "evidence": "02", "cause": "03", "strategy": "04", "kpi": "05", "plan": "06", "priority": "06"}
+STOP = {"알려줘", "알려", "정리해줘", "뭐야", "무엇", "어떻게", "있어", "대해", "관련", "주세요", "은", "는", "이", "가", "의", "좀"}
+
+
+@dataclass
+class Entry:
+    game: str
+    kind: str                  # problem / evidence / cause / strategy / kpi / plan
+    title: str
+    summary: str
+    evidence: list[str] = field(default_factory=list)
+    strategy: list[str] = field(default_factory=list)
+    kpi: list[str] = field(default_factory=list)
+    tab: str = "01"
+    extra: str = ""            # 검색에만 쓰는 추가 텍스트
+    problem: str = ""          # 문제 정의 (비어 있으면 게임 공통 문제 정의)
+    sources: list[tuple[str, str]] = field(default_factory=list)   # (제목, URL)
+
+    @property
+    def text(self) -> str:
+        return " ".join([self.title, self.summary, *self.evidence, *self.strategy, *self.kpi, self.extra]).lower()
+
+    def links(self) -> tuple[str, str]:
+        label = f"{NAMES[self.game]} › {self.tab} {TAB_NAMES[self.game].get(self.tab, '')}"
+        return label, f"?page={self.game}&tab={self.tab}"
+
+    def static_url(self) -> str:
+        return f"{STATIC_BASE}{STATIC_FILE[self.game]}"
+
+
+def _load(p: str) -> dict:
+    return json.loads((DATA / p).read_text(encoding="utf-8"))
+
+
+def _clean(s: object) -> str:
+    return re.sub(r"\*\*", "", str(s)).strip()
+
+
+def _overwatch() -> list[Entry]:
+    d = _load("overwatch/restart.json")
+    s = d["summary"]
+    out = [Entry("overwatch", "problem", s["headline"], s["lead"], [s.get("limit", "")], [s["conclusion"]],
+                 [k["name"] for k in d["kpi_defs"][:3]], "01")]
+    out.append(Entry("overwatch", "cause", "이탈 원인 흐름 (가설)",
+                     " → ".join(f["step"] for f in d["problem"]["flow"]),
+                     [f"{f['step']}: {f['desc']} · 근거 {f['basis']}" for f in d["problem"]["flow"]],
+                     [], [f["check"] for f in d["problem"]["flow"]], "03"))
+    for st_ in d["strategies"]:
+        out.append(Entry("overwatch", "strategy", f"{st_['key']}. {st_['name']}", st_["tagline"],
+                         [f"대상: {st_['target']}", f"기존 기능과 차이: {st_.get('vs_existing', '')}"],
+                         [st_.get("hypothesis", ""), st_.get("effect", "")], list(st_.get("kpis", [])), "04",
+                         " ".join(map(str, st_.get("flow", [])))))
+    out.append(Entry("overwatch", "kpi", "KPI 정의", "주요·보조·가드레일 지표와 판단 규칙",
+                     [f"{k['name']} ({k['role']}) · 분모: {k['denominator']}" for k in d["kpi_defs"]],
+                     [f"{r['result']}: {r['rule']}" for r in d["decision_rules"]], [k["name"] for k in d["kpi_defs"]], "05",
+                     d["experiment"].get("note", "")))
+    out.append(Entry("overwatch", "evidence", "실제 근거와 한계", s.get("limit", ""),
+                     [_clean(o.get("quote") or o.get("text") or o) for o in d.get("rep_opinions", [])[:3] if isinstance(o, dict)],
+                     [], [], "02"))
+    pri = {x["key"]: x for x in d["strategies"]}
+    out.append(Entry("overwatch", "priority", "우선 실행: A 복귀 브리핑", s["conclusion"],
+                     [f"{k} {pri[k]['name']}: {pri[k].get('priority_reason', '')}" for k in ("A", "C", "B") if k in pri],
+                     [f"1단계 A {pri['A']['name']} — {pri['A']['tagline']}", "2단계 C 첫 10경기 미션 → 3단계 B 학습 카드 (수동형)"],
+                     list(pri["A"].get("kpis", [])), "06", "우선 먼저 순서 1순위 실행"))
+    out.append(Entry("overwatch", "plan", "실행 범위 · 리스크", "MVP 단계와 리스크 대응",
+                     [f"리스크: {r['risk']} → {r['response']}" for r in d["risks"]], list(d["mvp"]["in"]),
+                     [], "06", "예산 비용 일정 담당 " + " ".join(o["team"] for o in d["pilot"].get("owners", []))))
+    return out
+
+
+def _pubg() -> list[Entry]:
+    d = _load("pubg/newstart.json")
+    c = d["cover"]
+    out = [Entry("pubg", "problem", c["subtitle"], c["question"], [f"동시접속 최고 {d['peak']['display']} ({d['peak']['date']} · {d['peak']['source']})"],
+                 [f"{t['key']}. {t['name']} — {t['question']}" for t in d["tracks"]], [t["kpi"] for t in d["tracks"]], "01")]
+    out.append(Entry("pubg", "cause", "휴면 유저 복귀 장벽 (가설)", "복귀를 막는 장벽 4가지",
+                     [f"{b['title']}: {b['line']}" for b in d["return_barriers"]],
+                     [b.get("pm", "") for b in d["return_barriers"]], [], "03"))
+    camp = d["campaign"]
+    for p in d["proposals"]:
+        ads = [f"광고 {a['no']}: {a['title']}" for a in camp["ads"]] if p["key"] == "B1" else []
+        out.append(Entry("pubg", "strategy", f"{p['key']}. {p['name']}", p["problem"],
+                         [f"기존: {p['existing']}"] + ([f"대상: {camp['target']}"] if ads else []),
+                         [f"차별점: {p['diff']}", f"우선순위: {p['decision']}", d["mvp_reason"].get(p["key"], "")] + ads,
+                         [], "04", f"{p.get('data', '')} {p.get('risk', '')} {'광고 지하철 캠페인 ' + camp['why'] if ads else ''}"))
+    cost = d["experiment"]["cost"]
+    dig_w = next(w for n, _, w in camp["channels"] if "디지털" in n)
+    dig = camp["budget"] * dig_w / 100
+    land = cost["B1_effort"] * cost["monthly_cost_per_person"]
+    man = lambda v: f"{v / 1e4:,.0f}만 원"  # noqa: E731
+    out.append(Entry("pubg", "plan", "B1 광고 예산: 1억 원 전액 대신 디지털 파일럿",
+                     "PUBG의 ARPU·LTV를 공개 자료로 확인하지 못해 광고 1억 원의 수익성을 판단할 수 없다 → 전액 집행 보류",
+                     [f"기존 제안: 광고 {man(camp['budget'])} (디지털 {dig_w}% · 옥외 · 콘텐츠) + 랜딩 제작 {cost['B1_effort']:g}인월 (가정)",
+                      "옥외·콘텐츠 광고는 무작위 배정이 안 돼 홀드아웃 대비 순증 복귀를 측정할 수 없다",
+                      "손익분기: 순증 복귀자 1명의 기대 매출이 1인당 획득 비용 이상이어야 함 → LTV 미확인"],
+                     [f"디지털 리타깃팅 파일럿 {man(dig + land)} = 디지털 {man(dig)} + 랜딩·UTM {man(land)} (가정)",
+                      "휴면 리스트를 광고 3종 + 대조군으로 무작위 배정 → 소재별 순증 측정",
+                      "확대: 홀드아웃 대비 유의한 순증 + 재정착 1인당 비용 ≤ 내부 LTV 기준 · 중단: 모든 소재가 차이 없음 또는 신고율 악화"],
+                     ["순증 D30 재정착 유저당 비용", "복귀 로그인 전환율", "복귀 첫 경기 완료율", "D7·D30"], "05",
+                     "1억 억 예산 광고비 바로 전액 집행 손익분기 LTV 파일럿 5,600 이유"))
+    out.append(Entry("pubg", "priority", "우선 실행: A1 NEXT MATCH COACH", "신규 유저가 첫 실전 직후 떠나는 지점에 바로 닿는 개선부터",
+                     [f"{k}: {d['mvp_reason'].get(k, '')}" for k in ("A1", "B1")],
+                     [f"{p['key']} {p['name'].split(' · ')[0]}: {p['decision']}" for p in d["proposals"]][:4],
+                     [k[0] for k in d["kpis"]["A"][:3]], "06", "우선 먼저 순서 1순위 MVP"))
+    out.append(Entry("pubg", "plan", "실행 · 사업 판단 · 리스크", "우선순위와 리스크 대응",
+                     [f"리스크: {r['risk']} → {r['response']}" for r in d["risks"]],
+                     [f"{p['key']} {p['name'].split(' · ')[0]}: {p['decision']}" for p in d["proposals"]], [], "06",
+                     "예산 비용 손익 시나리오 사업성 파일럿"))
+    out.append(Entry("pubg", "kpi", "KPI 정의", "트랙별 주요·보조·가드레일 지표",
+                     [f"[{t}] {k[0]} ({k[1]}) · {k[3]}" for t, ks in d["kpis"].items() for k in ks], [],
+                     [k[0] for ks in d["kpis"].values() for k in ks], "05"))
+    return out
+
+
+def _fconline() -> list[Entry]:
+    d = _load("fconline/fc.json")
+    i = d["intro"]
+    out = [Entry("fconline", "problem", "FC 온라인 핵심 문제 3가지", i["line"], [],
+                 [f"{k}. {t} ({d['role'].get(k, '')})" for k, t in i["topics"]], [], "01", d.get("final_dir", ""))]
+    for track, sols in d["solutions"].items():
+        for s in sols:
+            out.append(Entry("fconline", "strategy", f"{s['k']}. {s['name']}", _clean(s["p"]), [],
+                             [_clean(s["c"]), f"부작용: {_clean(s.get('r', ''))}"], [_clean(s.get("v", ""))] + d["kpis"].get(track, []), "04"))
+    out.append(Entry("fconline", "kpi", "KPI · 실험", "트랙별 측정 지표와 실험 설계",
+                     [f"[{e[0]}] 대조 {e[1]} vs 실험 {e[2]} · 대상 {e[3]}" for e in d["experiments"]],
+                     [f"중단 조건: {e[5]}" for e in d["experiments"] if len(e) > 5],
+                     [f"[{k}] {x}" for k, v in d["kpis"].items() for x in v], "05"))
+    out.append(Entry("fconline", "strategy", "키보드·패드 통합 매칭을 유지하는 이유", d["c_excluded"],
+                     [f"{a}: {b} {c}" for a, b, c in d["c_why"]] + [d["c_why_note"]],
+                     [f"{x['key']}안 {x['name']}: {x['pro']} / {x['con']}" for x in d["c_policies"]] + [f"하지 않는 것: {d['c_not']}"],
+                     d["kpis"]["C"][:4], "04", "분리 매칭 통합 유지 이유 키보드 패드 나누 분리하지"))
+    out.append(Entry("fconline", "priority", "우선 실행: A 구단 가치 원인 분석 → 재건 가이드", d.get("final_dir", ""),
+                     [f"{p[0]} {p[1]}: {p[3]}" for p in d["priority"]],
+                     [f"{p[0]} {p[1]}: {p[2]}" for p in d["priority"]], d["kpis"]["A"][:3], "06", "우선 먼저 순서 1순위"))
+    out.append(Entry("fconline", "plan", "실행 우선순위 · 예산 · 리스크", d.get("final_dir", ""),
+                     [f"리스크: {r[0]} → {r[1]}" for r in d["risks"]],
+                     [f"{p[0]} {p[1]}: {p[2]} — {p[3]}" for p in d["priority"]],
+                     [], "06", "예산 비용 인월 " + " ".join(str(c[0]) for c in d["cost"]["items"])))
+    out[-1].evidence.insert(0, "예산(인월): " + " · ".join(f"{c[0]} {c[1]}" for c in d["cost"]["items"]) + f" × 월 {d['cost']['monthly_cost_per_person'] // 10000}만 원")
+    out.append(Entry("fconline", "evidence", "실제 유저 근거 건수", "유형별 근거 건수와 제외 사유",
+                     [" · ".join(map(str, c)) for c in d.get("counts", [])], [], [], "02"))
+    return out
+
+
+def _dnf() -> list[Entry]:
+    d = _load("dnf/dnf.json")
+    i = d["intro"]
+    out = [Entry("dnf", "problem", "던전앤파이터 핵심 질문", i["question"],
+                 [f"{s[0]}: {s[1]} ({s[2]})" for s in i["season"]],
+                 [f"{p[0]}. {p[1]} — {p[2]} ({p[3]})" for p in d["problems"]], [], "01", i["line"])]
+    prob = {p[0]: f"{p[1]} {p[2]}" for p in d["problems"]}
+    for s in d["solutions"]:
+        ops = [f"유저 의견 {o['no']} {o['theme']}: “{o['quotes'][0][0]}” → {o['pm']}" for o in d.get("key_opinions", []) if o["sol"] == s["k"]]
+        out.append(Entry("dnf", "strategy", f"{s['k']}. {_clean(s['name'])}", _clean(s["p"]), ops or [f"문제 {s['k']}: {prob.get(s['k'], '')}"],
+                         [_clean(s["c"])], [_clean(s.get("v", "")) or next((k[1] for k in d["kpis"] if k[0] == s["k"]), "")], "04",
+                         _clean(s.get("r", "")) + " " + prob.get(s["k"], "")))
+    out.append(Entry("dnf", "strategy", "기존 보장 장치와 B 불운 진척 게이지의 차이",
+                     "기존 장치는 평균을 올리거나 별도 재료가 필요 · '이번 클리어의 운 나쁜 결과'를 쌓아 주는 장치는 확인되지 않음",
+                     [f"{a}: {b} → 한계: {c}" for a, b, c in d["existing"]],
+                     [_clean(next(x["c"] for x in d["solutions"] if x["k"] == "B")),
+                      "천장(K회 연속 실패 시 고배율 확정)은 재화 공급 과열 위험으로 제외 (05 탭 시뮬레이션 · 가정)"],
+                     [f"{k[1]} — {k[2]}" for k in d.get("kpi_main", [])], "04", "기존 보장 시스템 차이 중복 다른 점 네 제안"))
+    out.append(Entry("dnf", "priority", "우선 실행: B 불운 진척 게이지 소규모 파일럿", d["decision"],
+                     [f"{r[0]} {r[1]}: {r[2]}" for r in d["roadmap"]][:3],
+                     [d["decision"]], [f"{k[1]}" for k in d.get("kpi_main", [])], "06", "우선 먼저 순서 1순위"))
+    out.append(Entry("dnf", "kpi", "KPI · 실험", "개선안별 측정 지표와 실험 설계", list(d["experiment"]), [],
+                     [f"[{k[0]}] {k[1]}" for k in d["kpis"]], "05"))
+    out.append(Entry("dnf", "evidence", "유저 의견의 범위와 한계", "유튜브 댓글·지인 인터뷰는 정성 근거", list(d["limits"]), [], [], "02"))
+    out.append(Entry("dnf", "plan", "로드맵 · 판단 · 예산", d["decision"],
+                     ["예산(인월): " + " · ".join(f"{c[0]} {c[1]}" for c in d["cost"]["items"]) + f" × 월 {d['cost']['monthly'] // 10000}만 원"]
+                     + [f"리스크: {r[0]} → {r[1]}" for r in d["risks"]],
+                     [" · ".join(map(str, r)) for r in d["roadmap"]], [], "06", "예산 비용 일정 리스크 로드맵"))
+    return out
+
+
+def _game_defaults() -> dict[str, dict]:
+    """게임별 공통 문제 정의 · 기본 근거 · 공식 출처 (모두 data/*.json 원문)."""
+    ow, pb = _load("overwatch/restart.json"), _load("pubg/newstart.json")
+    fc, dn = _load("fconline/fc.json"), _load("dnf/dnf.json")
+    src = lambda xs, t="title": [(f"{x.get(t) or x.get('src')} ({x['date']})", x["url"]) for x in xs if x.get("url")][:3]  # noqa: E731
+    return {
+        "overwatch": {"problem": f"{ow['summary']['headline']} — {ow['summary']['lead']}",
+                      "evidence": [f"공식: {o['title']} ({o['date']}) — {o['fact']}" for o in ow["official"][:2]],
+                      "sources": src(ow["official"])},
+        "pubg": {"problem": f"{pb['cover']['question']} ({pb['cover']['subtitle']})",
+                 "evidence": [f"{b['title']}: {b['line']}" for b in pb["return_barriers"][:2]] + [f"공식: {o['title']} ({o['date']})" for o in pb["official"][:1]],
+                 "sources": src(pb["official"])},
+        "fconline": {"problem": " · ".join(f"{k} {t}" for k, t in fc["intro"]["topics"]),
+                     "evidence": [f"{c[0]}: {c[1]}" for c in fc.get("counts", [])[:3]],
+                     "sources": src(fc["official"])},
+        "dnf": {"problem": dn["intro"]["question"],
+                "evidence": [f"핵심 유저 의견 {o['no']} {o['theme']} — {o['pm']}" for o in dn.get("key_opinions", [])[:3]],
+                "sources": src(dn["official"], "src") + [(f"유튜브 {n} (댓글 근거)", u) for n, _, u in list(dn["videos"].values())[:1]]},
+    }
+
+
+@lru_cache(maxsize=1)
+def build_index() -> tuple[Entry, ...]:
+    entries: list[Entry] = []
+    for fn in (_overwatch, _pubg, _fconline, _dnf):
+        entries.extend(fn())
+    gd = _game_defaults()
+    for e in entries:
+        g = gd[e.game]
+        if not e.problem:
+            e.problem = e.summary if e.kind == "strategy" else g["problem"]
+        if not e.evidence:
+            e.evidence = list(g["evidence"])
+        if not e.sources:
+            e.sources = list(g["sources"])
+    for e in entries:  # 빈 문자열 정리
+        e.evidence = [x for x in e.evidence if str(x).strip()]
+        e.strategy = [x for x in e.strategy if str(x).strip()]
+        e.kpi = [x for x in e.kpi if str(x).strip()]
+    return tuple(entries)
+
+
+def detect_games(q: str) -> list[str]:
+    ql = q.lower()
+    return [g for g, al in GAME_ALIASES.items() if any(a in ql for a in al)]
+
+
+def detect_kinds(q: str) -> list[str]:
+    ql = q.lower()
+    return [k for k, words in INTENTS.items() if any(w in ql for w in words)]
+
+
+def _terms(q: str) -> list[str]:
+    ql = q.lower()
+    for al in GAME_ALIASES.values():
+        for a in sorted(al, key=len, reverse=True):
+            ql = ql.replace(a, " ")
+    toks = re.findall(r"[0-9a-z가-힣/]+", ql)
+    corpus = " ".join(e.text for e in build_index())
+    out = []
+    for t in toks:
+        if t.startswith("운") and len(t) <= 4:          # '운이라·운에' → 확률·불운 (한 글자 단어 보완)
+            out += ["확률", "불운"]
+        t = re.sub(r"(은|는|이|가|을|를|의|에|로|으로|와|과|도|만|에서|해줘|알려줘|줘)$", "", t)
+        while len(t) > 2 and t not in corpus:          # '복귀하면 → 복귀' 처럼 어미를 줄여 가며 자료에 있는 형태 찾기
+            t = t[:-1]
+        if len(t) >= 2 and t not in STOP:
+            out += [t] + SYN.get(t, [])
+    return list(dict.fromkeys(out))
+
+
+def search(q: str, game: str | None = None, k: int = 3) -> list[tuple[float, Entry]]:
+    games = [game] if game else detect_games(q)
+    kinds = detect_kinds(q)
+    terms = _terms(q)
+    pool = [e for e in build_index() if not games or e.game in games]
+    # 드문 단어(해당 범위에서 2개 항목 이하에만 나오는 단어)는 질문의 핵심일 가능성이 높아 2배
+    w = {t: (2.0 if sum(t in e.text for e in pool) <= 2 else 1.0) for t in terms}
+    scored = []
+    for e in pool:
+        s = 0.0
+        if e.kind in kinds:
+            s += 2.0
+        s += sum(w[t] for t in terms if t in e.text)
+        if any(t in e.title.lower() for t in terms):
+            s += 1.0
+        if s > 0:
+            scored.append((s, e))
+    scored.sort(key=lambda x: -x[0])
+    # 게임만 지정되고 의도·키워드가 없으면 '문제 요약' 항목을 보여 준다
+    if not scored and games and not terms:
+        scored = [(1.0, e) for e in build_index() if e.game in games and e.kind == "problem"]
+    # 키워드만 맞고 의도·게임이 모두 없으면 근거가 약하다 → 2개 이상 일치만 인정
+    if not games and not kinds:
+        scored = [x for x in scored if x[0] >= 2.0]
+    return scored[:k]
+
+
+def answer_md(q: str, game: str | None = None, datalab: dict | None = None) -> str:
+    """검색 결과를 '핵심 요약 → 근거 → 실행 전략 → KPI → 출처' 마크다운으로 만든다 (원문 그대로)."""
+    if not game and not detect_games(q) and any(w in q for w in ("공통", "전체", "모든 게임", "비교", "4개", "네 게임", "4 게임", "각 게임")):
+        return _cross_md(q)
+    hits = search(q, game)
+    if not hits:
+        return f"**{NOT_FOUND}**\n\n질문에 게임 이름(오버워치·배그·FC·던파)과 알고 싶은 항목(문제·근거·전략·KPI·예산)을 함께 넣어 보세요."
+    top = hits[0][1]
+    label, href = top.links()
+    parts = [f"#### {NAMES[top.game]} · {top.title}", f"**핵심 요약** — {top.problem}"]
+    parts.append("**근거**\n" + "\n".join(f"- {x}" for x in top.evidence[:3]))
+    strat = top.strategy[:3] or [top.summary]
+    parts.append("**실행 전략**\n" + "\n".join(f"- {x}" for x in strat))
+    if top.kpi:
+        parts.append("**KPI**\n" + "\n".join(f"- {x}" for x in top.kpi[:4]))
+    src = [f"- 분석 페이지: [{label}]({href}) · [정적 페이지]({top.static_url()})"] + [f"- [{t}]({u})" for t, u in top.sources[:3]]
+    parts.append("**출처**\n" + "\n".join(src))
+    if len(hits) > 1:
+        parts.append("관련 항목: " + " · ".join(f"[{e.title}]({e.links()[1]})" for _, e in hits[1:]))
+    parts.append("_포트폴리오 기반 검색형 답변 · 분석 자료 원문을 그대로 보여 주며 새로운 사실을 만들지 않습니다._")
+    return "\n\n".join(parts)
+
+
+def _cross_md(q: str) -> str:
+    """게임 공통 질문: 게임마다 가장 관련 높은 항목 1개씩 요약 (같은 형식)."""
+    kinds = detect_kinds(q) or ["problem"]
+    if "priority" in kinds:     # '가장 먼저 할 일' 질문은 우선순위 항목만 본다
+        kinds = ["priority"]
+    ko = {"kpi": "KPI", "cause": "원인", "strategy": "개선 전략", "evidence": "근거", "plan": "실행·예산", "problem": "핵심 문제", "priority": "우선 실행안과 이유"}
+    parts = [f"#### 4개 게임 비교 · {' · '.join(ko.get(k, k) for k in kinds)}"]
+    for g in NAMES:
+        same = [(0, e) for e in build_index() if e.game == g and e.kind == kinds[0]][:1]
+        hits = same if kinds[0] == "priority" else (search(q, g, k=1) or same)
+        if not hits:
+            parts.append(f"- **{NAMES[g]}** — {NOT_FOUND}")
+            continue
+        e = hits[0][1]
+        if e.kind == "priority":
+            first = e.strategy[:1] + [f"이유: {x}" for x in e.evidence[:1]] + ([f"KPI: {' · '.join(e.kpi[:3])}"] if e.kpi else [])
+        else:
+            first = (e.kpi or e.strategy or e.evidence or [""])[:3]
+        body = "\n".join(f"- {x}" for x in first if x)
+        parts.append(f"**{NAMES[g]} · {e.title}** — {e.summary}\n{body}\n- [{e.links()[0]}]({e.links()[1]})")
+    parts.append("_검색 기반 답변 · 게임별 분석 자료의 원문을 모아 보여 줍니다._")
+    return "\n\n".join(parts)
+
+
+class PortfolioAssistant(PMChatbot):
+    """규칙·검색 기반 어시스턴트 (생성형 AI 아님)."""
+
+    name = "retrieval"
+
+    def __init__(self, datalab: dict | None = None):
+        self.datalab = datalab
+
+    def reply(self, messages: list[ChatMessage], game_id: str | None = None) -> str:
+        q = next((m.content for m in reversed(messages) if m.role == "user"), "")
+        return answer_md(q, game_id, self.datalab)

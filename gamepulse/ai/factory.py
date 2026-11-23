@@ -9,7 +9,8 @@ from __future__ import annotations
 import os
 
 from gamepulse.ai.base import CommentClassifier, PMChatbot
-from gamepulse.ai.rule_based import RuleBasedChatbot, RuleBasedClassifier
+from gamepulse.ai.portfolio_index import PortfolioAssistant
+from gamepulse.ai.rule_based import RuleBasedClassifier
 
 LLM_READY = False  # 다음 단계에서 LLM 연결을 마치면 True 로 변경
 
@@ -26,8 +27,10 @@ def get_classifier() -> CommentClassifier:
     return RuleBasedClassifier()
 
 
-def get_chatbot() -> PMChatbot:
+def get_chatbot(datalab: dict | None = None) -> PMChatbot:
+    """기본: 4개 게임 분석 데이터 검색 기반 어시스턴트 (생성형 AI 아님).
+    LLM 연결 시: portfolio_index.search() 결과를 근거 컨텍스트로 넘기는 구현체로 교체한다."""
     if current_provider() == "llm":
         from gamepulse.ai.llm import LLMChatbot
         return LLMChatbot()
-    return RuleBasedChatbot()
+    return PortfolioAssistant(datalab)

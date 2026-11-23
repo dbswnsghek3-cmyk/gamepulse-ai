@@ -86,9 +86,36 @@ def normalize_comments(df: pd.DataFrame) -> pd.DataFrame:
             d[c] = pd.NA
 
     d["game_id"] = d["game_id"].map(resolve_game_id)
-    d["text"] = d["text"].astype(str).str.strip()
+    d["text"] = d["text"].fillna("").astype(str).str.strip()
     d = d[d["game_id"].notna() & (d["text"] != "") & (d["text"].str.lower() != "nan")]
     d = d.drop_duplicates(subset="comment_id", keep="first")
     d["posted_at"] = pd.to_datetime(d["posted_at"], errors="coerce")
     d["rating"] = pd.to_numeric(d["rating"], errors="coerce")
     return d.reset_index(drop=True)
+
+
+def row_issues(df: pd.DataFrame) -> pd.DataFrame:
+    """행 단위 문제 목록: 원본 행 번호 · 사유 (누락 · 빈 본문 · 인식 못 한 게임 · 날짜 오류 · 중복 ID · 중복 본문).
+    분석에서 제외되는 행과 '분석은 되지만 확인이 필요한' 행을 구분한다. 필수 컬럼이 없으면 빈 표."""
+    d = df.copy()
+    d.columns = [c.strip() for c in d.columns]
+    if any(c not in d.columns for c in REQUIRED_COLUMNS):
+        return pd.DataFrame(columns=["행", "comment_id", "사유", "처리"])
+    rows = []
+    text = d["text"].astype(str).str.strip()
+    dup_id = d["comment_id"].duplicated(keep="first")
+    dup_text = text.duplicated(keep="first") & (text != "") & (text.str.lower() != "nan")
+    for i, r in d.iterrows():
+        n = i + 2   # 엑셀 기준 행 번호 (1행 = 헤더)
+        miss = [c for c in REQUIRED_COLUMNS if pd.isna(r[c]) or str(r[c]).strip() == ""]
+        if miss:
+            rows.append([n, r["comment_id"], f"필수값 누락: {', '.join(miss)}", "제외" if "text" in miss or "game_id" in miss else "확인"])
+        if resolve_game_id(r["game_id"]) is None and "game_id" not in miss:
+            rows.append([n, r["comment_id"], f"인식할 수 없는 game_id: {r['game_id']}", "제외"])
+        if pd.isna(pd.to_datetime(r["posted_at"], errors="coerce")) and "posted_at" not in miss:
+            rows.append([n, r["comment_id"], f"날짜 형식 오류: {r['posted_at']}", "추이 그래프에서만 제외"])
+        if dup_id.loc[i]:
+            rows.append([n, r["comment_id"], "중복 comment_id", "제외 (첫 행만 사용)"])
+        elif dup_text.loc[i]:
+            rows.append([n, r["comment_id"], "다른 행과 본문이 같음", "확인 (분석에는 포함)"])
+    return pd.DataFrame(rows, columns=["행", "comment_id", "사유", "처리"])

@@ -1662,6 +1662,11 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-hero.dnf {{ background: linear-gradient(135deg, #450A0A 0%, #991B1B 55%, #DC2626 120%) !important; }}
 .fc-hero.dnf .k {{ color: #FECACA !important; }} .fc-hero.dnf .s {{ color: #FEE2E2 !important; }}
 .fc-intro.dnf {{ border-left-color: #B91C1C; }}
+.df-hero-in {{ display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; }}
+.df-logo {{ width: 260px; max-width: 38%; height: auto; flex: 0 0 auto; filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35)); }}
+.df-credit {{ font-size: 0.75rem; color: #FECACA; margin-top: 0.4rem; text-align: right; }}
+.fc-ev.c {{ border-top-color: #15803D; }} .fc-ev.x {{ border-top-color: #64748B; }}
+@media (max-width: 700px) {{ .df-hero-in {{ flex-direction: column-reverse; align-items: flex-start; }} .df-logo {{ width: 200px; max-width: 70%; }} }}
 .df-wait {{ border: 2px dashed #FCA5A5; background: #FEF2F2; color: #7F1D1D; border-radius: 12px; padding: 0.7rem 0.9rem; font-size: 0.95rem; font-weight: 700; margin: 0.3rem 0 0.7rem; }}
 .fc-flow3.df4 {{ grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); }}
 .fc-flow3.df4 > div {{ background: #FEF2F2; }} .fc-flow3.df4 span {{ color: #B91C1C; }} .fc-flow3.df4 > i {{ color: #B91C1C; }}
@@ -1690,6 +1695,69 @@ a.pn-btn:hover {{ background: #EAB308; }}
   .gp-grid {{ grid-template-columns: 1fr; }}
   .gp-kpi .gp-kpi-value {{ font-size: 1.4rem; }}
 }}
+/* 홈 · 게임 카드 (대표 이미지 1장 + 핵심 문제) */
+.hm-game {{ background: #fff; border: 1px solid {C['line']}; border-radius: 14px; overflow: hidden; margin-bottom: 0.5rem; }}
+.hm-img {{ position: relative; height: 170px; background: #0f1b2d; display: flex; align-items: center; justify-content: center; overflow: hidden; }}
+.hm-img img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
+.hm-img.logo img {{ width: auto; max-width: 70%; max-height: 120px; object-fit: contain; }}
+.hm-img.pubg {{ background: linear-gradient(135deg, #1b1b1b, #3a3220); }}
+.hm-img.dnf {{ background: linear-gradient(135deg, #3a0a0a, #8e1b1b); }}
+.hm-img span {{ position: absolute; right: 6px; bottom: 4px; font-size: 0.68rem; color: #fff; background: rgba(0,0,0,.45); padding: 1px 6px; border-radius: 6px; }}
+.hm-body {{ padding: 0.9rem 1.1rem 1rem; }}
+.hm-k {{ font-size: 0.78rem; font-weight: 700; color: {C['blue']}; letter-spacing: 0.02em; }}
+.hm-body h4 {{ margin: 0.25rem 0 0.35rem; font-size: 1.05rem; line-height: 1.45; }}
+.hm-body p {{ margin: 0 0 0.3rem; font-size: 0.9rem; color: #2b3a52; line-height: 1.55; }}
+.hm-body p b {{ color: #b3261e; font-size: 0.78rem; margin-right: 0.3rem; }}
+.hm-body p.kpi b {{ color: {C['blue']}; }}
+.hm-body p em {{ font-style: normal; font-size: 0.75rem; color: #6b778c; }}
+.gp-xlinks {{ margin-top: 1.6rem; padding: 0.8rem 1rem; border-radius: 12px; background: #f4f7fb; border: 1px solid {C['line']}; font-size: 0.9rem; }}
+.gp-xlinks a {{ font-weight: 700; margin-right: 1rem; }}
+@media (max-width: 640px) {{ .hm-img {{ height: 130px; }} }}
+/* 던파: 공식 이미지 1장 크게 · 핵심 유저 의견 카드 */
+.df-fig {{ margin: 0.4rem auto 1.1rem; max-width: 1100px; border-radius: 14px; overflow: hidden; border: 1px solid {C['line']}; background: #111; }}
+.df-fig img {{ width: 100%; display: block; }}
+.df-fig.sm {{ max-width: 560px; }}
+.df-fig figcaption {{ background: #fff; padding: 0.55rem 0.9rem; font-size: 0.82rem; color: #44546a; line-height: 1.5; }}
+.df-fig figcaption b {{ color: {C['navy']}; }}
+.df-ops {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.8rem; margin: 0.6rem 0 1rem; }}
+.df-op {{ background: #fff; border: 1px solid {C['line']}; border-left: 5px solid #b3261e; border-radius: 12px; padding: 0.85rem 1rem; }}
+.df-op.a {{ border-left-color: #c77700; }} .df-op.b {{ border-left-color: #b3261e; }} .df-op.c {{ border-left-color: #1f5fbf; }}
+.df-op .h {{ display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-bottom: 0.45rem; }}
+.df-op .h .no {{ font-size: 1.1rem; font-weight: 800; color: #b3261e; }}
+.df-op .h b {{ font-size: 1rem; color: {C['navy']}; }}
+.df-op .h .mg {{ font-size: 0.72rem; font-style: normal; color: #5b6b80; background: #eef2f7; padding: 1px 7px; border-radius: 8px; }}
+.df-op .h .to {{ margin-left: auto; font-size: 0.75rem; font-weight: 700; color: #fff; background: #3a4a63; padding: 2px 8px; border-radius: 8px; }}
+.df-op .q {{ margin: 0.35rem 0; }}
+.df-op q {{ display: block; font-size: 0.93rem; line-height: 1.6; color: #1d2b3f; background: #fbf6f2; padding: 0.45rem 0.65rem; border-radius: 8px; }}
+.df-op .q small {{ display: block; font-size: 0.75rem; color: #6b778c; margin-top: 0.2rem; }}
+.df-op .pm {{ margin-top: 0.5rem; font-size: 0.88rem; line-height: 1.55; color: #22324a; }}
+.df-op .pm span {{ display: inline-block; font-size: 0.72rem; font-weight: 800; color: #fff; background: #b3261e; padding: 1px 7px; border-radius: 6px; margin-right: 0.4rem; }}
+@media (max-width: 640px) {{ .df-ops {{ grid-template-columns: 1fr; }} .df-op q {{ font-size: 0.9rem; }} }}
+/* 사업PM 어시스턴트 · 자주 묻는 질문 */
+.as-label {{ font-size: 0.85rem; font-weight: 800; color: {C['navy']}; margin: 0.4rem 0 0.2rem; }}
+.as-game {{ font-size: 0.8rem; font-weight: 800; color: {C['blue']}; margin: 0.5rem 0 0.15rem; }}
+/* 던파 대표 KPI 4개 · 제안 UI 시안 */
+.df-kpi {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.6rem; margin: 0.4rem 0 1rem; }}
+.df-kpi > div {{ background: #fff; border: 1px solid {C['line']}; border-top: 4px solid #b3261e; border-radius: 12px; padding: 0.75rem 0.9rem; }}
+.df-kpi span {{ font-size: 0.75rem; font-weight: 800; color: #b3261e; }}
+.df-kpi b {{ display: block; font-size: 1.02rem; color: {C['navy']}; margin: 0.15rem 0; }}
+.df-kpi small {{ font-size: 0.82rem; color: #44546a; line-height: 1.5; }}
+.df-mock {{ max-width: 760px; margin: 0.6rem auto 1rem; background: linear-gradient(160deg, #1d1410, #3a2316); border: 2px solid #c9a25a; border-radius: 14px; padding: 1rem 1.2rem; color: #f3e6c8; font-size: 0.92rem; }}
+.df-mock .tag {{ display: inline-block; font-size: 0.72rem; font-weight: 800; background: #fff3; color: #fff; padding: 2px 8px; border-radius: 6px; margin-bottom: 0.5rem; }}
+.df-mock h5 {{ margin: 0 0 0.6rem; color: #ffd98a; font-size: 1.05rem; }}
+.df-mock .res {{ display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.3rem; padding: 0.5rem 0.7rem; background: #0006; border-radius: 8px; margin-bottom: 0.6rem; }}
+.df-mock .bar {{ height: 18px; background: #0008; border-radius: 9px; overflow: hidden; border: 1px solid #c9a25a88; }}
+.df-mock .bar i {{ display: block; height: 100%; width: 70%; background: linear-gradient(90deg, #c77700, #ffd98a); }}
+.df-mock .cap {{ display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 0.3rem; color: #e8d6ae; }}
+.df-mock .note {{ margin-top: 0.6rem; font-size: 0.78rem; color: #cbb98f; }}
+/* 던파 원인 체인: 한 줄씩 */
+.df-chain {{ list-style: none; margin: 0.3rem 0 1.1rem; padding: 0; border: 1px solid {C['line']}; border-radius: 12px; background: #fff; overflow: hidden; }}
+.df-chain li {{ display: grid; grid-template-columns: 92px 1fr; gap: 0.7rem; padding: 0.6rem 0.9rem; border-top: 1px solid {C['line']}; align-items: start; }}
+.df-chain li:first-child {{ border-top: 0; }}
+.df-chain span {{ font-size: 0.8rem; font-weight: 800; color: #b3261e; padding-top: 0.1rem; }}
+.df-chain p {{ margin: 0; font-size: 0.93rem; line-height: 1.6; color: #1d2b3f; }}
+.df-chain small {{ display: inline-block; font-size: 0.75rem; color: #6b778c; margin-left: 0.3rem; }}
+@media (max-width: 640px) {{ .df-chain li {{ grid-template-columns: 1fr; gap: 0.15rem; }} }}
 </style>
 """
 

@@ -134,9 +134,8 @@ def s1(d: dict) -> None:
          + "".join(f"<li>{tr(t)}{escape(x)}</li>" for t, x in it["topics"]) + "</ol></div>")
     gallery("intro", [it["img"]])
     head("문제: 노력의 가치 · 첫 강화 · 조작의 공정성", "세 문제 모두 '떠나는 계기'가 될 수 있다", b_real())
-    gallery("squad", [d["squad_img"]])
     html('<div class="fc-why">'
-         '<div><span>A · 구단 가치 · 대표 기획</span><b>8강 카드 그래프 <em>6,260만 → 약 1,900만 BP</em></b><small>작성자 캡처 · 10/24~11/22 시세 그래프</small></div>'
+         '<div><span>A · 구단 가치 · 대표 기획</span><b>8강 카드 그래프 <em>6,260만 → 약 1,900만 BP</em></b><small>작성자 캡처 · 10/24~11/22 · 8/20 BP 단위 변경 이후 같은 카드 관측값 (단위 변경 효과 아님)</small></div>'
          '<div><span>B · 강화·훈련코치 · 보조 기획</span><b>7→8강 성공 확률 <em>7%</em></b><small>공식 확률 공지 · 인벤 11-05 연속 실패 글</small></div>'
          '<div><span>C · 키보드 vs 패드 · 차별화 기획</span><b>상위 1만 1ON1 키보드 <em>54.6%</em> · 패드 <em>45.4%</em></b><small>공식 데이터센터 11/21 · 분리 매칭 찬반 공존</small></div></div>')
 
@@ -189,7 +188,7 @@ def s3(d: dict) -> None:
     lead("A", "열심히 키운 구단, 왜 내 노력의 가치는 떨어질까?", "자산 급락 → 성장 박탈감")
     html('<div class="fc-types">' + "".join(f'<div><b>{escape(a)}</b><small>{escape(c)}</small></div>' for a, b, c in d["a_types"]) + "</div>")
     html(f'<div class="fc-cav">{escape(d["a_types_note"])}</div>')
-    gallery("a", d["galleries"]["A"])
+    gallery("a", [d["squad_img"]] + d["galleries"]["A"])   # 실제 스쿼드(닉네임 블러) → 같은 카드 시세 그래프 3장
     pc = d["price_check"]
     with st.expander("자세히 보기 · 가격 사례 검증 (카드 · 시즌 · 강화 · 기준 · 시점 · 단위)"):
         table(pc["head"], [[f"<b>{escape(r[0])}</b>", *[escape(x) for x in r[1:]]] for r in pc["rows"]], badge_html=b_real())

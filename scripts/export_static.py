@@ -61,8 +61,7 @@ PAGES = [("overwatch", "overwatch.html", "오버워치 · PROJECT RE:START", "re
          ("dnf", "dnf.html", "던전앤파이터 · 클리어했는데 왜 성장한 느낌이 없을까?", "real")]
 PAGES += [("home", "home.html", "사이트 홈 · 개요", "sample")]
 PAGES += [(g, f"{g}.html", GAMES[g]["name"], "sample") for g in GAME_ORDER if g not in ("overwatch", "pubg", "fconline", "dnf")]
-PAGES += [("data_lab", "data_lab.html", "데이터 랩 (CSV 분석)", "sample"),
-          ("assistant", "assistant.html", "PM 어시스턴트 (미리보기)", "sample")]
+PAGES += [("assistant", "assistant.html", "사업PM 어시스턴트", "plan")]   # 데이터 랩은 메뉴에서 제외 (코드만 보존)
 
 KIND_BADGE = {"real": badge("실제 자료", "k-real"), "sim": badge("가정 시뮬레이션", "k-sim"),
               "plan": badge("분석자 해석", "k-interp"), "sample": badge("예시 데이터", "k-sample")}
@@ -471,7 +470,8 @@ def tabbed_body(pid: str, labels: list[str], tab_key: str, kind: str, extras: di
 
 
 def save_images(doc: str) -> str:
-    """data URI 이미지를 파일로 분리 (같은 이미지는 한 번만 저장)."""
+    """data URI 이미지를 파일로 분리 (같은 이미지는 한 번만 저장) · 앱 전용 링크(?page=x&tab=NN)는 정적 파일 링크로 바꾼다."""
+    doc = re.sub(r'href="\?page=(\w+)(?:&(?:amp;)?tab=\d+)?"', lambda m: f'href="{m.group(1)}.html"', doc)
     def repl(m):
         ext = "jpg" if m.group(1) in ("jpeg", "jpg") else m.group(1)
         raw = base64.b64decode(m.group(2))
@@ -495,6 +495,8 @@ body { margin: 0; background: #fff; color: #0B1F3A; }
 .sx-main { max-width: 1240px; margin: 0 auto; padding: 1.2rem 16px 3rem; }
 .sx-note { background: #FFF8EC; border: 1px solid #F5D6A8; border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.8rem; }
 .sx-note a { color: #1E5EFF; }
+.sx-live { background: #EEF4FF; border: 2px solid #1E5EFF; border-radius: 12px; padding: 0.85rem 1rem; font-size: 0.95rem; line-height: 1.6; margin: 0 0 1rem; }
+.sx-live a { color: #1E5EFF; font-weight: 800; }
 .sx-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; align-items: center; font-size: 0.85rem; color: #3A4A63; margin: 0 0 1rem; }
 .sx-toc { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1.2rem; padding: 0.7rem; background: #F4F7FC; border-radius: 12px; }
 .sx-toc b { width: 100%; font-size: 0.8rem; color: #6B7A90; }
@@ -579,7 +581,8 @@ def legend() -> str:
 
 def page_html(title: str, desc: str, current: str, body: str, toc: list, charts: bool, gen: str) -> str:
     nav = "".join(f'<a class="{"on" if f == current else ""}" href="{f}">{H.escape(n)}</a>'
-                  for _, f, n, _ in [("index", "index.html", "보고서 첫 화면", "")] + PAGES)
+                  for _, f, n, _ in [("index", "index.html", "보고서 첫 화면", "")]
+                  + sorted(PAGES, key=lambda p: p[0] != "home"))   # 메뉴 순서: 홈 → 4개 게임 → 사업PM 어시스턴트
     toc_html = ("" if not toc else '<nav class="sx-toc"><b>이 페이지 목차</b>'
                 + "".join(f'<a href="#{i}">{H.escape(l)}</a>' for i, l in toc) + "</nav>")
     own_legend = current in ("overwatch.html", "pubg.html", "fconline.html", "dnf.html")   # 탭형 프로젝트는 앱이 배지 설명을 직접 표시
@@ -617,17 +620,22 @@ def index_html(gen: str) -> str:
                  '<h3>FC 온라인 · 축구 게임인가, 주식 게임인가?</h3><p><b>구단 가치는 떨어지고, 경기는 멈췄다.</b> — 구단 가치 하락(A 40%) · '
                  '강화·훈련코치 진입장벽(B 25%) · 키보드 vs 패드(C 35%). 공식 강화 확률, 이적시장 캡처, 인벤 게시글·유튜브 요약을 근거로 '
                  '구단 가치 분석기와 매칭 정책 비교 데모를 만들고, 통합 매칭 유지 + 조작 환경 개선을 권고했습니다.</p></a>')
-    for pid, f, name, _ in PAGES[3:]:
+    dn = json.loads((ROOT / "data" / "dnf" / "dnf.json").read_text(encoding="utf-8"))
+    cards.append('<a class="sx-card feature" href="dnf.html"><div class="k">네 번째 프로젝트 · 실제 자료 기반</div>'
+                 f'<h3>던전앤파이터 · 시즌의 가치 회복</h3><p><b>{H.escape(dn["intro"]["question"])}</b> — '
+                 '시즌 성장 가치(A) · 고난도 보상 성취감(B) · 다음 시즌 기대(C). 공식 가이드·개발자 노트와 유튜브 댓글(아이디 가림)을 근거로 '
+                 f'기존 보장 시스템과 겹치지 않는 «불운 진척도»를 제안하고 확률 보상 시뮬레이터를 만들었습니다. 판단: {H.escape(dn["decision"])}</p></a>')
+    for pid, f, name, _ in PAGES[4:]:
         one = GAMES[pid].get("one_liner", "") if pid in GAMES else {
-            "home": "사이트 전체 소개와 게임별 분석 바로가기", "data_lab": "CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)",
-            "assistant": "정리된 분석 내용을 대화형으로 찾아보는 규칙 기반 미리보기"}.get(pid, "")
+            "home": "프로젝트 소개 · 4개 게임 핵심 문제 · 사업PM 어시스턴트 바로가기",
+            "assistant": "포트폴리오 기반 검색형 PM 어시스턴트 (생성형 AI 아님) · 정적 화면은 게임별 자주 묻는 질문 답변 · 직접 질문은 원본 앱"}.get(pid, "")
         tag = "예시 데이터 기반 분석" if pid in GAMES else "도구 화면"
         cards.append(f'<a class="sx-card" href="{f}"><div class="k">{tag}</div><h3>{H.escape(name)}</h3><p>{H.escape(one)}</p></a>')
     body = (f'<div class="gp-hero"><div class="gp-eyebrow">Static Report for Reviewers</div><h1>{APP_NAME} 포트폴리오 보고서</h1>'
             f'<p>{H.escape(APP_TAGLINE)}</p></div>'
             '<h2>검토자 안내</h2><ul class="sx-ul">'
             f'<li>이 보고서는 <a href="{LIVE_URL}">원본 Streamlit 앱</a>을 자동 변환한 정적 HTML입니다. JavaScript 없이도 모든 글자를 읽을 수 있습니다.</li>'
-            '<li><b>오버워치·PUBG 페이지</b>가 실제 자료 기반 분석입니다. 다른 게임 페이지는 시연용 <b>예시 데이터</b>입니다.</li>'
+            '<li><b>오버워치 · PUBG · FC 온라인 · 던전앤파이터</b> 4개 페이지가 실제 자료 기반 분석입니다. 사업PM 어시스턴트의 정적 화면은 자주 묻는 질문 답변을 미리 담았고, 직접 질문은 <a href="' + LIVE_URL + '?page=assistant">원본 앱</a>에서 할 수 있습니다.</li>'
             '<li>각 수치·차트에 출처 성격을 배지로 표시했습니다. 아래 배지 뜻을 참고하세요.</li>'
             '<li>게임 스크린샷은 작성자가 직접 캡처한 최신 한국어 화면이며, 다른 플레이어 닉네임은 가림 처리했습니다.</li>'
             f'<li>생성 시각 {gen} · 코드: <a href="{REPO_URL}">GitHub 저장소</a></li></ul>'
@@ -700,7 +708,14 @@ def main() -> int:
             continue
         ex = Exporter(kind)
         at = run_page(pid)
+        if pid == "assistant":     # 정적 화면: 게임별 자주 묻는 질문 답변을 미리 담는다 (직접 질문은 원본 앱)
+            for gid in ("overwatch", "pubg", "fconline", "dnf"):
+                for j in range(3):
+                    at.button(key=f"faq_{gid}_{j}").click().run()
         body = ex.children(at.main, 0)
+        if pid == "assistant":
+            body = (f'<div class="sx-live"><b>직접 질문하기</b> · GitHub Pages는 정적 화면이라 질문 입력이 동작하지 않습니다 → '
+                    f'<a href="{LIVE_URL}?page=assistant">Streamlit 원본 앱에서 질문하기 ↗</a> · 아래는 자주 묻는 질문 12개의 실제 검색 답변입니다.</div>') + body
         desc = GAMES[pid].get("one_liner", name) if pid in GAMES else name
         toc = ex.toc
         doc = save_images(page_html(name, desc, fname, body, toc, ex.charts > 0, gen))

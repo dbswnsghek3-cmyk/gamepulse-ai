@@ -895,7 +895,9 @@ def s5(ns: dict, plan: dict) -> None:
     full_u, pilot_u = plan["b1_cost"] / add_n, pilot / add_n
     sub("B1 사업성 판단 · 결론: 전액 집행 보류 → 디지털 소규모 파일럿", b_sim())
     html(f'<div class="pn-biz"><p><b>손익분기 조건</b> 순증 복귀자 1명이 남은 기간 동안 내는 기대 매출이 <b>약 {full_u / 1e4:,.0f}만 원 이상</b>이어야 전액 집행이 정당화된다. '
-         'PUBG의 ARPU·LTV는 공개 자료로 확인하지 못해 <b>수익성은 판단 불가</b> → 1억 원 전액 집행은 보류한다.</p></div>')
+         'PUBG의 ARPU·LTV는 공개 자료로 확인하지 못해 <b>수익성은 판단 불가</b> → 1억 원 전액 집행은 보류한다.</p>'
+         f'<p><b>파일럿 {won(pilot)} 산출</b> = 디지털 광고 {won(dig)} (광고 예산 {won(cp["budget"])} × 디지털 비중, 가정) + 랜딩·UTM 제작 '
+         f'{ex["cost"]["B1_effort"]:g}인월 × {ex["cost"]["monthly_cost_per_person"] / 1e4:,.0f}만 원 = {won(land)} (가정) · 실제 집행 데이터 아님</p></div>')
     cont = cp["budget"] * next(w for n, _, w in cp["channels"] if "콘텐츠" in n) / 100
     scen = [("저예산 파일럿", "디지털 리타깃팅 + 랜딩·UTM", pilot, "<b>권고</b>"),
             ("중간 규모", "파일럿 + 랜딩 유입·콘텐츠 홍보", pilot + cont, "파일럿에서 순증·D30 확인 시"),

@@ -12,7 +12,7 @@ from gamepulse.content.games import GAME_ORDER, GAMES  # noqa: E402
 from gamepulse.ui.components import footer, html  # noqa: E402
 from gamepulse.ui.styles import inject_css  # noqa: E402
 from gamepulse.ui.translate_guard import ensure as ensure_translate_guard  # noqa: E402
-from gamepulse.views import assistant, data_lab, dnf, fconline, game_page, home, overwatch, pubg  # noqa: E402
+from gamepulse.views import assistant, dnf, fconline, game_page, home, overwatch, pubg  # noqa: E402
 
 
 @st.cache_resource(show_spinner=False)
@@ -31,7 +31,7 @@ inject_css()
 PAGES = {"home": "홈 · 개요"}
 PAGES.update({gid: f"{GAMES[gid]['name']}" for gid in GAME_ORDER})
 PAGES["pubg"] = "PUBG: NEW START"
-PAGES.update({"data_lab": "데이터 랩 (CSV 분석)", "assistant": "PM 어시스턴트 (미리보기)"})
+PAGES["assistant"] = "사업PM 어시스턴트"   # 데이터 랩(views/data_lab.py)은 코드만 보존 · 메뉴에서 제외
 
 if st.session_state.get("page") not in PAGES:
     # 첫 접속 시 주소의 ?page= 로 바로 들어갈 수 있게 (예: ?page=overwatch&tab=04)
@@ -54,8 +54,6 @@ with st.sidebar:
 page = st.session_state["page"]
 if page == "home":
     home.render()
-elif page == "data_lab":
-    data_lab.render()
 elif page == "assistant":
     assistant.render()
 elif page == "overwatch":
@@ -68,5 +66,8 @@ elif page == "dnf":
     dnf.render()        # 던전앤파이터: 클리어했는데 왜 성장한 느낌이 없을까? (v0.1 예시 분석은 games.py·deep_dives 에 보관)
 else:
     game_page.render(page)
+
+if page in ("overwatch", "pubg", "fconline", "dnf"):  # 게임 페이지 → 도구 연결
+    html('<div class="gp-xlinks">이 게임의 문제 · 근거 · 전략 · KPI를 질문으로 찾으려면 <a href="?page=assistant" target="_self">사업PM 어시스턴트 →</a></div>')
 
 footer()

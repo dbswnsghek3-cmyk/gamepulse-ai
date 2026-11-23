@@ -2,7 +2,7 @@
 
 APP_NAME = "GamePulse AI"
 APP_TAGLINE = "게임 이용자 문제를 데이터로 정의하고, 사업PM 관점의 개선 전략과 KPI를 설계합니다."
-APP_VERSION = "v0.1 (기본 웹사이트 · AI 미연결)"
+APP_VERSION = "v1.0 (4개 게임 · 검색형 PM 어시스턴트 · 생성형 AI 미연결)"
 
 # 화이트 · 네이비 · 블루 팔레트
 COLORS = {
