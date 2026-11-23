@@ -420,11 +420,11 @@ def pubg_body(kind: str) -> tuple[str, int]:
 
 
 def fconline_body(kind: str) -> tuple[str, int]:
-    """FC 온라인: 01~06을 모두 펼쳐 두고(JS 없이도 읽힘) A1·B1·C5 데모는 JS 조작판으로 교체."""
+    """FC 온라인: 01~06을 모두 펼쳐 두고(JS 없이도 읽힘) A1·C 데모는 JS 조작판으로 교체."""
     from fc_static_demos import demos as fc_demos
     from pubg_static_demos import PAGE_CSS, PAGE_JS   # 같은 글꼴·하위 탭 처리 재사용
     body, charts = tabbed_body("fconline", FC_TABS, "fc_tab", kind, {}, all_visible=True)
-    note = '<div class="sx-note">이 페이지는 JavaScript 없이도 01~06 내용을 모두 담고 있습니다. A1·B1·C5 데모는 이 페이지에서 직접 조작할 수 있습니다.</div>'
+    note = '<div class="sx-note">이 페이지는 JavaScript 없이도 01~06 내용을 모두 담고 있습니다. A1 구단 가치 분석기와 C 매칭 정책 비교는 이 페이지에서 직접 조작할 수 있습니다.</div>'
     return PAGE_CSS + '<div class="pg-static">' + note + body + "</div>" + PAGE_JS + fc_demos(ROOT), charts
 
 
@@ -602,8 +602,8 @@ def index_html(gen: str) -> str:
              'A1 경기별 코칭 데모, B1 복귀 광고 캠페인 «PUBG: 다시 낙하할 시간»과 클릭 가능한 랜딩페이지, A/B 테스트 설계를 만들었습니다.</p></a>']
     cards.append('<a class="sx-card feature" href="fconline.html"><div class="k">세 번째 프로젝트 · 실제 자료 기반</div>'
                  '<h3>FC 온라인 · 축구 게임인가, 주식 게임인가?</h3><p><b>구단 가치는 떨어지고, 경기는 멈췄다.</b> — 구단 가치 하락(A 40%) · '
-                 '강화 실패와 이탈(B 25%) · 키보드 vs 패드 경쟁 공정성(C 35%). 공식 강화 확률, 이적시장 캡처, 인벤 게시글을 근거로 '
-                 '구단 가치 분석기 · 강화 리스크 시뮬레이터 · 매칭 정책 선택 데모를 만들었습니다.</p></a>')
+                 '강화·훈련코치 진입장벽(B 25%) · 키보드 vs 패드(C 35%). 공식 강화 확률, 이적시장 캡처, 인벤 게시글·유튜브 요약을 근거로 '
+                 '구단 가치 분석기와 매칭 정책 비교 데모를 만들고, 통합 매칭 유지 + 조작 환경 개선을 권고했습니다.</p></a>')
     for pid, f, name, _ in PAGES[3:]:
         one = GAMES[pid].get("one_liner", "") if pid in GAMES else {
             "home": "사이트 전체 소개와 게임별 분석 바로가기", "data_lab": "CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)",

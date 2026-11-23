@@ -1506,6 +1506,42 @@ a.pn-btn:hover {{ background: #EAB308; }}
   .fc-order li {{ grid-template-columns: 2.4rem 1fr; grid-template-areas: "n t" "n k" "n d"; }}
 }}
 
+/* FC 최종 정리: 리드 · 사업PM 결론 · 유튜브 요약 · 비교표 */
+.fc-lead {{ display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; margin: 1rem 0 0.55rem; padding: 0.55rem 0.8rem; border-radius: 10px; background: #F5F3FF; }}
+.fc-lead.b {{ background: #FEF2F2; }} .fc-lead.c {{ background: #F0FDF4; }}
+.fc-lead b {{ font-size: 1.12rem; color: #0B1F3A; }} .fc-lead > span:last-child {{ font-size: 0.92rem; color: #334155; }}
+.fc-pm {{ display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.7rem; background: #0B1F3A; border-radius: 10px; padding: 0.6rem 0.9rem; margin: 0.4rem 0 0.9rem; }}
+.fc-pm span {{ font-size: 0.78rem; font-weight: 900; color: #4ADE80; letter-spacing: 0.04em; }} .fc-pm b {{ font-size: 1.05rem; color: #fff; }}
+.fc-yt {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.5rem; }}
+.fc-yt a {{ display: flex; flex-direction: column; text-decoration: none !important; background: #fff; border: 1px solid #FECACA; border-left: 5px solid #DC2626; border-radius: 10px; padding: 0.55rem 0.75rem; }}
+.fc-yt span {{ font-size: 0.78rem; font-weight: 800; color: #B91C1C; }} .fc-yt b {{ font-size: 1.02rem; color: #0B1F3A; }}
+.fc-themes {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.3rem; }}
+.fc-themes > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #94A3B8; border-radius: 10px; padding: 0.55rem 0.7rem; display: flex; flex-direction: column; gap: 0.15rem; }}
+.fc-themes > div.kb {{ border-top-color: #0F766E; }} .fc-themes > div.pad {{ border-top-color: #7C3AED; }} .fc-themes > div.alt {{ border-top-color: #15803D; }}
+.fc-themes span {{ font-size: 0.78rem; font-weight: 900; color: #475569; }} .fc-themes b {{ font-size: 0.98rem; color: #0B1F3A; line-height: 1.4; }}
+.fc-facts {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.4rem; }}
+.fc-facts > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #DC2626; border-radius: 10px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.2rem; }}
+.fc-facts span {{ font-size: 0.78rem; font-weight: 900; color: #B91C1C; }} .fc-facts b {{ font-size: 0.98rem; color: #0B1F3A; line-height: 1.4; }} .fc-facts small {{ font-size: 0.8rem; color: #64748B; }}
+.fc-two {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.3rem; }}
+.fc-two > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #6D28D9; border-radius: 10px; padding: 0.7rem 0.85rem; }}
+.fc-two b {{ font-size: 1.05rem; color: #0B1F3A; }} .fc-two ul {{ margin: 0.35rem 0 0; padding-left: 1.1rem; font-size: 0.95rem; line-height: 1.6; color: #1E293B; }}
+.fc-steps {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.4rem; }}
+.fc-steps > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #DC2626; border-radius: 10px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.2rem; }}
+.fc-steps > div:last-child {{ border-style: dashed; border-top-style: solid; }}
+.fc-steps span {{ font-size: 0.82rem; font-weight: 900; color: #B91C1C; }} .fc-steps b {{ font-size: 0.96rem; color: #0B1F3A; line-height: 1.45; }} .fc-steps small {{ font-size: 0.8rem; color: #64748B; }}
+.fc-planc {{ background: #fff; border: 1px solid #BBF7D0; border-left: 5px solid #15803D; border-radius: 10px; padding: 0.7rem 0.9rem; margin: 0 0 0.4rem; }}
+.fc-planc b {{ font-size: 1.02rem; color: #14532D; }} .fc-planc ol {{ margin: 0.35rem 0; padding-left: 1.2rem; font-size: 0.95rem; line-height: 1.6; color: #1E293B; }}
+.fc-planc small {{ font-size: 0.85rem; color: #475569; }}
+.fc-cmp {{ overflow-x: auto; }} .fc-cmp table {{ width: 100%; border-collapse: collapse; font-size: 0.88rem; }}
+.fc-cmp th, .fc-cmp td {{ text-align: left; padding: 0.4rem 0.45rem; border-bottom: 1px solid #E2E8F0; vertical-align: top; }}
+.fc-cmp th {{ font-size: 0.78rem; color: #475569; }} .fc-cmp tr.on td {{ background: #DCFCE7; }}
+.fc-cmp td small {{ display: block; font-size: 0.75rem; color: #64748B; }} .fc-cmp td.dn {{ color: #DC2626; font-weight: 800; }}
+.fc-cmp em {{ font-style: normal; font-size: 0.7rem; font-weight: 900; color: #fff; background: #15803D; border-radius: 999px; padding: 0.02rem 0.4rem; margin-left: 0.2rem; }}
+@media (max-width: 900px) {{
+  .fc-yt, .fc-themes, .fc-two {{ grid-template-columns: 1fr; }} .fc-facts, .fc-steps {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+}}
+@media (max-width: 520px) {{ .fc-facts, .fc-steps {{ grid-template-columns: 1fr; }} }}
+
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
 /* 모바일 */
