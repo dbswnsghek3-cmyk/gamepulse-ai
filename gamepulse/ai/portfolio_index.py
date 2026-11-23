@@ -257,6 +257,49 @@ def _dnf() -> list[Entry]:
                      [f"{a}: {b}" for a, b, _, _ in d["gap"]],
                      [f"{a} → {c} ({e})" for a, _, c, e in d["gap"][:3]] + [f"{x[0]}: {x[1]} — {x[2]}" for x in d["alternatives"][1:]],
                      [f"{k[1]} — {k[2]}" for k in d.get("kpi_main", [])], "04", "기존 보장 시스템 차이 중복 다른 점 네 제안"))
+    v = _load("dnf/voc.json")
+    vi, vc, vs = v["items"], v["categories"], v["sources"]
+    vlink = lambda x: (f"{vs[x['src']][0]} ({x['date']})")  # noqa: E731
+    by = lambda c: [x for x in vi if x["cat"] == c]  # noqa: E731
+    n_yt = sum(x["src"].startswith("YT") for x in vi)
+    n_kk = sum(x["src"] == "KAKAO" for x in vi)
+    order = v["core_cats"] + v["sub_cats"] + [v["positive_cat"]]
+    out.append(Entry("dnf", "evidence", f"던파 유저 의견 전수 (VOC {len(vi)}건)",
+                     f"원본 캡처 {v['capture']['original_files']}장 + 2026 공식 게시판 글 {v['board']['posts']}개 → 중복 제외 유효 VOC {len(vi)}건 "
+                     f"(유튜브 댓글 {n_yt} · 공식 게시판 {len(vi) - n_yt - n_kk} · 지인 1명 {n_kk}) · 이전 사이트 반영 {sum(x['before'] for x in vi)}건 → 전체 목록화",
+                     [f"{vc[str(c)]} {len(by(c))}건 — 예: {by(c)[0]['summary']}" for c in order if by(c)],
+                     ["핵심 범주(보상 체감·확률 불확실성·반복 동기·난이도 차이) → 지정 장비 진척 게이지",
+                      f"분석 범위 밖 {sum(x['cat'] not in order for x in vi)}건 (운영·디렉터 평가 등) · 영상 주제에 따른 편향 있음 · 건수는 표본 내 분포일 뿐 전체 비율 아님"],
+                     [k[1] for k in d.get("kpi_main", [])][:3], "02", "유저 의견 총 몇 건 지적 문제 voc 전수 범주 불만 의견들"))
+    out[-1].sources = [(vs[k][0], vs[k][1]) for k in ("A", "D", "E") ]
+    c4 = by(4)
+    out.append(Entry("dnf", "cause", "난이도별 보상 차이 · 하드 진입 효율 (유저 의견)",
+                     "일반·하드의 보상 차이가 작아 상위 난이도로 갈 이유가 약하다는 의견이 많다 · 반대로 하드 경매·원하는 아이템 획득 경험을 이유로 갈 만하다는 의견도 있다",
+                     [f"{x['summary']} — {vlink(x)}" for x in c4 if x["src"] in ("A", "B", "C", "E", "F2")][:6],
+                     ["공식 7/29: 하드는 경매가 확률적으로 진행 · 재료 구성이 난이도별로 다름", "→ 지정 장비 진척 게이지에서 하드 진척 가중치를 실험 변수로 두고 일반↔하드 이동 비율로 검증"],
+                     ["일반↔하드 이동 비율", "하드 레이드 재도전율", "클리어 후 보상 만족도"], "02",
+                     "일반 하드 난이도 보상 차이 진입 효율 비용 투자 싱글 매칭 갈 이유"))
+    out[-1].sources = [(vs[k][0], vs[k][1]) for k in ("A", "B", "C")]
+    pos = [x for x in vi if x["stance"] == "긍정" or x["cat"] == v["positive_cat"]]
+    out.append(Entry("dnf", "evidence", "던파 유저의 긍정적인 반응 · 반대 의견", "레이드 전투·난이도 자체는 재미있다는 평가가 있다 → 문제는 '레이드가 재미없다'가 아니라 전투 성취감과 장기 성장·보상 체감 사이의 간극",
+                     [f"{x['summary']} — {vlink(x)}" for x in pos] + ["2026-08-12 질문 글도 레이드 자체는 호평 (공식 게시판)"],
+                     ["전투 경험은 유지하고 보상·성장 체감만 보완 → 지정 장비 진척 게이지"], [], "02",
+                     "긍정 반응 좋은 평가 재미 호평 반대 의견 장점"))
+    out[-1].sources = [(vs["D"][0], vs["D"][1]), (vs["A"][0], vs["A"][1])]
+    c6 = by(6)
+    out.append(Entry("dnf", "cause", "후발 유저의 레이드 진입 장벽 (보조 분석)",
+                     "하드 파티 모집 기준(명성·스펙)이 높아 후발·복귀 유저가 진입을 고민한다는 질문과 정보성 답변이 있다",
+                     [f"{x['summary']} — {vlink(x)}" for x in c6][:6],
+                     ["현재 개선안(지정 장비 진척 게이지)은 진입 장벽을 직접 해결하지 않음 → 보조 분석으로만 다룸",
+                      "유저들이 제시한 방법: 일반 파티로 숙련도를 올린 뒤 하드 진입 (2026-11-17 댓글) · 새 기능을 추가로 제안하지 않음"],
+                     ["일반↔하드 이동 비율 (관찰 지표)", "하드 레이드 재도전율"], "02",
+                     "후발 유저 진입 장벽 스펙 컷 파티 흑아 명성 복귀 해결"))
+    out[-1].sources = [(vs["E"][0], vs["E"][1]), (vs["D"][0], vs["D"][1])]
+    out.append(Entry("dnf", "kpi", "실제 이탈 데이터 없이 던파 문제를 검증하는 방법",
+                     "VOC와 공식 자료로 가설을 세웠고, 효과는 로그 확인 → 소규모 A/B → 확대·롤백 순서로 검증한다",
+                     [f"{r[0]} {r[1]}: {r[2]}" for r in d["roadmap"]] + list(d["experiment"][:3]),
+                     ["VOC 102건은 문제를 찾는 출발점 · 이탈률·불만 비율은 단정하지 않음"],
+                     [k[1] for k in d.get("kpi_main", [])], "06", "실제 이탈 데이터 없이 검증 방법 어떻게 검증 로그 실험"))
     out.append(Entry("dnf", "priority", "우선 실행: B 지정 장비 진척 게이지 소규모 파일럿", d["decision"],
                      [f"{r[0]} {r[1]}: {r[2]}" for r in d["roadmap"]][:3],
                      [d["decision"]], [f"{k[1]}" for k in d.get("kpi_main", [])], "06", "우선 먼저 순서 1순위"))
@@ -282,7 +325,7 @@ def _game_defaults() -> dict[str, dict]:
         "pubg": {"problem": f"{pb['cover']['question']} ({pb['cover']['subtitle']})",
                  "evidence": [f"{b['title']}: {b['line']}" for b in pb["return_barriers"][:2]] + [f"공식: {o['title']} ({o['date']})" for o in pb["official"][:1]],
                  "sources": src(pb["official"])},
-        "fconline": {"problem": " · ".join(f"{k} {t}" for k, t in fc["intro"]["topics"]),
+        "fconline": {"problem": fc.get("core", {}).get("problem") or " · ".join(f"{k} {t}" for k, t in fc["intro"]["topics"]),
                      "evidence": [f"{c[0]}: {c[1]}" for c in fc.get("counts", [])[:3]],
                      "sources": src(fc["official"])},
         "dnf": {"problem": dn["intro"]["question"],
@@ -349,7 +392,8 @@ def infer_game(q: str) -> str | None:
     if len(owned) != 1:
         return None
     g, ts = next(iter(owned.items()))
-    return g if len(ts) >= 2 or any(len(t) >= 3 for t in ts) else None   # '설정' 같은 흔한 2글자 단어 하나로는 추론하지 않음
+    domain = {"하드", "레이드", "던전", "강화", "구단", "패드", "광고", "영웅"}
+    return g if len(ts) >= 2 or any(len(t) >= 3 or t in domain for t in ts) else None   # '설정' 같은 흔한 2글자 단어 하나로는 추론하지 않음
 
 
 def detect_kinds(q: str) -> list[str]:
@@ -357,6 +401,8 @@ def detect_kinds(q: str) -> list[str]:
     kinds = [k for k, words in INTENTS.items() if any(w in ql for w in words)]
     weak = not any(w in ql for w in ("문제", "불만", "이탈", "적응", "개요"))
     if "problem" in kinds and len(kinds) > 1 and weak:
+        kinds.remove("problem")
+    if "problem" in kinds and "cause" in kinds:          # '왜 문제야' → 원인 항목 우선
         kinds.remove("problem")
     return kinds
 
@@ -429,8 +475,7 @@ def search(q: str, game: str | None = None, k: int = 3) -> list[tuple[float, Ent
         if e.kind in kinds:
             s += 2.0
         s += sum(w[t] for t in terms if t in e.text)
-        if any(t in e.title.lower() for t in terms):
-            s += 1.0
+        s += 0.5 * sum(1 for t in terms if t in e.title.lower())   # 제목과 많이 겹칠수록 가산
         if s > 0:
             scored.append((s, e))
     scored.sort(key=lambda x: -x[0])
@@ -512,6 +557,9 @@ def qa_md(it: dict) -> str:
 
 def answer_md(q: str, game: str | None = None, datalab: dict | None = None) -> str:
     """검색 결과를 '핵심 결론 → 문제와 근거 → 사업PM 개선 전략 → 핵심 KPI → 관련 페이지' 마크다운으로 (원문 그대로)."""
+    gs = detect_games(q)
+    if not game and len(gs) >= 2 and any(w in q for w in ("달라", "다른", "차이", "비교", "vs", "공통")):
+        return _multi_md(q, gs)
     if not game and not detect_games(q):
         it = qa_match(q)
         if it:
@@ -561,6 +609,19 @@ def answer_md(q: str, game: str | None = None, datalab: dict | None = None) -> s
     if len(hits) > 1:
         parts.append("관련 항목: " + " · ".join(f"[{e.title}]({e.links()[1]})" for _, e in hits[1:]))
     parts.append("_포트폴리오 기반 검색형 답변 · 분석 자료 원문을 그대로 보여 주며 새로운 사실을 만들지 않습니다._")
+    return "\n\n".join(parts)
+
+
+def _multi_md(q: str, gs: list[str]) -> str:
+    """두 게임 이상 비교: 게임마다 가장 관련 높은 항목 + 문제 정의 (원문)."""
+    parts = [f"#### {' vs '.join(NAMES[g] for g in gs)} 비교", "**핵심 결론** — 게임마다 불만의 대상과 원인이 다르다 · 아래는 각 게임 분석 자료 원문"]
+    for g in gs:
+        hits = search(q, g, k=1)
+        e = hits[0][1] if hits else next(x for x in build_index() if x.game == g and x.kind == "problem")
+        prob = next((x.problem for x in build_index() if x.game == g and x.kind == "problem"), "")
+        body = "\n".join(f"- {x}" for x in (e.evidence[:2] + e.strategy[:1]))
+        parts.append(f"**{NAMES[g]}** — {prob}\n- 관련 항목: {e.title}\n{body}\n- [{e.links()[0]}]({e.links()[1]})")
+    parts.append("_포트폴리오 기반 검색형 답변 · 각 게임 분석 자료 원문 · 두 게임의 불만 규모를 수치로 비교하지 않음_")
     return "\n\n".join(parts)
 
 

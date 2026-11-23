@@ -37,6 +37,48 @@ def load() -> dict:
 
 
 @st.cache_data(show_spinner=False)
+def load_voc() -> dict:
+    return json.loads((DATA / "voc.json").read_text(encoding="utf-8"))
+
+
+def voc_block(d: dict) -> None:
+    """VOC 전수: 출처별 건수 → 범주별 건수·성향·대표 의견 → 반대 의견 → 전체 목록 (모두 voc.json 에서 계산)."""
+    v = load_voc()
+    items, cats, src = v["items"], v["categories"], v["sources"]
+    n_yt = sum(x["src"].startswith("YT") for x in items)
+    n_kk = sum(x["src"] == "KAKAO" for x in items)
+    n_bd = len(items) - n_yt - n_kk
+    cap = v["capture"]
+    sub("④ 유저 의견 전수 · 범주별 (중복 제외 · 작성자 비공개)", b_real())
+    html('<div class="df-vocsum">'
+         f'<div><span>원본 캡처</span><b>{cap["original_files"]}장</b><small>VOC 캡처 {cap["voc_files"]} · 그래프 {cap["chart_files"]} (2차 자료)</small></div>'
+         f'<div><span>중복 제외 유효 VOC</span><b>{len(items)}건</b><small>유튜브 댓글 {n_yt} · 공식 게시판 {n_bd} (글 {v["board"]["posts"]}개) · 지인 1명 {n_kk}</small></div>'
+         f'<div><span>이전 사이트 반영</span><b>{sum(x["before"] for x in items)}건</b><small>→ 이번에 전체 {len(items)}건을 목록화 · 신규 {sum(not x["before"] for x in items)}건</small></div></div>')
+    link_of = lambda x: link(src[x["src"]][1], src[x["src"]][0]) if src[x["src"]][1] else escape(src[x["src"]][0])  # noqa: E731
+    order = v["core_cats"] + v["sub_cats"] + [v["positive_cat"]]
+    rows = []
+    for c in order:
+        xs = [x for x in items if x["cat"] == c]
+        st_ = " · ".join(f"{k} {sum(x['stance'] == k for x in xs)}" for k in ("부정", "질문", "제안", "중립", "긍정") if any(x["stance"] == k for x in xs))
+        rep_ = next((x for x in xs if x["src"] in ("A", "B", "C", "D", "E", "F1", "F2")), xs[0] if xs else None)
+        role = "핵심 → 지정 장비 진척 게이지" if c in v["core_cats"] else ("보조 분석" if c in v["sub_cats"] else "반대·긍정 의견")
+        rows.append([f"<b>{escape(cats[str(c)])}</b><br><small>{role}</small>", f"<b>{len(xs)}</b>", escape(st_),
+                     (f"{escape(rep_['summary'])}<br><small>{escape(rep_['date'])} · {link_of(rep_)}</small>" if rep_ else "—")])
+    table(["분석 범주", "건수", "성향", "대표 의견 (요약 · 출처)"], rows)
+    other = [x for x in items if x["cat"] not in order]
+    st.caption(f"분석 범위 밖 {len(other)}건 (운영·디렉터·회사 평가 {sum(x['cat'] == 8 for x in other)} · 골드·경제 {sum(x['cat'] == 9 for x in other)} · "
+               f"스토리·콘텐츠 방향 {sum(x['cat'] == 10 for x in other)}) · 유튜브 영상 1·3이 '던파 위기' 주제라 운영 비판이 많은 편향이 있음 · "
+               "건수는 수집 표본 안의 분포일 뿐 전체 이용자 비율이 아님")
+    pos = [x for x in items if x["stance"] == "긍정" or x["cat"] == v["positive_cat"]]
+    html('<div class="df-pos"><b>긍정·반대 의견도 함께</b>' + "".join(
+        f'<span>{escape(x["summary"])} <small>{escape(x["date"])} · {link_of(x)}</small></span>' for x in pos) + "</div>")
+    with st.expander(f"자세히 보기 · VOC 전체 목록 {len(items)}건 (출처·날짜·성향·범주)"):
+        table(["번호", "출처", "위치", "날짜", "성향", "범주", "요약"],
+              [[x["id"], link_of(x), escape(x["where"]), escape(x["date"]), escape(x["stance"]), escape(cats[str(x["cat"])]), escape(x["summary"])] for x in items])
+        st.caption(v["_note"] + " · " + cap["note"] + " · " + v["board"]["excluded"])
+
+
+@st.cache_data(show_spinner=False)
 def _img(rel: str, mtime: float) -> str:
     return web_jpeg_b64(str(ASSETS / rel), max_w=1400)
 
@@ -152,7 +194,8 @@ def s2(d: dict) -> None:
          f'<div class="pm"><span>사업PM 해석</span>{escape(r["pm"])}</div></div>')
     with st.expander("자세히 보기 · 다른 영상·공식 프리뷰·공략 링크"):
         html('<div class="df-media">' + "".join(f'<div><span>{escape(k)}</span><b>{link(u, t + " ↗")}</b><small>{escape(n)}</small></div>' for k, t, u, n in m["links"]) + "</div>")
-    sub("④ 유저 의견 · 2026년 공식 게시판 3건", b_real())
+    voc_block(d)
+    sub("핵심 원문 발췌 · 지정 장비 진척 게이지와 직접 연결되는 2026 의견", b_real())
     html(f'<div class="fc-cav">{escape(d["opinion_scope"])}</div>')
     cards = []
     for o in d["key_opinions"]:

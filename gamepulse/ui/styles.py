@@ -1808,6 +1808,17 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-gal[data-gal="dfscene"] .df-yt.in {{ max-width: none; margin: 0; border-radius: 0; }}
 .fc-gal[data-gal="dfscene"] .zin {{ pointer-events: none; }}
 .fc-gal[data-gal="dfscene"] .zin iframe {{ pointer-events: auto; }}
+/* 던파 VOC 요약 */
+.df-vocsum {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin: 0.4rem 0 0.8rem; }}
+.df-vocsum > div {{ background: #fff; border: 1px solid {C['line']}; border-top: 4px solid #b3261e; border-radius: 12px; padding: 0.7rem 0.9rem; }}
+.df-vocsum span {{ font-size: 0.75rem; font-weight: 800; color: #6b778c; }}
+.df-vocsum b {{ display: block; font-size: 1.35rem; color: {C['navy']}; margin: 0.1rem 0; }}
+.df-vocsum small {{ font-size: 0.78rem; color: #44546a; line-height: 1.45; }}
+.df-pos {{ background: #f1f8f2; border: 1px solid #bfe0c4; border-radius: 10px; padding: 0.6rem 0.85rem; margin: 0.5rem 0 1rem; font-size: 0.88rem; }}
+.df-pos b {{ display: block; color: #1e6b2c; margin-bottom: 0.3rem; }}
+.df-pos span {{ display: block; line-height: 1.55; margin: 0.15rem 0; }}
+.df-pos small {{ color: #6b778c; font-size: 0.76rem; }}
+@media (max-width: 640px) {{ .df-vocsum {{ grid-template-columns: 1fr; }} }}
 </style>
 """
 
