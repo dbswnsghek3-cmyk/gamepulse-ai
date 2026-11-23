@@ -44,6 +44,7 @@ from gamepulse.ui.styles import CSS as APP_CSS  # noqa: E402
 from gamepulse.views.overwatch import TAB_LABELS as OW_TABS  # noqa: E402
 from gamepulse.views.pubg import TAB_LABELS as PG_TABS  # noqa: E402
 from gamepulse.views.fconline import TAB_LABELS as FC_TABS  # noqa: E402
+from gamepulse.views.dnf import TAB_LABELS as DF_TABS  # noqa: E402
 
 DOCS = ROOT / "docs"
 import csv as _csv  # noqa: E402
@@ -56,9 +57,10 @@ KST = dt.timezone(dt.timedelta(hours=9))
 
 # (앱 페이지 id, 파일명, 메뉴 이름, 차트 기본 분류)
 PAGES = [("overwatch", "overwatch.html", "오버워치 · PROJECT RE:START", "real"), ("pubg", "pubg.html", "PUBG · NEW START", "real"),
-         ("fconline", "fconline.html", "FC 온라인 · 축구 게임인가, 주식 게임인가?", "real")]
+         ("fconline", "fconline.html", "FC 온라인 · 축구 게임인가, 주식 게임인가?", "real"),
+         ("dnf", "dnf.html", "던전앤파이터 · 클리어했는데 왜 성장한 느낌이 없을까?", "real")]
 PAGES += [("home", "home.html", "사이트 홈 · 개요", "sample")]
-PAGES += [(g, f"{g}.html", GAMES[g]["name"], "sample") for g in GAME_ORDER if g not in ("overwatch", "pubg", "fconline")]
+PAGES += [(g, f"{g}.html", GAMES[g]["name"], "sample") for g in GAME_ORDER if g not in ("overwatch", "pubg", "fconline", "dnf")]
 PAGES += [("data_lab", "data_lab.html", "데이터 랩 (CSV 분석)", "sample"),
           ("assistant", "assistant.html", "PM 어시스턴트 (미리보기)", "sample")]
 
@@ -430,6 +432,15 @@ def fconline_body(kind: str) -> tuple[str, int]:
     return PAGE_CSS + '<div class="pg-static">' + note + body + "</div>" + PAGE_JS + fc_demos(ROOT), charts
 
 
+def dnf_body(kind: str) -> tuple[str, int]:
+    """던전앤파이터: 01~06을 모두 펼쳐 두고(JS 없이도 읽힘) 시뮬레이터는 JS 조작판으로 교체."""
+    from dnf_static_demos import demos as df_demos
+    from pubg_static_demos import PAGE_CSS, PAGE_JS
+    body, charts = tabbed_body("dnf", DF_TABS, "df_tab", kind, {}, all_visible=True)
+    note = '<div class="sx-note">이 페이지는 JavaScript 없이도 01~06 내용을 모두 담고 있습니다. 05 탭 시뮬레이터는 이 페이지에서 직접 조작할 수 있습니다.</div>'
+    return PAGE_CSS + '<div class="pg-static">' + note + body + "</div>" + PAGE_JS + df_demos(), charts
+
+
 def tabbed_body(pid: str, labels: list[str], tab_key: str, kind: str, extras: dict,
                 all_visible: bool = False, pane_extra=None) -> tuple[str, int]:
     """6개 탭을 각각 실행해 모은 뒤, 탭 버튼 + 패널(선택한 1개만 표시) + JS 로 합친다.
@@ -571,7 +582,7 @@ def page_html(title: str, desc: str, current: str, body: str, toc: list, charts:
                   for _, f, n, _ in [("index", "index.html", "보고서 첫 화면", "")] + PAGES)
     toc_html = ("" if not toc else '<nav class="sx-toc"><b>이 페이지 목차</b>'
                 + "".join(f'<a href="#{i}">{H.escape(l)}</a>' for i, l in toc) + "</nav>")
-    own_legend = current in ("overwatch.html", "pubg.html", "fconline.html")   # 탭형 프로젝트는 앱이 배지 설명을 직접 표시
+    own_legend = current in ("overwatch.html", "pubg.html", "fconline.html", "dnf.html")   # 탭형 프로젝트는 앱이 배지 설명을 직접 표시
     note = ("" if current == "index.html" else
             f'<div class="sx-note"><b>정적 보고서</b> · <a href="{LIVE_URL}">원본 앱</a> 스냅샷 ({gen}) · '
             + ("01~06 탭으로 섹션 전환 · " if own_legend else "")
@@ -586,7 +597,7 @@ def page_html(title: str, desc: str, current: str, body: str, toc: list, charts:
             f'{APP_CSS}<style>{STATIC_CSS}</style>{script}</head><body>'
             f'<header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div>'
             f'<nav>{nav}</nav></div></header><main class="sx-main">{note}'
-            f'{legend() if current not in ("index.html", "overwatch.html", "pubg.html", "fconline.html") else ""}{toc_html}{body}</main>'
+            f'{legend() if current not in ("index.html", "overwatch.html", "pubg.html", "fconline.html", "dnf.html") else ""}{toc_html}{body}</main>'
             f'<footer class="sx-foot">{APP_NAME} 정적 보고서 · 생성 {gen} · <a href="{LIVE_URL}">원본 앱</a> · '
             f'<a href="{REPO_URL}">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer>'
             '</body></html>')
@@ -677,10 +688,11 @@ def main() -> int:
 
     written = []
     for pid, fname, name, kind in PAGES:
-        if pid in ("overwatch", "pubg", "fconline"):
-            body, n_charts = {"overwatch": overwatch_body, "pubg": pubg_body, "fconline": fconline_body}[pid](kind)
+        if pid in ("overwatch", "pubg", "fconline", "dnf"):
+            body, n_charts = {"overwatch": overwatch_body, "pubg": pubg_body, "fconline": fconline_body, "dnf": dnf_body}[pid](kind)
             desc = {"overwatch": GAMES[pid].get("theme", name), "pubg": "신규 유저 정착과 휴면 유저 재활성화 전략",
-                    "fconline": "구단 가치 하락 · 강화 리스크 · 키보드 vs 패드 경쟁 공정성"}[pid]
+                    "fconline": "구단 가치 하락 · 강화 리스크 · 키보드 vs 패드 경쟁 공정성",
+                    "dnf": "시즌제 성장 가치 · 랜덤 보상과 성취감 · 확률 보상 + 누적 성장 보장"}[pid]
             doc = save_images(page_html(name, desc, fname, body, [], n_charts > 0, gen))
             (DOCS / fname).write_text(doc, encoding="utf-8")
             written.append(DOCS / fname)

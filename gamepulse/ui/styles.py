@@ -726,19 +726,19 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 
 /* ---------- 오버워치 v8: 탭 전환 · 전체 크기 축소 · 짧은 글 ---------- */
 /* 01~06 탭 (Streamlit: 가로 라디오를 버튼처럼) · 3열×2행 · 선택 = 파랑, 나머지 = 차분한 남색 */
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab), :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadio"], :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"] {{ width: 100% !important; max-width: none !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"] {{ display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab), :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) [data-testid="stRadio"], :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) [data-testid="stRadioGroup"] {{ width: 100% !important; max-width: none !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) [data-testid="stRadioGroup"] {{ display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
   width: 100%; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"] > div {{ width: 100%; margin: 0 !important; padding: 0 !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] {{ margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) [data-testid="stRadioGroup"] > div {{ width: 100%; margin: 0 !important; padding: 0 !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"] {{ margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
   background: #1B3358; display: flex; align-items: center; cursor: pointer; width: 100%; transition: background 0.15s ease, box-shadow 0.15s ease; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] > div {{ width: 100%; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] > div > div:first-child {{ display: none !important; }}  /* 라디오 동그라미 숨김 */
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] p {{ color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"] > div {{ width: 100%; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"] > div > div:first-child {{ display: none !important; }}  /* 라디오 동그라미 숨김 */
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"] p {{ color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
   overflow: hidden; text-overflow: ellipsis; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:hover {{ background: #24426F; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:has(input:checked),
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"][data-selected] {{ background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"]:hover {{ background: #24426F; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"]:has(input:checked),
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"][data-selected] {{ background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }}
 /* 정적 보고서용 같은 모양의 탭 버튼 */
 .ow-tabbar {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 0.8rem; }}
 .ow-tabbar button {{ font: inherit; text-align: left; border: 0; padding: 0.7rem 0.9rem; min-height: 3.1rem; border-radius: 10px;
@@ -812,9 +812,9 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .ow-credits ul {{ margin: 0.25rem 0 0; padding-left: 1.1rem; }} .ow-credits li {{ line-height: 1.6; }}
 
 @media (max-width: 640px) {{
-  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"], .ow-tabbar {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }}
-  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"], .ow-tabbar button {{ padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }}
-  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button {{ font-size: 0.92rem; }}
+  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) [data-testid="stRadioGroup"], .ow-tabbar {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }}
+  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"], .ow-tabbar button {{ padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }}
+  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button {{ font-size: 0.92rem; }}
   .ow-cover-c {{ font-size: 1.3rem !important; }}
   .ow-pcard-t {{ font-size: 1.05rem; }}
   .ow-chart-f2 > div {{ flex-direction: column; gap: 0.1rem; }}
@@ -836,13 +836,13 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .ow-hero3 small {{ display: block; font-size: 0.85rem; color: #64748B; margin-top: 0.2rem; line-height: 1.45; }}
 
 /* 탭: 선택 = 파랑 배경·흰 글씨 · 나머지 = 흰 배경·연한 테두리·남색 글씨 */
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"], .ow-tabbar button {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"], .ow-tabbar button {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important;
   box-shadow: none !important; min-height: 2.75rem !important; padding: 0.55rem 0.85rem !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button {{ color: #142B4D !important; font-size: 0.97rem !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:hover, .ow-tabbar button:hover {{ background: #F8FAFC !important; border-color: #BFDBFE !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:has(input:checked), :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"][data-selected],
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button {{ color: #142B4D !important; font-size: 0.97rem !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"]:hover, .ow-tabbar button:hover {{ background: #F8FAFC !important; border-color: #BFDBFE !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"]:has(input:checked), :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"][data-selected],
 .ow-tabbar button[aria-selected="true"] {{ background: #2563EB !important; border-color: #2563EB !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:has(input:checked) p, .ow-tabbar button[aria-selected="true"] {{ color: #FFFFFF !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab, .st-key-df_tab) label[data-testid="stRadioOption"]:has(input:checked) p, .ow-tabbar button[aria-selected="true"] {{ color: #FFFFFF !important; }}
 .ow-tabbar button b {{ color: inherit; }}
 
 /* 배지: 파랑·회색 계열 (텍스트·테두리 모양으로 구분) */
@@ -1658,6 +1658,14 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-intro ol {{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }}
 .fc-intro li {{ font-size: 1rem; font-weight: 800; color: #0B1F3A; }}
 .fc-evs.one {{ grid-template-columns: 1fr; }}
+/* 던전앤파이터: 상단 빨간색 */
+.fc-hero.dnf {{ background: linear-gradient(135deg, #450A0A 0%, #991B1B 55%, #DC2626 120%) !important; }}
+.fc-hero.dnf .k {{ color: #FECACA !important; }} .fc-hero.dnf .s {{ color: #FEE2E2 !important; }}
+.fc-intro.dnf {{ border-left-color: #B91C1C; }}
+.df-wait {{ border: 2px dashed #FCA5A5; background: #FEF2F2; color: #7F1D1D; border-radius: 12px; padding: 0.7rem 0.9rem; font-size: 0.95rem; font-weight: 700; margin: 0.3rem 0 0.7rem; }}
+.fc-flow3.df4 {{ grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); }}
+.fc-flow3.df4 > div {{ background: #FEF2F2; }} .fc-flow3.df4 span {{ color: #B91C1C; }} .fc-flow3.df4 > i {{ color: #B91C1C; }}
+@media (max-width: 900px) {{ .fc-flow3.df4 {{ grid-template-columns: 1fr; }} }}
 .fc-types {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.45rem; margin: 0.3rem 0 0.3rem; }}
 .fc-types > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #6D28D9; border-radius: 10px; padding: 0.5rem 0.65rem; display: flex; flex-direction: column; gap: 0.15rem; }}
 .fc-types b {{ font-size: 0.92rem; color: #0B1F3A; }} .fc-types span {{ font-size: 0.86rem; color: #1E293B; line-height: 1.45; }} .fc-types small {{ font-size: 0.8rem; color: #6D28D9; font-weight: 700; }}
