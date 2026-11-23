@@ -143,13 +143,17 @@ def s1(d: dict) -> None:
 # 02 실제 유저 댓글
 def s2(d: dict) -> None:
     yt = d["youtube"]
-    head("근거: 분리 매칭은 찬성만큼 반대도 뚜렷하다", "사례이지 비율이 아니다", b_real())
-    sub("유튜브 · 컨트롤러 분리 매칭")
-    html('<div class="fc-yt">' + "".join(f'<a href="{escape(u, quote=True)}" target="_blank" rel="noopener"><span>YouTube · {escape(k)}</span><b>{escape(t)}</b></a>'
+    head("근거: 조작 불만은 공통, 해법(분리 vs 개선)은 갈린다", "사례이지 비율이 아니다", b_real())
+    sub("유튜브 댓글 · 유저 의견 요약")
+    html('<div class="fc-yt">' + "".join(f'<a href="{escape(u, quote=True)}" target="_blank" rel="noopener"><span>YouTube · {escape(t)}</span><b>{escape(k)}</b></a>'
                                           for t, u, k in yt["videos"]) + "</div>")
-    cls = {"찬성": "kb", "반대": "pad", "중립": "q", "대안": "alt"}
-    html('<div class="fc-themes">' + "".join(f'<div class="{cls[s]}"><span>{escape(s)}</span><b>{escape(t)}</b></div>' for s, t in yt["themes"]) + "</div>")
-    html(f'<div class="fc-cav">{b_interp()} {escape(yt["note"])}</div>')
+    cls = {"조작 불만": "q", "분리 찬성": "kb", "분리 반대": "pad", "제3의 의견": "alt"}
+    urls = {i + 1: v[1] for i, v in enumerate(yt["videos"])}
+    html('<div class="fc-themes yt">' + "".join(
+        f'<div class="{cls[g]}"><span>{escape(g)} · 유저 의견 요약</span><b>{escape(t)}</b>'
+        f'<a href="{escape(urls[s], quote=True)}" target="_blank" rel="noopener">출처 {s} · 영상 보기</a></div>' for g, t, s in yt["cards"]) + "</div>")
+    html(f'<div class="fc-cav">{escape(yt["note"])}</div>')
+    html(f'<div class="fc-pm"><span>사업PM 해석</span><b>{escape(yt["pm"])}</b></div>')
     sub("인벤 FC 온라인 게시판 · 실제 게시글 제목", b_real())
     side = {"키보드": "kb", "패드": "pad", "질문": "q", "중립": "q", "강화": "en"}
     html('<div class="fc-posts">' + "".join(
@@ -164,7 +168,7 @@ def s2(d: dict) -> None:
         table(["날짜", "자료", "구분", "확인한 사실", "출처"],
               [[escape(o["date"]), f"<b>{escape(o['title'])}</b>", escape(o["kind"]), escape(o["fact"]), link(o["url"], "열기")] for o in d["official"]], badge_html=b_real())
         st.markdown(f"- 인벤 게시글: {d['opinion_note']}\n"
-                    "- 유튜브: 영상 제목·링크만 직접 확인 · 댓글 내용은 사용자가 캡처로 확인한 요약 (캡처 원본 미수신)\n"
+                    "- 유튜브: 작성자가 두 영상의 댓글을 직접 캡처(10장)해 요약 · 원문 인용·닉네임은 싣지 않음 · A·B 근거로는 쓰지 않음\n"
                     "- '구단 가치' 검색은 일반 잡담, '강화 실패' 검색은 0건 (2026-11-23) → A·B 유저 발언은 표본 부족\n"
                     "- 상위 랭커 장비 비율 같은 수치는 검증 자료가 없어 쓰지 않는다 · 작성자 이름은 저장하지 않는다")
 
@@ -215,6 +219,9 @@ def s4(d: dict) -> None:
     html('<div class="fc-pol">' + "".join(
         f'<div class="{"rec" if p["key"] == "3" else ""}"><span>{p["key"]}안{" · 권고" if p["key"] == "3" else ""}</span><b>{escape(p["name"])}</b>'
         f'<small>{escape(p["how"])}</small><p class="pro">+ {escape(p["pro"])}</p><p class="con">− {escape(p["con"])}</p></div>' for p in d["c_policies"]) + "</div>")
+    sub("왜 3안인가 · 유튜브 댓글 근거 → 결정", b_interp())
+    html('<div class="fc-facts why">' + "".join(f'<div><span>{escape(a)}</span><b>{escape(b)}</b><small>{escape(c)}</small></div>' for a, b, c in d["c_why"]) + "</div>")
+    html(f'<div class="fc-cav">{escape(d["c_why_note"])}</div>')
     html('<div class="fc-planc"><b>실행 계획</b><ol>' + "".join(f"<li>{escape(x)}</li>" for x in d["c_plan"]) + f'</ol><small>{escape(d["c_not"])}</small></div>')
     conclude("매칭을 나누기보다, 같은 경기에서 납득할 수 있는 조작 환경을 만든다.")
     html('<div class="fc-cav">분리·선택형은 보류 · 대기시간 증가는 <b>검증 전 위험 요인</b> · 격차가 안 줄면 선택형 재검토</div>')

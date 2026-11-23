@@ -1519,6 +1519,9 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-themes > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #94A3B8; border-radius: 10px; padding: 0.55rem 0.7rem; display: flex; flex-direction: column; gap: 0.15rem; }}
 .fc-themes > div.kb {{ border-top-color: #0F766E; }} .fc-themes > div.pad {{ border-top-color: #7C3AED; }} .fc-themes > div.alt {{ border-top-color: #15803D; }}
 .fc-themes span {{ font-size: 0.78rem; font-weight: 900; color: #475569; }} .fc-themes b {{ font-size: 0.98rem; color: #0B1F3A; line-height: 1.4; }}
+.fc-themes.yt {{ grid-template-columns: repeat(4, minmax(0, 1fr)); }} .fc-themes > div.q {{ border-top-color: #DC2626; }}
+.fc-themes a {{ margin-top: auto; padding-top: 0.3rem; font-size: 0.78rem; font-weight: 700; color: #B91C1C !important; }}
+.fc-facts.why {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }} .fc-facts.why > div {{ border-top-color: #15803D; }} .fc-facts.why span {{ color: #15803D; }} .fc-facts.why small {{ color: #14532D; font-weight: 700; }}
 .fc-facts {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.4rem; }}
 .fc-facts > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #DC2626; border-radius: 10px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.2rem; }}
 .fc-facts span {{ font-size: 0.78rem; font-weight: 900; color: #B91C1C; }} .fc-facts b {{ font-size: 0.98rem; color: #0B1F3A; line-height: 1.4; }} .fc-facts small {{ font-size: 0.8rem; color: #64748B; }}
@@ -1539,8 +1542,9 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-cmp em {{ font-style: normal; font-size: 0.7rem; font-weight: 900; color: #fff; background: #15803D; border-radius: 999px; padding: 0.02rem 0.4rem; margin-left: 0.2rem; }}
 @media (max-width: 900px) {{
   .fc-yt, .fc-themes, .fc-two {{ grid-template-columns: 1fr; }} .fc-facts, .fc-steps {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+  .fc-themes.yt {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .fc-facts.why {{ grid-template-columns: 1fr; }}
 }}
-@media (max-width: 520px) {{ .fc-facts, .fc-steps {{ grid-template-columns: 1fr; }} }}
+@media (max-width: 520px) {{ .fc-facts, .fc-steps, .fc-themes.yt {{ grid-template-columns: 1fr; }} }}
 
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
