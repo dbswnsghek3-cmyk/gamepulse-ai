@@ -147,7 +147,7 @@ def s2(d: dict) -> None:
     ev, yt = d["evidence"], d["youtube"]
     head("근거: 확인한 원문과 공식 데이터만", "카드 = 유저 의견 요약 · 작성일·출처 · 사업PM 해석 · 사례이지 비율 아님", b_real())
     lead("A", "구단 가치 하락", "화폐 단위 변경(8/20) 영향 사례는 제외")
-    html('<div class="fc-evs">' + "".join(ev_card(e, "a") for e in ev["A"]) + "</div>")
+    html('<div class="fc-evs two">' + "".join(ev_card(e, "a") for e in ev["A"]) + "</div>")
     o = ev["A_official"]
     html(f'<div class="fc-ev off"><span class="t">운영사 공식 대응 · 개인 의견 아님</span><b>{escape(o["line"])}</b>'
          f'<small>{escape(o["date"])} · {link(o["url"], o["src"] + " ↗")}</small><p>→ {escape(o["pm"])}</p></div>')
@@ -159,10 +159,12 @@ def s2(d: dict) -> None:
     cls = {"조작 불만": "kb", "분리 찬성": "kb", "분리 반대": "pad", "제3의 의견": "alt"}
     html('<div class="fc-evs c3">' + "".join(
         f'<div class="fc-ev {cls[g]}"><b>{escape(t)}</b>'
-        f'<small>{escape(g)} · 댓글 작성일 미표기 · {link(urls[s], f"유튜브 출처 {s} ↗")}</small><p>→ {escape(pm)}</p></div>'
+        f'<small>{escape(g)} · {link(urls[s], f"유튜브 {s} ↗")}</small><p>→ {escape(pm)}</p></div>'
         for (g, t, s), pm in zip(yt["cards"], ev["C_pm"])) + "</div>")
-    html(f'<div class="fc-pm"><span>사업PM 해석</span><b>{escape(yt["pm"])}</b></div>')
     with st.expander("자세히 보기 · 근거 집계표 · 인벤 C 게시글 제목 · 공식 자료 · 자료 한계"):
+        x = ev["A_extra"]
+        html(f'<div class="fc-ev off"><span class="t">A 보조 참고 · 집계 제외</span><b>{escape(x["line"])}</b>'
+             f'<small>{escape(x["date"])} · {link(x["url"], x["src"] + " ↗")}</small><p>→ {escape(x["pm"])}</p></div>')
         table(["트랙", "확인", "자료", "미확인 · 제외"], [[f"<b>{escape(a)}</b>", f"<b>{escape(b)}</b>", escape(c), escape(e)] for a, b, c, e in d["counts"]],
               badge_html=b_real())
         table(["구분", "인벤 게시글 제목 (원문 그대로)", "날짜"],
@@ -188,7 +190,6 @@ def s3(d: dict) -> None:
         st.markdown(f"- {pc['note']}")
     lead("B", "강화 한 번의 실패가 떠나는 계기가 될 수 있다", "늦은 코치 세팅 → 초기 이탈")
     gallery("b", d["galleries"]["B"])
-    html('<div class="fc-facts b3">' + "".join(f'<div><span>{escape(a)}</span><b>{escape(b)}</b><small>{escape(c)}</small></div>' for a, b, c in d["b_facts"]) + "</div>")
     lead("C", "키보드 vs 패드, 같은 경기인데 공정한가?", "조작의 자유인가, 경쟁의 형평성인가?")
 
     html('<div class="fc-vs2"><div class="kb"><div class="h">⌨️ 키보드 측</div><ul>' + "".join(f"<li>{escape(x)}</li>" for x in cs["keyboard"])
@@ -208,8 +209,9 @@ def sol_card(x: dict, t: str) -> str:
 
 def s4(d: dict) -> None:
     ap, so, role = d["a_plan"], d["solutions"], d["role"]
-    head("해결: 시세 보장·보상 확대·매칭 분리 대신", "A 대표 · C 차별화 · B 보조 — 해결책마다 문제 · 변경 · 검증 · 위험 (기획 시안)", b_mock())
+    head("해결: 시세 보장·보상 확대·매칭 분리 대신", "A 대표 · C 차별화 · B 보조 (기획 시안)", b_mock())
     lead("A", f"{role['A']} · 구단 가치 하락 원인 분석 + 보유 자산 기반 재건", "데모는 05 탭")
+    html('<div class="fc-flow3">' + '<i>→</i>'.join(f'<div><span>{escape(a)}</span><b>{escape(b)}</b><small>{escape(c)}</small></div>' for a, b, c in d["a_flow"]) + "</div>")
     html('<div class="fc-sols">' + "".join(sol_card(x, "a") for x in so["A"]) + "</div>")
     with st.expander("자세히 보기 · 기존 기능과 차별화 · 경제 부작용 검토"):
         table(["구분", "하는 일", "범위"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in ap["diff"]])
@@ -218,14 +220,15 @@ def s4(d: dict) -> None:
     lead("C", f"{role['C']} · 통합 매칭 유지 + 키보드 입력 판정 개선", "유저 의견에서 출발한 검증 가설 · 결함으로 확정된 것 아님")
     html('<div class="fc-sols">' + "".join(sol_card(x, "c") for x in so["C"]) + "</div>")
     html(f'<div class="fc-excl">{escape(d["c_excluded"])}</div>')
-    html('<div class="fc-planc"><b>실행 순서</b><ol>' + "".join(f"<li>{escape(x)}</li>" for x in d["c_plan"]) + f'</ol><small>{escape(d["c_not"])}</small></div>')
-    with st.expander("자세히 보기 · 유저 근거 → 결정"):
+    with st.expander("자세히 보기 · 실행 순서 · 유저 근거 → 결정"):
+        html('<div class="fc-planc"><b>실행 순서</b><ol>' + "".join(f"<li>{escape(x)}</li>" for x in d["c_plan"]) + f'</ol><small>{escape(d["c_not"])}</small></div>')
         html('<div class="fc-facts why">' + "".join(f'<div><span>{escape(a)}</span><b>{escape(b)}</b><small>{escape(c)}</small></div>' for a, b, c in d["c_why"]) + "</div>")
         st.markdown(f"- {d['c_why_note']}")
     conclude("매칭을 나누기보다, 같은 경기에서 납득할 수 있는 조작 환경을 만든다.")
     lead("B", f"{role['B']} · 강화 실패 · 훈련코치 초기 적응", "두 문제를 하나의 원인으로 묶지 않음 · 강화 시뮬레이터 없음")
     html('<div class="fc-sols">' + "".join(sol_card(x, "b") for x in so["B"]) + "</div>")
-    with st.expander("자세히 보기 · 기존 지원과 중복 확인"):
+    with st.expander("자세히 보기 · 훈련코치 현황 · 기존 지원과 중복 확인"):
+        table(["구분", "확인한 내용", "출처"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["b_facts"]], badge_html=b_real())
         table(["기존 제도 · 제안", "역할", "확인"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["existing"]], badge_html=b_real())
     conclude("보상을 무조건 늘리기보다, 경쟁에 적응하는 시간을 줄인다.")
 
@@ -248,10 +251,9 @@ def a_demo_html(r: dict, names: list[str]) -> str:
             f'<div class="fc-m two"><div><small>A-2 · ① 전원 유지</small><b>{e(r["now"])}</b><em>지출 0 · 경기력 그대로</em></div>'
             f'<div><small>A-2 · ② 선택안 (교체 {r["n_swap"]}명)</small><b>{e(r["after"])}</b><em>순비용 {e(r["net"])} · {res}</em></div></div>'
             f'<ol class="fc-path"><li><b>진단</b> 개별 하락이 큰 선수 {r["n_rec"]}명 (추천 교체)</li>'
-            f'<li><b>유지</b> 시장과 함께 내린 선수 · 능력치 그대로</li>'
-            f'<li><b>교체</b> 판매 수익 {e(r["sale"])} → 대체 비용 {e(r["cost"])}</li>'
+                        f'<li><b>교체</b> 판매 수익 {e(r["sale"])} → 대체 비용 {e(r["cost"])}</li>'
             f'<li><b>이벤트 연계</b> {"부족분 " + e(r["gap"]) + " → 진행 중 이벤트·패스 보상으로 채울 단계 목표" if r["gap"] > 0 else "보유 BP 안에서 가능 · 추가 목표 없음"} (BP 지급 아님)</li></ol>'
-            '<div class="src">가상 선수 5명 · 모든 값은 가정 · 실제 시세·수수료가 아님 · 대체 비용 = 고점 × (1 − 시장 하락률) 가정</div></div>')
+            '<div class="src">가상 선수 · 모든 값은 가정 · 대체 비용 = 고점 × (1 − 시장 하락률)</div></div>')
 
 
 C_EXP = {"c1": ("C-1 · 대각선·연속 입력 성공률", 78, 86, "입력 성공률"),

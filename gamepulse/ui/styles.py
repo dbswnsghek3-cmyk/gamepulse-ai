@@ -1657,7 +1657,12 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-intro > b {{ font-size: 1.2rem; color: #0B1F3A; }} .fc-intro p {{ margin: 0.3rem 0 0.45rem; font-size: 1.02rem; color: #1E293B; line-height: 1.55; }}
 .fc-intro ol {{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }}
 .fc-intro li {{ font-size: 1rem; font-weight: 800; color: #0B1F3A; }}
-.fc-evs.one {{ grid-template-columns: 1fr; }} .fc-evs.c3 {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+.fc-evs.one {{ grid-template-columns: 1fr; }}
+.fc-flow3 {{ display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); gap: 0.4rem; align-items: stretch; margin: 0.2rem 0 0.6rem; }}
+.fc-flow3 > i {{ font-style: normal; align-self: center; color: #6D28D9; font-weight: 900; }}
+.fc-flow3 > div {{ background: #F5F3FF; border-radius: 10px; padding: 0.55rem 0.75rem; display: flex; flex-direction: column; gap: 0.15rem; }}
+.fc-flow3 span {{ font-size: 0.82rem; font-weight: 900; color: #6D28D9; }} .fc-flow3 b {{ font-size: 0.98rem; color: #0B1F3A; line-height: 1.45; }} .fc-flow3 small {{ font-size: 0.82rem; color: #475569; }}
+@media (max-width: 900px) {{ .fc-flow3 {{ grid-template-columns: 1fr; }} .fc-flow3 > i {{ transform: rotate(90deg); justify-self: center; }} }} .fc-evs.c3 {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
 @media (max-width: 900px) {{ .fc-evs.c3 {{ grid-template-columns: 1fr; }} }}
 @media (max-width: 900px) {{ .fc-facts.b3 {{ grid-template-columns: 1fr; }} }}
 @media (max-width: 560px) {{ .fc-vs2 {{ grid-template-columns: 1fr; }} .fc-vs2 .mid {{ font-size: 1.2rem; }} }}

@@ -78,9 +78,9 @@ function A(){var mk=+$('amk').value/100,hold=Math.max(0,+$('ahold').value||0),fe
   '<div class="fc-bars"><div class="lg"><i class="mk"></i>시장 요인 <i class="own"></i>개별 요인 · 막대 = 선수별 하락액</div>'+bars+'</div>'+
   '<div class="fc-m two"><div><small>A-2 · ① 전원 유지</small><b>'+e8(nw)+'</b><em>지출 0 · 경기력 그대로</em></div>'+
   '<div><small>A-2 · ② 선택안 (교체 '+swr.length+'명)</small><b>'+e8(after)+'</b><em>순비용 '+e8(net)+' · '+res+'</em></div></div>'+
-  '<ol class="fc-path"><li><b>진단</b> 개별 하락이 큰 선수 '+nrec+'명 (추천 교체)</li><li><b>유지</b> 시장과 함께 내린 선수 · 능력치 그대로</li>'+
+  '<ol class="fc-path"><li><b>진단</b> 개별 하락이 큰 선수 '+nrec+'명 (추천 교체)</li>'+
   '<li><b>교체</b> 판매 수익 '+e8(sale)+' → 대체 비용 '+e8(cost)+'</li><li><b>이벤트 연계</b> '+(gap>0?'부족분 '+e8(gap)+' → 진행 중 이벤트·패스 보상으로 채울 단계 목표':'보유 BP 안에서 가능 · 추가 목표 없음')+' (BP 지급 아님)</li></ol>'+
-  '<div class="src">가상 선수 5명 · 모든 값은 가정 · 실제 시세·수수료가 아님 · 대체 비용 = 고점 × (1 − 시장 하락률) 가정</div></div>';}
+  '<div class="src">가상 선수 · 모든 값은 가정 · 대체 비용 = 고점 × (1 − 시장 하락률)</div></div>';}
 var EXP={c1:['입력 성공률',78,86],c2:['방향 일치율',84,88]},ex='c1',VER={
  '확대':'격차가 목표만큼 줄고 패드·매칭 지표 악화 없음 → 적용 범위 확대',
  '수정':'격차는 줄었지만 목표(30%) 미달 → 판정 조건 수정 후 재실험',
