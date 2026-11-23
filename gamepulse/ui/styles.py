@@ -1766,7 +1766,7 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .df-points > div:last-child span {{ color: #1f5fbf; }}
 .df-points b {{ font-size: 0.98rem; color: {C['navy']}; line-height: 1.45; }}
 @media (max-width: 640px) {{ .df-points {{ grid-template-columns: 1fr; }} }}
-/* 던파 2026: 6단계 흐름 · 유튜브 임베드 · 영상 링크 · 의견 카드 요약/근거 */
+/* 던파 2026: 6단계 흐름 · 실제 화면 2장 · 영상 링크 · 의견 카드 요약/근거 */
 .df-points.six > div:last-child {{ border-left-color: #1f5fbf; background: #f4f7fd; }}
 .df-points.six > div.r {{ border-left-color: #b3261e; background: #fff; }}
 .df-points.six > div.s {{ border-left-color: #1f5fbf; background: #f4f7fd; }}
@@ -1804,10 +1804,22 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-core b {{ display: block; font-size: 1.12rem; line-height: 1.45; margin: 0.35rem 0; }}
 .fc-core p {{ margin: 0 0 0.3rem; font-size: 0.92rem; line-height: 1.55; color: #dbe7ff; }}
 .fc-core small {{ font-size: 0.8rem; color: #b8c7e0; }}
-/* 던파 장면 갤러리: 임베드 슬라이드 */
-.fc-gal[data-gal="dfscene"] .df-yt.in {{ max-width: none; margin: 0; border-radius: 0; }}
-.fc-gal[data-gal="dfscene"] .zin {{ pointer-events: none; }}
-.fc-gal[data-gal="dfscene"] .zin iframe {{ pointer-events: auto; }}
+/* 던파 실제 화면 2장: PC 좌우 같은 크기 · 모바일 위아래 · 클릭 확대 (갤러리 확대 재사용) */
+.fc-gal.df-pair .tr {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; overflow: visible; border-radius: 0; align-items: stretch; }}
+.fc-gal.df-pair .fc-gal-s {{ flex: none; border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0; background: #fff; }}
+.fc-gal.df-pair .zin {{ position: relative; background: #0b0b10; aspect-ratio: 16 / 10; overflow: hidden; }}
+.fc-gal.df-pair .fc-gal-s img {{ position: absolute; inset: 0; width: 100%; height: 100%; max-height: none; object-fit: contain; }}
+.fc-gal.df-pair .fc-gal-s figcaption {{ flex: 1; border: 0; border-top: 1px solid #E2E8F0; flex-wrap: nowrap; align-items: flex-start; display: grid; grid-template-columns: auto minmax(0, 1fr); }}
+.fc-gal.df-pair .fc-gal-s figcaption .n {{ background: #b3261e; margin-top: 0.15rem; }}
+.fc-gal.df-pair .fc-gal-s figcaption small {{ grid-column: 2; }}
+.fc-gal.df-pair .fc-gal-s:target, .fc-gal.df-pair .fc-gal-s.zoom {{ border: 0; border-radius: 0; overflow: visible; background: #020617; }}
+.fc-gal.df-pair .fc-gal-s:target .zin, .fc-gal.df-pair .fc-gal-s.zoom .zin {{ position: static; aspect-ratio: auto; background: none; overflow: visible; }}
+.fc-gal.df-pair .fc-gal-s:target img, .fc-gal.df-pair .fc-gal-s.zoom img {{ position: static; width: auto; height: auto; max-height: 82vh; max-width: 96vw; }}
+.fc-gal.df-pair .fc-gal-s:target figcaption, .fc-gal.df-pair .fc-gal-s.zoom figcaption {{ flex: none; display: flex; justify-content: center; border-top: 0; }}
+@media (max-width: 700px) {{ .fc-gal.df-pair .tr {{ grid-template-columns: 1fr; }} }}
+.df-pairmsg {{ background: #fff; border: 1px solid {C['line']}; border-left: 5px solid #b3261e; border-radius: 12px; padding: 0.7rem 0.95rem; margin: 0.2rem 0 0.6rem; }}
+.df-pairmsg b {{ display: block; font-size: 0.98rem; color: {C['navy']}; line-height: 1.5; }}
+.df-pairmsg small {{ display: block; font-size: 0.8rem; color: #6b778c; margin-top: 0.2rem; }}
 /* 던파 VOC 요약 */
 .df-vocsum {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin: 0.4rem 0 0.8rem; }}
 .df-vocsum > div {{ background: #fff; border: 1px solid {C['line']}; border-top: 4px solid #b3261e; border-radius: 12px; padding: 0.7rem 0.9rem; }}

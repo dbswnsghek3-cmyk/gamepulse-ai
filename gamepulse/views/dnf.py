@@ -20,7 +20,7 @@ import streamlit as st
 from gamepulse.data.overwatch_images import web_jpeg_b64
 from gamepulse.sim import dnf_sim as D
 from gamepulse.ui.components import html
-from gamepulse.ui.gallery import gallery_html
+from gamepulse.ui.gallery import gallery_html, pair_html
 from gamepulse.views.fconline import conclude, lead, sol_card, tr, won
 from gamepulse.views.overwatch import b_hypo, b_interp, b_mock, b_real, b_sim, badge_legend, head, link, sub, table
 
@@ -167,24 +167,21 @@ def s1(d: dict) -> None:
         f'<div><span>{escape(k)} · {escape(n)}</span><b>{escape(p)}</b><small>{escape(s)}</small></div>' for k, n, p, s in d["problems"]) + "</div>")
 
 
-def yt(vid: str, start: int, title: str) -> str:
-    """유튜브 공식 임베드 (캡처 재게시 대신)."""
-    return (f'<div class="df-yt"><iframe src="https://www.youtube-nocookie.com/embed/{vid}?start={start}" title="{escape(title)}" '
-            'loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>')
-
-
 def s2(d: dict) -> None:
     m = d["media"]
-    head("근거 (2026): 전투 → 클리어 → 실제 보상 → 유저 의견 → 개발사 대응", "실제 플레이는 제3자 유튜브 영상 임베드·시점 링크 · 유저 주장과 공식 발표를 구분", b_real())
-    sub("① 전투 → 클리어 → 보상 · 실제 영상 장면 5개 (좌우로 넘기기)", b_real())
+    head("근거 (2026): 전투 → 클리어 → 실제 보상 → 유저 의견 → 개발사 대응", "실제 플레이는 제3자 유튜브 영상 캡처·원본 링크 · 유저 주장과 공식 발표를 구분", b_real())
+    sub("① 고난도 레이드 전투 → 클리어 후 보상 결과 · 실제 화면 2장 (클릭하면 크게 보기)", b_real())
     c = m["clear"]
-    vid = c["id"]
-    slides = [(f'<div class="df-yt in"><iframe src="https://www.youtube-nocookie.com/embed/{vid}?start={a}&end={b}" title="{escape(t)}" '
-               'loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>',
-               f"{k} · {t}", f"{n} · 재생하면 이 장면부터 시작") for k, t, a, b, n in m["scenes"]]
-    html(gallery_html("dfscene", slides))
+    slides = []
+    for f, cap, credit in m["shots"]:
+        p = ASSETS / f
+        if p.is_file():
+            slides.append((f'<img src="data:image/jpeg;base64,{_img(f, p.stat().st_mtime)}" alt="{escape(cap)}" loading="lazy">', cap, credit))
+    html(pair_html("dfscene", slides))
+    html('<div class="df-pairmsg"><b>높은 난이도의 레이드를 극복한 성취감이, 확률에 좌우되는 보상 결과에 따라 약해질 수 있다.</b>'
+         '<small>전투 화면만으로 보상 불만이 입증되지는 않음 → 아래 보상 관찰·유저 의견(VOC)·개발사 대응으로 확인 (가설)</small></div>')
     html(f'<div class="df-ytcap"><b>{escape(c["title"])}</b> · 유튜브 · 2026-08-09 업로드 · 30:26 · {link(m["video_url"], "원본 영상 ↗")}'
-         '<br>제3자 유저 영상 (본인·GamePulse AI 플레이 아님) · 재게시 허락이 확인되지 않아 캡처 이미지 대신 공식 임베드로 장면을 보여 줌 · '
+         '<br>제3자 유저 영상의 캡처 (본인·GamePulse AI 플레이 아님) · 유튜브 재생 UI는 잘라내고 캐릭터 닉네임만 가림 · 게임 장면·보상 내용은 원본 그대로 · '
          '한 번의 클리어 영상으로 전체 유저의 경험을 단정하지 않음</div>')
     sub("② 클리어 · ③ 실제 보상 (영상 화면을 직접 확인한 내용)", b_real())
     r = d["reward_obs"]

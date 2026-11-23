@@ -1758,7 +1758,7 @@ a.pn-btn:hover { background: #EAB308; }
 .df-points > div:last-child span { color: #1f5fbf; }
 .df-points b { font-size: 0.98rem; color: #0B1F3A; line-height: 1.45; }
 @media (max-width: 640px) { .df-points { grid-template-columns: 1fr; } }
-/* 던파 2026: 6단계 흐름 · 유튜브 임베드 · 영상 링크 · 의견 카드 요약/근거 */
+/* 던파 2026: 6단계 흐름 · 실제 화면 2장 · 영상 링크 · 의견 카드 요약/근거 */
 .df-points.six > div:last-child { border-left-color: #1f5fbf; background: #f4f7fd; }
 .df-points.six > div.r { border-left-color: #b3261e; background: #fff; }
 .df-points.six > div.s { border-left-color: #1f5fbf; background: #f4f7fd; }
@@ -1796,10 +1796,22 @@ a.pn-btn:hover { background: #EAB308; }
 .fc-core b { display: block; font-size: 1.12rem; line-height: 1.45; margin: 0.35rem 0; }
 .fc-core p { margin: 0 0 0.3rem; font-size: 0.92rem; line-height: 1.55; color: #dbe7ff; }
 .fc-core small { font-size: 0.8rem; color: #b8c7e0; }
-/* 던파 장면 갤러리: 임베드 슬라이드 */
-.fc-gal[data-gal="dfscene"] .df-yt.in { max-width: none; margin: 0; border-radius: 0; }
-.fc-gal[data-gal="dfscene"] .zin { pointer-events: none; }
-.fc-gal[data-gal="dfscene"] .zin iframe { pointer-events: auto; }
+/* 던파 실제 화면 2장: PC 좌우 같은 크기 · 모바일 위아래 · 클릭 확대 (갤러리 확대 재사용) */
+.fc-gal.df-pair .tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; overflow: visible; border-radius: 0; align-items: stretch; }
+.fc-gal.df-pair .fc-gal-s { flex: none; border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0; background: #fff; }
+.fc-gal.df-pair .zin { position: relative; background: #0b0b10; aspect-ratio: 16 / 10; overflow: hidden; }
+.fc-gal.df-pair .fc-gal-s img { position: absolute; inset: 0; width: 100%; height: 100%; max-height: none; object-fit: contain; }
+.fc-gal.df-pair .fc-gal-s figcaption { flex: 1; border: 0; border-top: 1px solid #E2E8F0; flex-wrap: nowrap; align-items: flex-start; display: grid; grid-template-columns: auto minmax(0, 1fr); }
+.fc-gal.df-pair .fc-gal-s figcaption .n { background: #b3261e; margin-top: 0.15rem; }
+.fc-gal.df-pair .fc-gal-s figcaption small { grid-column: 2; }
+.fc-gal.df-pair .fc-gal-s:target, .fc-gal.df-pair .fc-gal-s.zoom { border: 0; border-radius: 0; overflow: visible; background: #020617; }
+.fc-gal.df-pair .fc-gal-s:target .zin, .fc-gal.df-pair .fc-gal-s.zoom .zin { position: static; aspect-ratio: auto; background: none; overflow: visible; }
+.fc-gal.df-pair .fc-gal-s:target img, .fc-gal.df-pair .fc-gal-s.zoom img { position: static; width: auto; height: auto; max-height: 82vh; max-width: 96vw; }
+.fc-gal.df-pair .fc-gal-s:target figcaption, .fc-gal.df-pair .fc-gal-s.zoom figcaption { flex: none; display: flex; justify-content: center; border-top: 0; }
+@media (max-width: 700px) { .fc-gal.df-pair .tr { grid-template-columns: 1fr; } }
+.df-pairmsg { background: #fff; border: 1px solid #DDE4EF; border-left: 5px solid #b3261e; border-radius: 12px; padding: 0.7rem 0.95rem; margin: 0.2rem 0 0.6rem; }
+.df-pairmsg b { display: block; font-size: 0.98rem; color: #0B1F3A; line-height: 1.5; }
+.df-pairmsg small { display: block; font-size: 0.8rem; color: #6b778c; margin-top: 0.2rem; }
 /* 던파 VOC 요약 */
 .df-vocsum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin: 0.4rem 0 0.8rem; }
 .df-vocsum > div { background: #fff; border: 1px solid #DDE4EF; border-top: 4px solid #b3261e; border-radius: 12px; padding: 0.7rem 0.9rem; }
@@ -1943,7 +1955,7 @@ html { scroll-behavior: smooth; }
   .sx-row { flex-direction: column; } .sx-col { flex: 1 1 auto !important; width: 100%; }
   .sx-tab-h { font-size: 1.2rem; }
 }
-</style><script src="assets/plotly.min.js"></script><script>document.addEventListener('toggle',function(e){var d=e.target;if(d.tagName==='DETAILS'&&d.open&&window.Plotly){d.querySelectorAll('.sx-chart-c').forEach(function(c){Plotly.Plots.resize(c);});}},true);</script></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="" href="index.html">보고서 첫 화면</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="on" href="pubg.html">PUBG · NEW START</a><a class="" href="fconline.html">FC 온라인 · 축구 게임인가, 주식 게임인가?</a><a class="" href="dnf.html">던전앤파이터 · 클리어했는데 왜 성장한 느낌이 없을까?</a><a class="" href="assistant.html">사업PM 어시스턴트</a></nav></div></header><main class="sx-main"><div class="sx-note"><b>정적 보고서</b> · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> 스냅샷 (2026-11-24 03:10 KST) · 01~06 탭으로 섹션 전환 · 버튼·슬라이더는 기본값 · 차트 수치는 "차트 데이터 표"에</div><style>
+</style><script src="assets/plotly.min.js"></script><script>document.addEventListener('toggle',function(e){var d=e.target;if(d.tagName==='DETAILS'&&d.open&&window.Plotly){d.querySelectorAll('.sx-chart-c').forEach(function(c){Plotly.Plots.resize(c);});}},true);</script></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="" href="index.html">보고서 첫 화면</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="on" href="pubg.html">PUBG · NEW START</a><a class="" href="fconline.html">FC 온라인 · 축구 게임인가, 주식 게임인가?</a><a class="" href="dnf.html">던전앤파이터 · 클리어했는데 왜 성장한 느낌이 없을까?</a><a class="" href="assistant.html">사업PM 어시스턴트</a></nav></div></header><main class="sx-main"><div class="sx-note"><b>정적 보고서</b> · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> 스냅샷 (2026-11-24 03:35 KST) · 01~06 탭으로 섹션 전환 · 버튼·슬라이더는 기본값 · 차트 수치는 "차트 데이터 표"에</div><style>
 /* ---- PUBG 정적 페이지 전용 (Streamlit 화면과 맞춤) ---- */
 /* Streamlit 본문 글꼴: 앱에 포함된 "Source Sans" 가변 글꼴(SIL OFL) 그대로 + 한글은 시스템 sans-serif → 글자 폭·줄바꿈 일치 */
 @font-face{font-family:"Source Sans";font-weight:100 900;font-style:normal;font-display:swap;src:url(assets/fonts/SourceSansVF-Upright.woff2) format("woff2")}
@@ -2090,4 +2102,4 @@ if(document.querySelector('.pg-static.js'))init();else document.addEventListener
   document.addEventListener('keydown',function(ev){ if(ev.key==='Escape') closeZoom(); });
   document.addEventListener('click',function(ev){ if(ev.target.classList&&ev.target.classList.contains('fc-gal-s')&&ev.target.classList.contains('zoom')) closeZoom(); });
   document.dispatchEvent(new Event('pg-mounted'));
-})();</script></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-24 03:10 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>
+})();</script></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-24 03:35 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>

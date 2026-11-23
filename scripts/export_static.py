@@ -623,7 +623,7 @@ def index_html(gen: str) -> str:
     dn = json.loads((ROOT / "data" / "dnf" / "dnf.json").read_text(encoding="utf-8"))
     cards.append('<a class="sx-card feature" href="dnf.html"><div class="k">네 번째 프로젝트 · 실제 자료 기반</div>'
                  f'<h3>던전앤파이터 · 시즌의 가치 회복</h3><p><b>{H.escape(dn["intro"]["question"])}</b> — '
-                 '2026 미카엘라 하드 레이드의 전투·클리어·보상 장면(유튜브 임베드), 공식 업데이트·특별 경매 공지, 2026 공식 게시판 유저 글을 근거로 '
+                 '2026 미카엘라 하드 레이드의 전투·클리어 보상 실제 화면(유튜브 영상 캡처 2장), 공식 업데이트·특별 경매 공지, 2026 공식 게시판 유저 글을 근거로 '
                  f'기존 보장 시스템과 겹치지 않는 «지정 장비 진척 게이지»를 제안하고 확률 보상 시뮬레이터를 만들었습니다. 판단: {H.escape(dn["decision"])}</p></a>')
     for pid, f, name, _ in PAGES[4:]:
         one = GAMES[pid].get("one_liner", "") if pid in GAMES else {
