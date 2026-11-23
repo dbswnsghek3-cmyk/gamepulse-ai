@@ -197,12 +197,15 @@ def _cover(ns: dict) -> None:
     logo, drop = ASSETS / "brand" / "pubg_logo.png", ASSETS / "drop.png"
     logo_html = (f'<img class="pg-logo" src="data:image/png;base64,{_png_b64(str(logo), logo.stat().st_mtime)}" alt="PUBG: BATTLEGROUNDS 로고">'
                  if logo.is_file() else "")
-    img_html = (f'<figure class="pn-hero-img"><img src="data:image/jpeg;base64,{_jpeg_b64(str(drop), drop.stat().st_mtime, 1600)}" '
-                f'alt="실제 게임 화면: 에란겔 위를 나는 수송기"><figcaption>{escape(cv["image_credit"])}</figcaption></figure>'
-                if drop.is_file() else "")
-    html(f'<div class="pn-hero"><div class="pn-hero-t">{logo_html}<div class="pg-cover-k">{escape(cv["title"])}</div>'
-         '<div class="pn-hero-q" role="heading" aria-level="1">왜 떠나고,<br>왜 돌아오지 않을까?</div>'
-         '<p class="pn-hero-s">신규 유저 정착 · 휴면 유저 복귀 전략</p></div>' + img_html + '</div>')
+    pk = ns["peak"]
+    bg = f"url(data:image/jpeg;base64,{_jpeg_b64(str(drop), drop.stat().st_mtime, 1600)})" if drop.is_file() else "none"
+    html(f'<div class="pn-hero pn-peakhero" style="--bg:{bg}"><div class="pn-hero-t">{logo_html}<div class="pg-cover-k">{escape(cv["title"])}</div>'
+         '<div class="pn-big" role="heading" aria-level="1">325만 명</div>'
+         '<p class="pn-big-l1">한때 325만 명이 동시에 낙하했던 전장.</p>'
+         '<p class="pn-big-l2">이제 중요한 건, 새로운 유저를 정착시키고 떠난 유저를 다시 불러오는 것.</p>'
+         f'<p class="pn-big-src">Steam 역대 최고 동시접속 {pk["value"]:,}명 · {escape(pk["date"])} 기록 · '
+         '<a href="https://steamdb.info/app/578080/charts/" target="_blank" rel="noopener">SteamDB</a> (Guinness World Records 인용) · '
+         '과거 기록이며 현재 이용자·이탈자 수가 아님</p></div></div>')
     tk = ns["tracks"]
     short = {"A": "신규 유저 정착", "B": "휴면 유저 복귀", "C": "BM 정책 검토"}
     bar = "".join(f'<div class="pn-w {t["key"].lower()}" style="flex:{t["weight"]} 1 0"><b>{t["key"]} {t["weight"]}%</b><span>{short[t["key"]]}</span></div>' for t in tk)
@@ -238,9 +241,11 @@ def s1(ns: dict, ops: pd.DataFrame, plan: dict) -> None:
     pk = ns["peak"]
     head("결론: 신규는 '다음 경기 행동 1개'로 붙잡고, 떠난 유저에게는 '다시 낙하할 이유'를 보여 준다",
          "1차 A1 코칭 → 2차 B1 복귀 캠페인 → C는 내부 분석", b_mock())
-    html('<div class="pn-duo">' + photo("gameplay", "A · 첫 실전에서 막히는 신규 유저")
-         + art(ns, "ghillie", "B · 그때 그 배그를 기억하는 휴면 유저") + '</div>')
+    html('<div class="pn-b1h">B 복귀 캠페인 «다시 낙하할 시간» 대표 광고 · 화살표로 다음 광고</div>')
+    html(ad_gallery(ns, "pgad01"))
     with st.expander("자세히 보기 · 트랙별 근거 · 복귀 장벽 · 판단 근거"):
+        html('<div class="pn-duo">' + photo("gameplay", "A · 첫 실전에서 막히는 신규 유저")
+             + art(ns, "ghillie", "B · 그때 그 배그를 기억하는 휴면 유저") + '</div>')
         html('<div class="pn-a pn-arow"><div><div class="pn-k">TRACK A · 50% · 신규 유저 정착</div>'
              '<div class="pn-q">첫 치킨을 맛보기도 전에, 왜 떠나는가?</div><div class="pn-sub">훈련은 끝났다. 그런데 실전은 왜 어려울까?</div></div>'
              '<div><ul class="pg-why">'
@@ -639,7 +644,7 @@ def _ad_card(ns: dict, ad: dict) -> str:
             f'<em>{escape(ad["msg"])}</em></div>{img}<span class="pn-ai">{escape(ad["label"])}</span></div>')
 
 
-def ad_gallery(ns: dict) -> str:
+def ad_gallery(ns: dict, key: str = "pgad") -> str:
     """복귀 광고 3종: 대표 광고(길리슈트·3레벨 헬멧) 1장을 크게, 나머지는 좌우 넘기기. 원본 이미지 그대로 · 원본 비율."""
     slides = []
     for ad in ns["campaign"]["ads"]:
@@ -657,7 +662,7 @@ def ad_gallery(ns: dict) -> str:
             media = (f'<img src="data:image/{mime};base64,{_png_b64(str(path), path.stat().st_mtime)}" '
                      f'alt="광고 {ad["no"]} 시안: {escape(ad["copy"])}" loading="lazy">')
         slides.append((media, f'광고 {ad["no"]} · {ad["copy"]}', f'{ad["msg"]} · {ad["label"]}'))
-    return gallery_html("pgad", slides)
+    return gallery_html(key, slides)
 
 
 def _poster_mocks(ns: dict) -> str:

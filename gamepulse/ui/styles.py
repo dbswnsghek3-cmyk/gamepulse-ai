@@ -1252,7 +1252,14 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .pn-b1 span {{ font-size: 0.85rem; font-weight: 900; color: #1E3A8A; }} .pn-b1 b {{ font-size: 1.08rem; color: #0B1F3A; line-height: 1.45; }} .pn-b1 small {{ font-size: 0.9rem; color: #334155; }}
 .pn-b1h {{ font-size: 1.08rem; font-weight: 900; color: #0B1F3A; margin: 0.9rem 0 0.35rem; }}
 .pn-b1k {{ font-size: 1rem; color: #1E293B; margin: 0.4rem 0 0.6rem; }}
-.fc-gal[data-gal="pgad"] .fc-gal-s img {{ max-height: 80vh; }}
+.fc-gal[data-gal^="pgad"] .fc-gal-s img {{ max-height: 80vh; }}
+.pn-peakhero {{ grid-template-columns: 1fr !important; background-image: linear-gradient(90deg, rgba(8,20,45,0.92) 0%, rgba(8,20,45,0.78) 55%, rgba(8,20,45,0.35) 100%), var(--bg) !important;
+  background-size: cover !important; background-position: center !important; min-height: 330px; }}
+.pn-big {{ font-size: 5.2rem; font-weight: 900; line-height: 1; letter-spacing: -0.03em; color: #FACC15; margin: 0.2rem 0 0.3rem; white-space: nowrap; }}
+.pn-big-l1 {{ font-size: 1.5rem; font-weight: 900; color: #fff; margin: 0; line-height: 1.4; }}
+.pn-big-l2 {{ font-size: 1.12rem; font-weight: 700; color: #E2E8F0; margin: 0; line-height: 1.5; }}
+.pn-big-src {{ font-size: 0.88rem; color: #CBD5E1; margin: 0.6rem 0 0; line-height: 1.5; }} .pn-big-src a {{ color: #FDE68A !important; }}
+@media (max-width: 900px) {{ .pn-big {{ font-size: 3.4rem; }} .pn-big-l1 {{ font-size: 1.2rem; }} .pn-big-l2 {{ font-size: 1rem; }} .pn-peakhero {{ min-height: 0; }} }}
 @media (max-width: 900px) {{ .pn-b1 {{ grid-template-columns: 1fr; }} }}
 .pn-a3h {{ display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.6rem; margin: 0.6rem 0 0.5rem; }}
 .pn-a3h b {{ font-size: 1.35rem; color: #0B1F3A; }} .pn-a3h em {{ font-style: normal; font-size: 0.95rem; color: #334155; }}
