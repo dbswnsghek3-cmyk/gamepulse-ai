@@ -68,3 +68,18 @@ def matching(kb_share: float, prefer: float) -> dict:
         m = min(kb, pad)
         out[key] = {"kb": kb, "pad": pad, "min": m, "risk": pool_risk(m)}
     return out
+
+
+# ----------------------------------------------------------------------
+# C 조작 개선 실험 판정 (통합 매칭 유지 · 모든 입력은 가정)
+#   격차 = 패드 − 키보드 (%p) · 축소율 = (현행 격차 − 실험 격차) ÷ 현행 격차
+#   확대: 축소율 ≥ 목표 · 패드 변화 ≥ −1%p · 매칭 포기율 변화 ≤ +0.5%p
+#   중단: 격차가 줄지 않음 · 패드 −1%p 미만 · 매칭 포기율 +0.5%p 초과 → 그 외는 수정
+def control_exp(kb: float, pad: float, kb_up: float, pad_chg: float, quit_chg: float, target: float = 30.0) -> dict:
+    gap0 = pad - kb
+    kb1, pad1 = min(100.0, kb + kb_up), max(0.0, min(100.0, pad + pad_chg))
+    gap1 = pad1 - kb1
+    cut = (gap0 - gap1) / gap0 * 100 if gap0 > 0 else 0.0
+    guard = pad_chg >= -1 and quit_chg <= 0.5
+    verdict = "확대" if cut >= target and guard else "중단" if cut <= 0 or not guard else "수정"
+    return {"kb0": kb, "pad0": pad, "kb1": kb1, "pad1": pad1, "gap0": gap0, "gap1": gap1, "cut": cut, "guard": guard, "verdict": verdict}

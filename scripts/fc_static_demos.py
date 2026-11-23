@@ -42,15 +42,14 @@ def demos(root: Path) -> str:
           f'<label>판매 수수료율 (% · 가정) <b id="afeev"></b><input type="range" id="afee" min="0" max="60" value="{ad["fee"]}"></label></div>'
           f'<div id="aout"></div>{hint}</div>')
     c5 = ('<div class="fc-live" data-k="c5" hidden><div class="ctl"><div class="seg" id="c5p">'
-          '<button type="button" data-k="1" aria-pressed="false">1안 · 완전 분리 매칭</button>'
-          '<button type="button" data-k="2" aria-pressed="false">2안 · 선택형 우선 매칭</button>'
-          '<button type="button" data-k="3" aria-pressed="true">3안 · 통합 유지 + 입력 판정 개선 (권고)</button></div>'
-          '<label>키보드 이용 비중 (%) · 기본값 54.6 = 공식 상위 1만 1ON1 <b id="c5kv">54.6%</b><input type="range" id="c5k" min="5" max="95" step="0.1" value="54.6"></label>'
-          '<label>2안 · 동일 장치 우선 선택 비율 (% · 가정) <b id="c5fv">40%</b><input type="range" id="c5f" min="0" max="100" value="40"></label></div>'
-          f'<div class="fc-demo c"><h4>정책 비교 {B_SIM}</h4><div class="fc-cmp"><table id="c5t"></table></div><div class="fc-act" id="c5m"></div>'
-          '<div class="fc-act rec"><b>최종 권고 3안 고정</b> · 1·2안은 제외한 대안 (비교용)</div>'
-          '<div class="src">이용자 수·대기시간이 아닌 비율 모델 · 위험 구분선(40%·70%)은 모델용</div></div>'
-          f'{hint}</div>')
+          '<button type="button" data-k="c1" aria-pressed="true">C-1 · 대각선·연속 입력 성공률</button>'
+          '<button type="button" data-k="c2" aria-pressed="false">C-2 · 입력-패스 방향 일치율</button></div>'
+          '<label>키보드 현행 (% · 가정) <b id="c5kv"></b><input type="range" id="c5k" min="40" max="100" value="78"></label>'
+          '<label>패드 현행 (% · 가정) <b id="c5pv"></b><input type="range" id="c5pd" min="40" max="100" value="86"></label>'
+          '<label>실험 후 키보드 변화 (+%p · 가정) <b id="c5uv"></b><input type="range" id="c5u" min="0" max="15" value="4"></label>'
+          '<label>실험 후 패드 변화 (%p · 가정) <b id="c5cv"></b><input type="range" id="c5c" min="-5" max="5" value="0"></label>'
+          '<label>매칭 포기율 변화 (%p · 가정) <b id="c5qv"></b><input type="range" id="c5q" min="-1" max="2" step="0.1" value="0"></label></div>'
+          '<div id="c5o"></div>' f'{hint}</div>')
     data = json.dumps({"PO": pols, "PL": ad["players"]}, ensure_ascii=False)
     js = """<script>(function(){var D=""" + data + """,PO=D.PO,PL=D.PL;
 function $(i){return document.getElementById(i);}
@@ -74,31 +73,28 @@ function A(){var mk=+$('amk').value/100,hold=Math.max(0,+$('ahold').value||0),fe
   '<ol class="fc-path"><li><b>진단</b> 개별 하락 '+sw.length+'명 · 시장 하락 '+(rows.length-sw.length)+'명</li><li><b>유지</b> 시장과 함께 내린 선수</li>'+
   '<li><b>재편</b> 교체 검토 선수 판매 → 재편 예산 '+e8(bud)+'</li><li><b>이벤트 연계</b> 남은 목표 '+e8(gap)+' → 이벤트·패스 보상 목표 (BP 지급 아님)</li></ol>'+
   '<div class="src">가상 선수 · 모든 값은 가정 · 실제 시세·수수료 아님</div></div>';}
-var NAME={'1':'완전 분리 매칭','2':'선택형 우선 매칭','3':'통합 유지 + 입력 판정 개선'},MSG={
- '1':'공정성 체감은 좋아질 수 있지만 상대 풀이 장치 비중만큼 줄어든다',
- '2':'선택한 사람만 같은 장치를 먼저 찾고, 못 찾으면 통합으로 넓힌다 · 규칙이 복잡해진다',
- '3':'상대 풀은 그대로 · C-1·C-2 판정 개선 효과를 성공률·불일치율로 검증한다'},pol='3';
-function C(){var k=+$('c5k').value/100,s=+$('c5f').value/100;$('c5kv').textContent=(+$('c5k').value).toFixed(1)+'%';$('c5fv').textContent=$('c5f').value+'%';
- var rows='<tr><th>정책</th><th>공정성 체감</th><th>매칭 품질 · 상대 풀 (통합=100%)</th><th>풀 축소 위험</th><th>운영 리스크</th></tr>';
- ['1','2','3'].forEach(function(key){var kb,pad;if(key==='1'){kb=k*100;pad=(1-k)*100;}else if(key==='2'){if(s>0){kb=k*s*100;pad=(1-k)*s*100;}else{kb=pad=100;}}else{kb=pad=100;}
-  var m=Math.min(kb,pad),risk=m<40?'높음':(m<70?'주의':'낮음');
-  rows+='<tr class="'+(key===pol?'on':'')+'"><td><b>'+key+'안</b> '+NAME[key]+(key==='3'?' <em>권고</em>':'')+'</td><td>'+PO[key].fair+'</td><td>키보드 '+kb.toFixed(1)+'% · 패드 '+pad.toFixed(1)+'%</td><td class="'+(risk==='높음'?'dn':'')+'">'+risk+'</td><td>'+PO[key].ops+'</td></tr>';});
- $('c5t').innerHTML=rows;$('c5m').innerHTML='<b>'+pol+'안 선택</b> · '+MSG[pol];}
-function closeZoom(){document.querySelectorAll('.fc-gal-s.zoom').forEach(function(f){f.classList.remove('zoom');});document.body.classList.remove('fc-noscroll');}
-function gal(){document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('.fc-gal a');if(!a)return;ev.preventDefault();
-  var fig=a.closest('.fc-gal-s'),tr=a.closest('.tr');
-  if(a.hasAttribute('data-go')){var t=tr.children[+a.getAttribute('data-go')];if(t)tr.scrollTo({left:t.offsetLeft-tr.offsetLeft,behavior:'smooth'});}
-  else if(a.hasAttribute('data-zoom')){if(fig.classList.contains('zoom'))closeZoom();else{closeZoom();fig.classList.add('zoom');document.body.classList.add('fc-noscroll');}}
-  else if(a.hasAttribute('data-close'))closeZoom();},true);
- document.addEventListener('keydown',function(ev){if(ev.key==='Escape')closeZoom();});
- document.addEventListener('click',function(ev){var f=ev.target.classList&&ev.target.classList.contains('fc-gal-s')&&ev.target.classList.contains('zoom');if(f)closeZoom();});}
+var EXP={c1:['입력 성공률',78,86],c2:['방향 일치율',84,88]},ex='c1',VER={
+ '확대':'격차가 목표만큼 줄고 패드·매칭 지표 악화 없음 → 적용 범위 확대',
+ '수정':'격차는 줄었지만 목표(30%) 미달 → 판정 조건 수정 후 재실험',
+ '중단':'격차가 줄지 않거나 패드·매칭 지표 악화 → 중단 · 의견은 수비 AI·밸런스 과제로'};
+function C(){var kb=+$('c5k').value,pd=+$('c5pd').value,up=+$('c5u').value,pc=+$('c5c').value,qc=+$('c5q').value;
+ $('c5kv').textContent=kb+'%';$('c5pv').textContent=pd+'%';$('c5uv').textContent='+'+up+'%p';$('c5cv').textContent=(pc>0?'+':'')+pc+'%p';$('c5qv').textContent=(qc>0?'+':'')+qc.toFixed(1)+'%p';
+ var g0=pd-kb,kb1=Math.min(100,kb+up),pd1=Math.max(0,Math.min(100,pd+pc)),g1=pd1-kb1,cut=g0>0?(g0-g1)/g0*100:0,guard=pc>=-1&&qc<=0.5,
+  v=(cut>=30&&guard)?'확대':((cut<=0||!guard)?'중단':'수정');
+ function row(n,a,b,c){return '<tr class="'+(c||'')+'"><td>'+n+'</td><td>'+a+'</td><td><b>'+b+'</b></td></tr>';}
+ $('c5o').innerHTML='<div class="fc-demo c"><h4>실험 판정 · '+EXP[ex][0]+' ' + '<span class="gp-badge k-sim">가정 시뮬레이션</span></h4><div class="fc-cmp"><table><tr><th>구분</th><th>현행 (대조군)</th><th>실험군</th></tr>'+
+  row('키보드',kb+'%',kb1.toFixed(0)+'%')+row('패드',pd+'%',pd1.toFixed(0)+'%')+row('격차 (패드 − 키보드)',g0.toFixed(0)+'%p',g1.toFixed(0)+'%p','on')+
+  '</table></div><div class="fc-m two"><div><small>격차 축소율 (목표 30% · 예시)</small><b class="'+(cut>0?'up':'dn')+'">'+cut.toFixed(0)+'%</b></div>'+
+  '<div><small>가드레일 · 패드 −1%p · 포기율 +0.5%p</small><b class="'+(guard?'up':'dn')+'">'+(guard?'통과':'위반')+'</b></div></div>'+
+  '<div class="fc-act '+(v==='확대'?'rec':'')+'"><b>판정: '+v+'</b> · '+VER[v]+'</div>'+
+  '<div class="src">모든 값은 가정 · 실제 유저 데이터 아님 · 매칭은 통합 그대로 (분리 매칭은 최종안에서 제외)</div></div>';}
 function mount(){document.querySelectorAll('.fc-live').forEach(function(el){var a=document.querySelector('.fc-anchor[data-k="'+el.dataset.k+'"]');
   var row=a&&a.closest('.sx-row');if(row){row.replaceWith(el);el.hidden=false;}});
  ['amk','ahold','afee'].concat(PL.map(function(_,i){return 'ap'+i;})).forEach(function(i){$(i).addEventListener('input',A);});
- ['c5k','c5f'].forEach(function(i){$(i).addEventListener('input',C);});
+ ['c5k','c5pd','c5u','c5c','c5q'].forEach(function(i){$(i).addEventListener('input',C);});
  $('c5p').querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){$('c5p').querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed','false');});
-  b.setAttribute('aria-pressed','true');pol=b.dataset.k;C();});});
- A();C();gal();}
+  b.setAttribute('aria-pressed','true');ex=b.dataset.k;$('c5k').value=EXP[ex][1];$('c5pd').value=EXP[ex][2];C();});});
+ A();C();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
 })();</script>"""
     return PAGE_EXTRA_CSS + a1 + c5 + js

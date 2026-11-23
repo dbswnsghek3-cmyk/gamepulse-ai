@@ -1247,6 +1247,13 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .pn-ad2 .bubble {{ align-self: flex-start; background: #FACC15; color: #0B1F3A; font-weight: 900; font-size: 1.35rem; border-radius: 16px; padding: 0.35rem 0.9rem; }}
 .pn-ad2 img {{ width: 100%; display: block; border-radius: 8px; }} .pn-ad2 .sub {{ color: #fff; font-weight: 700; font-size: 0.95rem; }}
 .pn-subway {{ background: #CBD5E1; border-radius: 14px; padding: 0.5rem; }}
+.pn-b1 {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; margin: 0.3rem 0 0.7rem; }}
+.pn-b1 > div {{ background: #fff; border: 1px solid #DBEAFE; border-left: 5px solid #1E3A8A; border-radius: 12px; padding: 0.65rem 0.85rem; display: flex; flex-direction: column; gap: 0.2rem; }}
+.pn-b1 span {{ font-size: 0.85rem; font-weight: 900; color: #1E3A8A; }} .pn-b1 b {{ font-size: 1.08rem; color: #0B1F3A; line-height: 1.45; }} .pn-b1 small {{ font-size: 0.9rem; color: #334155; }}
+.pn-b1h {{ font-size: 1.08rem; font-weight: 900; color: #0B1F3A; margin: 0.9rem 0 0.35rem; }}
+.pn-b1k {{ font-size: 1rem; color: #1E293B; margin: 0.4rem 0 0.6rem; }}
+.fc-gal[data-gal="pgad"] .fc-gal-s img {{ max-height: 80vh; }}
+@media (max-width: 900px) {{ .pn-b1 {{ grid-template-columns: 1fr; }} }}
 .pn-a3h {{ display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.6rem; margin: 0.6rem 0 0.5rem; }}
 .pn-a3h b {{ font-size: 1.35rem; color: #0B1F3A; }} .pn-a3h em {{ font-style: normal; font-size: 0.95rem; color: #334155; }}
 .pn-a3s {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; margin: 0 0 1.1rem; align-items: start; }}

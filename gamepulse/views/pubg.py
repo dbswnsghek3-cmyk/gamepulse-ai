@@ -23,6 +23,7 @@ import streamlit as st
 
 from gamepulse.data.overwatch_images import web_jpeg_b64
 from gamepulse.sim import newstart_sim as S
+from gamepulse.ui.gallery import gallery_html
 from gamepulse.ui.components import html
 from gamepulse.views.overwatch import (C_CTRL, C_MUTED, C_TREAT, KIND, b_hypo, b_interp, b_mock, b_real, b_sample, b_sim,
                                        badge_legend, chart_card, head, hpair, link, note, pp, sub, table, tiles)
@@ -35,7 +36,7 @@ SECTIONS = [("01", "문제·결론"), ("02", "실제 유저 근거"), ("03", "�
             ("05", "KPI·A/B 테스트"), ("06", "실행·사업 판단")]
 TAB_LABELS = [f"{n} {t}" for n, t in SECTIONS]
 TAB_KEY = "pg_tab"
-DEMO_TABS = ["A1 NEXT MATCH COACH", "A2 FIRST 10 MATCHES", "A3 MATCH QUALITY", "B1 다시 낙하할 시간",
+DEMO_TABS = ["A1 NEXT MATCH COACH", "A2 FIRST 10 MATCHES", "A3 MATCH QUALITY", "B1 복귀 광고 캠페인 · 광고 3종",
              "B2 복귀 첫 플레이 · D30", "C BM 내부 분석"]
 CREDIT = "실제 게임 화면 · 작성자 직접 캡처 (2026-11) · 다른 플레이어 닉네임 가림 · © KRAFTON"
 
@@ -509,8 +510,7 @@ def s3(ns: dict, ops: pd.DataFrame, ret: pd.DataFrame, rpool: dict) -> None:
 # 04 해결책 데모 — 포트폴리오의 중심
 def s4(ns: dict) -> None:
     head("해결책: 실제 화면 옆에 제안 시안을 놓고, 직접 눌러 본다",
-         "A1·A2·B2는 조작 가능한 데모 · B1은 광고 시안 + 클릭 가능한 랜딩페이지 · 수치는 모두 가상 · 시안은 실제 PUBG에 없다", b_mock())
-    ad_showcase(ns)
+         "A1·A2·B2는 조작 가능한 데모 · B1 탭 = 복귀 광고 3종 + 랜딩페이지 · 수치는 모두 가상 · 시안은 실제 PUBG에 없다", b_mock())
     t = st.tabs(DEMO_TABS)
     with t[0]:
         demo_a1(ns)
@@ -639,21 +639,25 @@ def _ad_card(ns: dict, ad: dict) -> str:
             f'<em>{escape(ad["msg"])}</em></div>{img}<span class="pn-ai">{escape(ad["label"])}</span></div>')
 
 
-def ad_showcase(ns: dict) -> None:
-    """B1 복귀 광고 3종을 지하철 스크린도어 액자에 나란히 크게 (원본 이미지 그대로 · 새로 만들지 않음)."""
-    cp = ns["campaign"]
-    cards = []
-    for ad in cp["ads"]:
+def ad_gallery(ns: dict) -> str:
+    """복귀 광고 3종: 대표 광고(길리슈트·3레벨 헬멧) 1장을 크게, 나머지는 좌우 넘기기. 원본 이미지 그대로 · 원본 비율."""
+    slides = []
+    for ad in ns["campaign"]["ads"]:
         if ad["image"] == "lobby":
             src = _img_src("lobby", 1200)
-            img = (f'<div class="pn-ad2"><div class="bubble">{escape(ad["copy"])}</div>'
-                   f'<img src="{src}" alt="실제 게임 화면: 로비의 빈 스쿼드 자리" loading="lazy"><div class="sub">{escape(ad["sub"])}</div></div>') if src else ""
+            if not src:
+                continue
+            media = (f'<div class="pn-ad2"><div class="bubble">{escape(ad["copy"])}</div>'
+                     f'<img src="{src}" alt="광고 2 시안: 로비의 빈 스쿼드 자리" loading="lazy"><div class="sub">{escape(ad["sub"])}</div></div>')
         else:
-            img = art(ns, ad["key"], "")
-        cards.append(f'<div class="pn-a3"><div class="frame"><div class="top">지하철 스크린도어 광고 {ad["no"]}</div>{img}</div>'
-                     f'<b>광고 {ad["no"]} · {escape(ad["copy"])}</b><span>{escape(ad["msg"])} · {escape(ad["label"])}</span></div>')
-    html(f'<div class="pn-a3h"><span class="pg-tr nv">B1</span><b>복귀 광고 캠페인 «{escape(cp["name"])}»</b>'
-         '<em>추억 환기 → 변화 증명 → 복귀 유도 · 광고 3종 (가상 시안)</em></div><div class="pn-a3s">' + "".join(cards) + "</div>")
+            path = ASSETS / ad["image"]
+            if not path.is_file():
+                continue
+            mime = "png" if path.suffix == ".png" else "jpeg"
+            media = (f'<img src="data:image/{mime};base64,{_png_b64(str(path), path.stat().st_mtime)}" '
+                     f'alt="광고 {ad["no"]} 시안: {escape(ad["copy"])}" loading="lazy">')
+        slides.append((media, f'광고 {ad["no"]} · {ad["copy"]}', f'{ad["msg"]} · {ad["label"]}'))
+    return gallery_html("pgad", slides)
 
 
 def _poster_mocks(ns: dict) -> str:
@@ -681,28 +685,33 @@ def _changes(cp: dict) -> str:
 def demo_b1(ns: dict) -> None:
     cp = ns["campaign"]
     ads = {a["key"]: a for a in cp["ads"]}
-    html(f'<div class="pn-camp"><div class="t"><span class="pg-tr nv">B1</span><b>{escape(cp["name"])}</b></div><dl>' + "".join(
-        f'<div><dt>{escape(k)}</dt><dd>{escape(v)}</dd></div>' for k, v in cp["summary"]) + "</dl></div>")
-    _pfk(ns, "B1")
-    html('<div class="pn-a3ref">광고 3종은 04 탭 맨 위 · 아래는 광고 이후 흐름 (채널 → 랜딩 → 복귀)</div>')
+    p, f, k = ns["pfk"]["B1"]
+    _lead("B", f"복귀 광고 캠페인 «{cp['name']}»", "한때 배그를 즐기던 유저는 왜 돌아오지 않을까?")
+    html(f'<div class="pn-b1"><div><span>① 문제</span><b>{escape(p)}</b></div>'
+         f'<div><span>② 핵심 메시지</span><b>«{escape(ads["ad1"]["copy"])}»</b><small>추억 환기 → 변화 증명 → 복귀 유도</small></div></div>')
+    html('<div class="pn-b1h">③ 대표 광고 + ④ 나머지 광고 (좌우로 넘기기 · 클릭하면 확대)</div>')
+    html(ad_gallery(ns))
+    html('<div class="pn-b1h">⑤ 광고 노출 채널</div>')
     html('<div class="pn-chan">' + "".join(f'<div><b>{escape(n)}</b><span>{escape(r)}</span></div>' for n, r in cp["offline"])
-         + f'<p>{b_hypo()} 채널별 효과는 검증할 가설 · QR 유입(src)으로 측정 · {escape(ads["ad1"]["label"])}</p></div>')
-    kf = '<i>→</i>'.join(f'<span>{escape(x)}</span>' for x in cp["kpi_flow"])
-    html(f'<div class="pn-cflow">{kf}</div>')
-    sub("광고 3의 답 · 그래서 뭐가 달라졌냐고? (공식 자료로 확인한 것만)", b_real())
+         + f'<p>{b_hypo()} 채널별 효과는 검증할 가설 · QR 유입(src)으로 측정</p></div>')
+    html('<div class="pn-b1h">⑥ 복귀 후 게임 안에서 — 광고 3의 답 «그래서 뭐가 달라졌냐고?»</div>')
     html(_changes(cp))
     html(f'<div class="pn-land"><a class="pn-btn" href="{escape(cp["landing"], quote=True)}?src=portfolio" target="_blank" rel="noopener">'
-         '복귀 랜딩페이지 데모 열기 →</a><span>클릭 가능한 HTML 데모 · 실제 게임·결제와 연결되지 않음</span></div>')
+         '복귀 랜딩페이지 데모 열기 →</a><span>클릭 가능한 HTML 데모 · 실제 게임·결제와 연결되지 않음 · 복귀 첫날 경험은 B2 탭</span></div>')
+    html('<div class="pn-b1h">⑦ KPI · 예산</div>')
+    kf = '<i>→</i>'.join(f'<span>{escape(x)}</span>' for x in cp["kpi_flow"])
+    total = cp["budget"] + ns["experiment"]["cost"]["B1_effort"] * ns["experiment"]["cost"]["monthly_cost_per_person"]
+    html(f'<div class="pn-cflow">{kf}</div><div class="pn-b1k"><b>KPI</b> {escape(k)} · <b>B1 총액 {won(total)}</b> '
+         f'(광고·콘텐츠 파일럿 {won(cp["budget"])} + 랜딩·UTM 제작비) {b_sim()}</div>')
     with st.expander("자세히 보기 · 유입 링크 · 채널 예산 (가정) · 캠페인 흐름"):
-        if True:
-            flow = '<i>→</i>'.join(f'<span>{escape(x)}</span>' for x in cp["flow"])
-            html(f'<div class="pn-cflow">{flow}</div>')
-            table(["광고", "채널", "유입 링크 (실제 주소)"],
-                  [[escape(a), escape(ch), link(f'{cp["landing"]}?src={src}', f"?src={src}")] for a, ch, src in cp["links"]], badge_html=b_mock())
+        flow = '<i>→</i>'.join(f'<span>{escape(x)}</span>' for x in cp["flow"])
+        html(f'<div class="pn-cflow">{flow}</div>')
+        table(["광고", "채널", "유입 링크 (실제 주소)"],
+              [[escape(a), escape(ch), link(f'{cp["landing"]}?src={src}', f"?src={src}")] for a, ch, src in cp["links"]], badge_html=b_mock())
         bud = cp["budget"]
         table(["채널", "용도", "비중", "파일럿 배분"],
               [[f"<b>{escape(n)}</b>", escape(d), f"{w}%", f"{bud * w / 100 / 1e4:,.0f}만 원"] for n, d, w in cp["channels"]], badge_html=b_sim())
-        st.caption(f"광고·콘텐츠 파일럿 {won(bud)} + 추가 제작비(랜딩·UTM) {won(ns['experiment']['cost']['B1_effort'] * ns['experiment']['cost']['monthly_cost_per_person'])} = B1 총액 {won(bud + ns['experiment']['cost']['B1_effort'] * ns['experiment']['cost']['monthly_cost_per_person'])} (06과 동일) · 가정 · {cp['note']}")
+        st.caption(f"광고·콘텐츠 파일럿 {won(bud)} + 추가 제작비(랜딩·UTM) {won(total - bud)} = B1 총액 {won(total)} (06과 동일) · 가정 · {cp['note']}")
 
 
 def demo_b2(ns: dict) -> None:

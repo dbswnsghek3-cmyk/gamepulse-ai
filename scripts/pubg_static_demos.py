@@ -58,6 +58,7 @@ PAGE_CSS = """<style>
 .pg-shotlist{display:flex;flex-wrap:wrap;gap:.4rem;margin:.3rem 0 1rem;font-size:.85rem;align-items:center}
 .pg-shotlist a{padding:.2rem .6rem;border:1px solid #CBD5E1;border-radius:999px;text-decoration:none;color:#1E5EFF;background:#fff}
 .pg-screen img{width:100%;height:auto;border:1px solid #E2E8F0;border-radius:8px}
+body.fc-noscroll{overflow:hidden}
 </style>"""
 
 PAGE_JS = """<script>(function(){
@@ -83,6 +84,15 @@ PAGE_JS = """<script>(function(){
     }
     el.hidden=false;
   });
+  /* 큰 이미지 갤러리 (FC·PUBG 공용): 해시 이동을 막고(해시는 탭 전환용) 넘기기·확대·닫기를 JS 로 */
+  function closeZoom(){ document.querySelectorAll('.fc-gal-s.zoom').forEach(function(f){ f.classList.remove('zoom'); }); document.body.classList.remove('fc-noscroll'); }
+  document.addEventListener('click',function(ev){ var a=ev.target.closest&&ev.target.closest('.fc-gal a'); if(!a) return; ev.preventDefault();
+    var fig=a.closest('.fc-gal-s'), tr=a.closest('.tr');
+    if(a.hasAttribute('data-go')){ var t=tr.children[+a.getAttribute('data-go')]; if(t) tr.scrollTo({left:t.offsetLeft-tr.offsetLeft,behavior:'smooth'}); }
+    else if(a.hasAttribute('data-zoom')){ if(fig.classList.contains('zoom')) closeZoom(); else { closeZoom(); fig.classList.add('zoom'); document.body.classList.add('fc-noscroll'); } }
+    else if(a.hasAttribute('data-close')) closeZoom(); }, true);
+  document.addEventListener('keydown',function(ev){ if(ev.key==='Escape') closeZoom(); });
+  document.addEventListener('click',function(ev){ if(ev.target.classList&&ev.target.classList.contains('fc-gal-s')&&ev.target.classList.contains('zoom')) closeZoom(); });
   document.dispatchEvent(new Event('pg-mounted'));
 })();</script>"""
 

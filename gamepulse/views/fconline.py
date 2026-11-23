@@ -19,6 +19,7 @@ import streamlit as st
 from gamepulse.data.overwatch_images import web_jpeg_b64
 from gamepulse.sim import fc_sim as F
 from gamepulse.ui.components import _md_bold, html
+from gamepulse.ui.gallery import gallery_html
 from gamepulse.views.overwatch import b_hypo, b_interp, b_mock, b_real, b_sim, badge_legend, head, link, sub, table  # noqa: F401
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -42,24 +43,16 @@ def _img(name: str, mtime: float, max_w: int = 1600) -> str:
 
 def gallery(key: str, items: list[list[str]]) -> None:
     """큰 이미지 1장씩 · 좌우 넘기기 · 번호 · 클릭 확대. 파일이 없는 슬라이드는 빼고, 하나도 없으면 영역을 그리지 않는다."""
-    ok = [(it[0], it[1], it[2], it[3] if len(it) > 3 else CREDIT) for it in items if (ASSETS / it[0]).is_file()]
-    n = len(ok)
-    if not n:
-        return
-    out = []
-    for i, (f, t, c, cr) in enumerate(ok):
-        nav = ""
-        if n > 1:
-            pv, nx = (i - 1) % n, (i + 1) % n
-            nav = (f'<div class="nav"><a href="#g-{key}-{pv}" data-go="{pv}" aria-label="이전 이미지">‹</a>'
-                   f'<a href="#g-{key}-{nx}" data-go="{nx}" aria-label="다음 이미지">›</a></div>')
-        out.append(
-            f'<figure class="fc-gal-s" id="z-{key}-{i}"><span class="anc" id="g-{key}-{i}"></span>'
-            f'<a class="zin" href="#z-{key}-{i}" data-zoom title="클릭하면 크게 보기">'
-            f'<img src="data:image/jpeg;base64,{_img(f, (ASSETS / f).stat().st_mtime)}" alt="실제 게임 화면: {escape(t)}" title="{escape(t)} · 클릭하면 확대" loading="lazy"></a>'
-            f'<a class="zout" href="#g-{key}-{i}" data-close>✕ 닫기</a>{nav}'
-            f'<figcaption><span class="n">{i + 1} / {n}</span><b>{escape(c)}</b><small>{escape(cr)}</small></figcaption></figure>')
-    html(f'<div class="fc-gal" data-gal="{key}"><div class="tr">{"".join(out)}</div></div>')
+    slides = []
+    for it in items:
+        f = ASSETS / it[0]
+        if f.is_file():
+            img = (f'<img src="data:image/jpeg;base64,{_img(it[0], f.stat().st_mtime)}" alt="실제 게임 화면: {escape(it[1])}" '
+                   f'title="{escape(it[1])} · 클릭하면 확대" loading="lazy">')
+            slides.append((img, it[2], it[3] if len(it) > 3 else CREDIT))
+    out = gallery_html(key, slides)
+    if out:
+        html(out)
 
 
 def bp(x: float) -> str:
@@ -255,16 +248,25 @@ def a_demo_html(r: dict, names: list[str]) -> str:
             '<div class="src">가상 선수 · 모든 값은 가정 · 실제 시세·수수료 아님</div></div>')
 
 
-def c_rows(m: dict, pols: dict, pol: str) -> str:
-    return "".join(
-        f'<tr class="{"on" if k == pol else ""}"><td><b>{k}안</b> {escape(F.POLICIES[k])}{" <em>권고</em>" if k == "3" else ""}</td>'
-        f'<td>{escape(pols[k]["fair"])}</td><td>키보드 {x["kb"]:.1f}% · 패드 {x["pad"]:.1f}%</td>'
-        f'<td class="{"dn" if x["risk"] == "높음" else ""}">{x["risk"]}</td><td>{escape(pols[k]["ops"])}</td></tr>' for k, x in m.items())
+C_EXP = {"c1": ("C-1 · 대각선·연속 입력 성공률", 78, 86, "입력 성공률"),
+         "c2": ("C-2 · 입력-패스 방향 일치율", 84, 88, "방향 일치율")}
+VERDICT = {"확대": "격차가 목표만큼 줄고 패드·매칭 지표 악화 없음 → 적용 범위 확대",
+           "수정": "격차는 줄었지만 목표(30%) 미달 → 판정 조건 수정 후 재실험",
+           "중단": "격차가 줄지 않거나 패드·매칭 지표 악화 → 중단 · 의견은 수비 AI·밸런스 과제로"}
 
 
-C_MSG = {"1": "공정성 체감은 좋아질 수 있지만 상대 풀이 장치 비중만큼 줄어든다",
-         "2": "선택한 사람만 같은 장치를 먼저 찾고, 못 찾으면 통합으로 넓힌다 · 규칙이 복잡해진다",
-         "3": "상대 풀은 그대로 · C-1·C-2 판정 개선 효과를 성공률·불일치율로 검증한다"}
+def c_exp_html(r: dict, metric: str) -> str:
+    def row(n, a, b, cls=""):
+        return f'<tr class="{cls}"><td>{n}</td><td>{a}</td><td><b>{b}</b></td></tr>'
+    v = r["verdict"]
+    return (f'<div class="fc-demo c"><h4>실험 판정 · {escape(metric)} {b_sim()}</h4><div class="fc-cmp"><table>'
+            '<tr><th>구분</th><th>현행 (대조군)</th><th>실험군</th></tr>'
+            + row("키보드", f'{r["kb0"]:.0f}%', f'{r["kb1"]:.0f}%') + row("패드", f'{r["pad0"]:.0f}%', f'{r["pad1"]:.0f}%')
+            + row("격차 (패드 − 키보드)", f'{r["gap0"]:.0f}%p', f'{r["gap1"]:.0f}%p', "on")
+            + f'</table></div><div class="fc-m two"><div><small>격차 축소율 (목표 30% · 예시)</small><b class="{"up" if r["cut"] > 0 else "dn"}">{r["cut"]:.0f}%</b></div>'
+            f'<div><small>가드레일 · 패드 −1%p · 포기율 +0.5%p</small><b class="{"up" if r["guard"] else "dn"}">{"통과" if r["guard"] else "위반"}</b></div></div>'
+            f'<div class="fc-act {"rec" if v == "확대" else ""}"><b>판정: {v}</b> · {VERDICT[v]}</div>'
+            '<div class="src">모든 값은 가정 · 실제 유저 데이터 아님 · 매칭은 통합 그대로 (분리 매칭은 최종안에서 제외)</div></div>')
 
 
 def s5(d: dict) -> None:
@@ -283,20 +285,18 @@ def s5(d: dict) -> None:
     r = F.rebuild(players, mk / 100, hold, fee / 100)
     with c2:
         html(a_demo_html(r, [p[0] for p in ad["players"]]))
-    sub("C · 왜 분리하지 않는가 · 정책 비교", b_sim())
+    sub("C · 조작 개선 실험 비교 (통합 매칭 유지)", b_sim())
     c1, c2 = st.columns([1, 1.45], gap="medium")
     with c1:
         anchor("c5")
-        pol = st.radio("정책 선택", list(F.POLICIES), format_func=lambda k: f"{k}안 · {F.POLICIES[k]}{' (권고)' if k == '3' else ''}", index=2, key="fc_c5_pol")
-        kb = st.slider("키보드 이용 비중 (%) · 기본값 54.6 = 공식 상위 1만 1ON1", 5.0, 95.0, 54.6, 0.1, key="fc_c5_kb")
-        pref = st.slider("2안 · 동일 장치 우선 선택 비율 (% · 가정)", 0, 100, 40, key="fc_c5_pref")
-    m = F.matching(kb / 100, pref / 100)
-    pols = {p["key"]: p for p in d["c_policies"]}
+        ex = st.radio("실험", list(C_EXP), format_func=lambda k: C_EXP[k][0], key="fc_c5_ex")
+        kb0 = st.slider("키보드 현행 (% · 가정)", 40, 100, C_EXP[ex][1], key=f"fc_c5_kb_{ex}")
+        pad0 = st.slider("패드 현행 (% · 가정)", 40, 100, C_EXP[ex][2], key=f"fc_c5_pad_{ex}")
+        up = st.slider("실험 후 키보드 변화 (+%p · 가정)", 0, 15, 4, key="fc_c5_up")
+        pc = st.slider("실험 후 패드 변화 (%p · 가정)", -5, 5, 0, key="fc_c5_pc")
+        qc = st.slider("매칭 포기율 변화 (%p · 가정)", -1.0, 2.0, 0.0, 0.1, key="fc_c5_qc")
     with c2:
-        html(f'<div class="fc-demo c"><h4>정책 비교 {b_sim()}</h4><div class="fc-cmp"><table><tr><th>정책</th><th>공정성 체감</th>'
-             f'<th>매칭 품질 · 상대 풀 (통합=100%)</th><th>풀 축소 위험</th><th>운영 리스크</th></tr>{c_rows(m, pols, pol)}</table></div>'
-             f'<div class="fc-act"><b>{pol}안 선택</b> · {C_MSG[pol]}</div><div class="fc-act rec"><b>최종 권고 3안 고정</b> · 1·2안은 제외한 대안 (비교용)</div>'
-             '<div class="src">이용자 수·대기시간이 아닌 비율 모델 · 위험 구분선(40%·70%)은 모델용</div></div>')
+        html(c_exp_html(F.control_exp(kb0, pad0, up, pc, qc), C_EXP[ex][3]))
     sub("KPI", b_mock())
     names = {"A": "구단 가치", "B": "강화·훈련코치", "C": "키보드 vs 패드"}
     html('<div class="fc-kpi">' + "".join(f'<div class="{t.lower()}"><div class="h">{tr(t)} {names[t]}</div>'
