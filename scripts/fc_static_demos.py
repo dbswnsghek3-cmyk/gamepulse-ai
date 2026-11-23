@@ -44,11 +44,11 @@ def demos(root: Path) -> str:
     c5 = ('<div class="fc-live" data-k="c5" hidden><div class="ctl"><div class="seg" id="c5p">'
           '<button type="button" data-k="1" aria-pressed="false">1안 · 완전 분리 매칭</button>'
           '<button type="button" data-k="2" aria-pressed="false">2안 · 선택형 우선 매칭</button>'
-          '<button type="button" data-k="3" aria-pressed="true">3안 · 통합 유지 + 조작 환경 개선 (권고)</button></div>'
-          '<label>키보드 이용자 비중 (% · 가정) <b id="c5kv">50%</b><input type="range" id="c5k" min="5" max="95" value="50"></label>'
+          '<button type="button" data-k="3" aria-pressed="true">3안 · 통합 유지 + 입력 판정 개선 (권고)</button></div>'
+          '<label>키보드 이용 비중 (%) · 기본값 54.6 = 공식 상위 1만 1ON1 <b id="c5kv">54.6%</b><input type="range" id="c5k" min="5" max="95" step="0.1" value="54.6"></label>'
           '<label>2안 · 동일 장치 우선 선택 비율 (% · 가정) <b id="c5fv">40%</b><input type="range" id="c5f" min="0" max="100" value="40"></label></div>'
           f'<div class="fc-demo c"><h4>정책 비교 {B_SIM}</h4><div class="fc-cmp"><table id="c5t"></table></div><div class="fc-act" id="c5m"></div>'
-          '<div class="fc-act rec"><b>최종 권고 3안 고정</b> · 비교는 자유롭게</div>'
+          '<div class="fc-act rec"><b>최종 권고 3안 고정</b> · 1·2안은 제외한 대안 (비교용)</div>'
           '<div class="src">이용자 수·대기시간이 아닌 비율 모델 · 위험 구분선(40%·70%)은 모델용</div></div>'
           f'{hint}</div>')
     data = json.dumps({"PO": pols, "PL": ad["players"]}, ensure_ascii=False)
@@ -74,15 +74,15 @@ function A(){var mk=+$('amk').value/100,hold=Math.max(0,+$('ahold').value||0),fe
   '<ol class="fc-path"><li><b>진단</b> 개별 하락 '+sw.length+'명 · 시장 하락 '+(rows.length-sw.length)+'명</li><li><b>유지</b> 시장과 함께 내린 선수</li>'+
   '<li><b>재편</b> 교체 검토 선수 판매 → 재편 예산 '+e8(bud)+'</li><li><b>이벤트 연계</b> 남은 목표 '+e8(gap)+' → 이벤트·패스 보상 목표 (BP 지급 아님)</li></ol>'+
   '<div class="src">가상 선수 · 모든 값은 가정 · 실제 시세·수수료 아님</div></div>';}
-var NAME={'1':'완전 분리 매칭','2':'선택형 우선 매칭','3':'통합 유지 + 조작 환경 개선'},MSG={
+var NAME={'1':'완전 분리 매칭','2':'선택형 우선 매칭','3':'통합 유지 + 입력 판정 개선'},MSG={
  '1':'공정성 체감은 좋아질 수 있지만 상대 풀이 장치 비중만큼 줄어든다',
  '2':'선택한 사람만 같은 장치를 먼저 찾고, 못 찾으면 통합으로 넓힌다 · 규칙이 복잡해진다',
- '3':'상대 풀은 그대로 · 키보드 조작 개선 효과를 조작 성공률·승률로 검증한다'},pol='3';
-function C(){var k=+$('c5k').value/100,s=+$('c5f').value/100;$('c5kv').textContent=$('c5k').value+'%';$('c5fv').textContent=$('c5f').value+'%';
+ '3':'상대 풀은 그대로 · C-1·C-2 판정 개선 효과를 성공률·불일치율로 검증한다'},pol='3';
+function C(){var k=+$('c5k').value/100,s=+$('c5f').value/100;$('c5kv').textContent=(+$('c5k').value).toFixed(1)+'%';$('c5fv').textContent=$('c5f').value+'%';
  var rows='<tr><th>정책</th><th>공정성 체감</th><th>매칭 품질 · 상대 풀 (통합=100%)</th><th>풀 축소 위험</th><th>운영 리스크</th></tr>';
  ['1','2','3'].forEach(function(key){var kb,pad;if(key==='1'){kb=k*100;pad=(1-k)*100;}else if(key==='2'){if(s>0){kb=k*s*100;pad=(1-k)*s*100;}else{kb=pad=100;}}else{kb=pad=100;}
   var m=Math.min(kb,pad),risk=m<40?'높음':(m<70?'주의':'낮음');
-  rows+='<tr class="'+(key===pol?'on':'')+'"><td><b>'+key+'안</b> '+NAME[key]+(key==='3'?' <em>권고</em>':'')+'</td><td>'+PO[key].fair+'</td><td>키보드 '+kb.toFixed(0)+'% · 패드 '+pad.toFixed(0)+'%</td><td class="'+(risk==='높음'?'dn':'')+'">'+risk+'</td><td>'+PO[key].ops+'</td></tr>';});
+  rows+='<tr class="'+(key===pol?'on':'')+'"><td><b>'+key+'안</b> '+NAME[key]+(key==='3'?' <em>권고</em>':'')+'</td><td>'+PO[key].fair+'</td><td>키보드 '+kb.toFixed(1)+'% · 패드 '+pad.toFixed(1)+'%</td><td class="'+(risk==='높음'?'dn':'')+'">'+risk+'</td><td>'+PO[key].ops+'</td></tr>';});
  $('c5t').innerHTML=rows;$('c5m').innerHTML='<b>'+pol+'안 선택</b> · '+MSG[pol];}
 function closeZoom(){document.querySelectorAll('.fc-gal-s.zoom').forEach(function(f){f.classList.remove('zoom');});document.body.classList.remove('fc-noscroll');}
 function gal(){document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('.fc-gal a');if(!a)return;ev.preventDefault();

@@ -48,7 +48,7 @@ def rebuild(players: list[tuple[float, float]], market_drop: float, hold: float,
 
 
 # ----------------------------------------------------------------------
-POLICIES = {"1": "완전 분리 매칭", "2": "선택형 우선 매칭", "3": "통합 유지 + 조작 환경 개선"}
+POLICIES = {"1": "완전 분리 매칭", "2": "선택형 우선 매칭", "3": "통합 유지 + 입력 판정 개선"}
 
 
 def pool_risk(min_pct: float) -> str:

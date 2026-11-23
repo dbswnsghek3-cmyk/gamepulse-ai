@@ -1600,6 +1600,29 @@ a.pn-btn:hover {{ background: #EAB308; }}
   .fc-bars .bar {{ grid-template-columns: 4.6rem 1fr 6.6rem; font-size: 0.8rem; }}
 }}
 @media (min-width: 901px) and (max-width: 1200px) {{ .fc-evs.c {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} }}
+/* FC: VS 2단 · 해결책 4줄 카드 */
+.fc-vs2 {{ display: grid; grid-template-columns: minmax(0, 1fr) 3.2rem minmax(0, 1fr); gap: 0.6rem; align-items: stretch; margin: 0.4rem 0 0.4rem; }}
+.fc-vs2 > .kb, .fc-vs2 > .pad {{ border-radius: 14px; padding: 0.85rem 1rem; color: #fff; }}
+.fc-vs2 > .kb {{ background: linear-gradient(160deg, #0F766E, #115E59); }} .fc-vs2 > .pad {{ background: linear-gradient(160deg, #7C3AED, #5B21B6); }}
+.fc-vs2 .h {{ font-size: 1.12rem; font-weight: 900; margin-bottom: 0.35rem; }}
+.fc-vs2 ul {{ margin: 0; padding-left: 1.1rem; font-size: 1rem; line-height: 1.6; font-weight: 600; }}
+.fc-vs2 .mid {{ display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; color: #0B1F3A; }}
+.fc-third {{ background: #FEFCE8; border: 1px solid #FDE68A; border-left: 5px solid #CA8A04; border-radius: 10px; padding: 0.55rem 0.85rem; font-size: 0.98rem; font-weight: 700; color: #422006; margin: 0 0 0.8rem; }}
+.fc-sols {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; margin: 0.3rem 0 0.6rem; }} .fc-sols.one {{ grid-template-columns: 1fr; }}
+.fc-sol {{ background: #fff; border: 1px solid #E2E8F0; border-top: 5px solid #6D28D9; border-radius: 12px; padding: 0.75rem 0.9rem; }}
+.fc-sol.b {{ border-top-color: #DC2626; }} .fc-sol.c {{ border-top-color: #15803D; }}
+.fc-sol .h {{ display: flex; align-items: baseline; gap: 0.45rem; margin-bottom: 0.4rem; }}
+.fc-sol .h span {{ font-size: 0.85rem; font-weight: 900; color: #fff; background: #0B1F3A; border-radius: 6px; padding: 0.05rem 0.45rem; }}
+.fc-sol .h b {{ font-size: 1.08rem; color: #0B1F3A; }}
+.fc-sol dl {{ display: grid; grid-template-columns: 2.6rem 1fr; gap: 0.3rem 0.5rem; margin: 0; }}
+.fc-sol dt {{ font-size: 0.85rem; font-weight: 900; color: #475569; padding-top: 0.1rem; }}
+.fc-sol dd {{ margin: 0; font-size: 0.95rem; line-height: 1.5; color: #1E293B; }} .fc-sol dd b {{ color: #0B1F3A; }}
+.fc-sol .dup {{ margin: 0.45rem 0 0; font-size: 0.85rem; color: #334155; background: #F1F5F9; border-radius: 8px; padding: 0.3rem 0.55rem; }}
+.fc-excl {{ font-size: 0.95rem; color: #7F1D1D; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px; padding: 0.5rem 0.8rem; margin: 0 0 0.6rem; }}
+@media (max-width: 900px) {{ .fc-sols {{ grid-template-columns: 1fr; }} }}
+.fc-facts.b3 {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+@media (max-width: 900px) {{ .fc-facts.b3 {{ grid-template-columns: 1fr; }} }}
+@media (max-width: 560px) {{ .fc-vs2 {{ grid-template-columns: 1fr; }} .fc-vs2 .mid {{ font-size: 1.2rem; }} }}
 
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
