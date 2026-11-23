@@ -785,9 +785,11 @@ def _opinions(rs: dict, ops: pd.DataFrame) -> None:
 
     sub("대표 의견")
     c1, c2 = st.columns(2)
-    view = c1.selectbox("보기", ["대표 의견 6건"] + OPINION_CATEGORIES, key="ow_op_view")
+    n_rep = int(v["opinion_id"].isin(rs["rep_opinions"]).sum())
+    rep_label = f"대표 의견 {n_rep}건"
+    view = c1.selectbox("보기", [rep_label] + OPINION_CATEGORIES, key="ow_op_view")
     tone = c2.selectbox("의견 방향", ["전체", "부정", "중립", "긍정"], key="ow_op_tone")
-    if view == "대표 의견 6건":
+    if view == rep_label:
         q = v[v["opinion_id"].isin(rs["rep_opinions"])]
     else:
         q = v[v.apply(lambda r: view in opinion_codes(r), axis=1)]
@@ -823,7 +825,8 @@ def _opinions(rs: dict, ops: pd.DataFrame) -> None:
                     "- 같은 작성자로 추정되는 글은 1건만 셌다. 닉네임을 저장하지 않아 다른 글이 같은 사람일 가능성은 남아 있다.\n"
                     "- Reddit은 수집 환경에서 접근이 차단됐고, 유튜브는 댓글을 불러올 수 없어 0건이다.")
         for r in other.itertuples():
-            st.markdown(f"- `{r.opinion_id}` {r.platform} · [{r.source_url}]({r.source_url}) — {r.verification_status} · {r.note}")
+            src = "원문 삭제됨 (링크 없음)" if "원문 삭제" in r.verification_status else f"[{r.source_url}]({r.source_url})"
+            st.markdown(f"- `{r.opinion_id}` {r.platform} · {src} — {r.verification_status} · {r.note}")
 
 
 # ======================================================================

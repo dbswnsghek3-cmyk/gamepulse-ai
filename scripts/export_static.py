@@ -46,6 +46,8 @@ from gamepulse.views.pubg import TAB_LABELS as PG_TABS  # noqa: E402
 from gamepulse.views.fconline import TAB_LABELS as FC_TABS  # noqa: E402
 
 DOCS = ROOT / "docs"
+import csv as _csv  # noqa: E402
+OW_VERIFIED = sum(1 for r in _csv.DictReader(open(ROOT / "data" / "overwatch" / "opinions.csv", encoding="utf-8")) if r["verification_status"] == "검증 완료")
 IMG_DIR = DOCS / "assets" / "img"
 LIVE_URL = "https://gamepulse-ai1.streamlit.app/"
 REPO_URL = "https://github.com/dbswnsghek3-cmyk/gamepulse-ai"
@@ -594,7 +596,7 @@ def index_html(gen: str) -> str:
     rs = json.loads((ROOT / "data" / "overwatch" / "restart.json").read_text(encoding="utf-8"))
     cards = [f'<a class="sx-card feature" href="overwatch.html"><div class="k">대표 프로젝트 · 실제 자료 기반</div>'
              f'<h3>오버워치 · PROJECT RE:START</h3><p><b>{H.escape(rs["summary"]["headline"])}</b> — '
-             f'{H.escape(rs["cover"]["solution_sub"])}. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 '
+             f'{H.escape(rs["cover"]["solution_sub"])}. 최신 한국어 게임 화면, 검증한 유저 의견 {OW_VERIFIED}건, 공식 업데이트·이용 지표를 근거로 '
              '개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a>',
              '<a class="sx-card feature" href="pubg.html"><div class="k">두 번째 프로젝트 · 실제 자료 기반</div>'
              '<h3>PUBG · NEW START</h3><p><b>첫 치킨을 맛보기도 전에 떠나는 유저들. 그리고 돌아오지 않는 전우들.</b> — 신규 유저 정착(A 50%) · '

@@ -110,11 +110,9 @@ def ev_card(e: dict, cls: str = "") -> str:
 
 # ----------------------------------------------------------------------
 def _cover(d: dict) -> None:
-    cv, it = d["cover"], d["intro"]
+    cv = d["cover"]
     html(f'<div class="fc-hero solo"><div class="fc-hero-t"><div class="k">{escape(cv["kicker"])}</div>'
          f'<div class="q" role="heading" aria-level="1">{escape(cv["title"])}</div><div class="s">{escape(cv["subtitle"])}</div></div></div>')
-    html(f'<div class="fc-intro"><b>FC 온라인이란?</b><p>{escape(it["line"])}</p><ol>'
-         + "".join(f"<li>{tr(t)}{escape(x)}</li>" for t, x in it["topics"]) + "</ol></div>")
 
 
 def render() -> None:
@@ -131,6 +129,10 @@ def render() -> None:
 # ======================================================================
 # 01 문제 정의
 def s1(d: dict) -> None:
+    it = d["intro"]   # 게임 소개: 메인 화면 1장은 여기(01)에만
+    html(f'<div class="fc-intro"><b>FC 온라인이란?</b><p>{escape(it["line"])}</p><ol>'
+         + "".join(f"<li>{tr(t)}{escape(x)}</li>" for t, x in it["topics"]) + "</ol></div>")
+    gallery("intro", [it["img"]])
     head("문제: 노력의 가치 · 첫 강화 · 조작의 공정성", "세 문제 모두 '떠나는 계기'가 될 수 있다", b_real())
     gallery("squad", [d["squad_img"]])
     html('<div class="fc-why">'
