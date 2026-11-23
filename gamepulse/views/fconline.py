@@ -110,21 +110,19 @@ def conclude(text: str) -> None:
 
 
 def ev_card(e: dict, cls: str = "") -> str:
-    """근거 카드 4요소: 핵심 의견 한 줄 · 작성일 · 출처 링크 · 사업PM 해석 한 줄 (+ 확인한 원문 발췌가 있으면 따옴표로)."""
-    q = f'<q>{escape(e["quote"])}</q>' if e.get("quote") else ""
-    return (f'<div class="fc-ev {cls}"><span class="t">{escape(e["side"])}</span><b>{escape(e["line"])}</b>{q}'
+    """근거 카드 3요소: 유저 의견 요약 한 줄 · 작성일과 출처 · 사업PM 해석 한 줄."""
+    return (f'<div class="fc-ev {cls}"><b>{escape(e["line"])}</b>'
             f'<small>{escape(e["date"])} · {link(e["url"], e["src"] + " ↗")}</small><p>→ {escape(e["pm"])}</p></div>')
 
 
 # ----------------------------------------------------------------------
 def _cover(d: dict) -> None:
-    cv = d["cover"]
+    cv, it = d["cover"], d["intro"]
     html(f'<div class="fc-hero solo"><div class="fc-hero-t"><div class="k">{escape(cv["kicker"])}</div>'
          f'<div class="q" role="heading" aria-level="1">{escape(cv["title"])}</div><div class="s">{escape(cv["subtitle"])}</div></div></div>')
-    html('<div class="fc-tracks">' + "".join(
-        f'<div class="{t["key"].lower()}"><div class="h">{tr(t["key"])}<span>{escape(t["name"])}</span></div>'
-        f'<strong>{escape(t["line"])}</strong><small>{escape(t["sol"])}</small></div>' for t in d["tracks"]) + "</div>")
-    html(f'<div class="fc-pm dir"><span>최종 방향</span><b>{escape(d["final_dir"])}</b></div>')
+    html(f'<div class="fc-intro"><b>FC 온라인이란?</b><p>{escape(it["line"])}</p><ol>'
+         + "".join(f"<li>{tr(t)}{escape(x)}</li>" for t, x in it["topics"]) + "</ol></div>")
+    gallery("intro", [it["img"]])
 
 
 def render() -> None:
@@ -142,6 +140,7 @@ def render() -> None:
 # 01 문제 정의
 def s1(d: dict) -> None:
     head("문제: 노력의 가치 · 첫 강화 · 조작의 공정성", "세 문제 모두 '떠나는 계기'가 될 수 있다", b_real())
+    gallery("squad", [d["squad_img"]])
     html('<div class="fc-why">'
          '<div><span>A · 구단 가치</span><b>8강 카드 그래프 <em>6,260만 → 약 1,900만 BP</em></b><small>작성자 캡처 · 10/24~11/22 시세 그래프</small></div>'
          '<div><span>B · 강화·훈련코치</span><b>7→8강 성공 확률 <em>7%</em></b><small>공식 확률 공지 · 인벤 11-05 연속 실패 글</small></div>'
@@ -152,20 +151,21 @@ def s1(d: dict) -> None:
 # 02 실제 유저 근거
 def s2(d: dict) -> None:
     ev, yt = d["evidence"], d["youtube"]
-    head("근거: 확인한 원문만 싣는다", "따옴표 = 원문 발췌 · 나머지는 요약 · 사례이지 비율 아님", b_real())
-    lead("A", "구단 가치 하락", "화폐 단위 변경(8/20) 시기 사례는 제외")
-    html('<div class="fc-evs two">' + "".join(ev_card(e, "a") for e in ev["A"]) + "</div>")
+    head("근거: 확인한 원문과 공식 데이터만", "카드 = 유저 의견 요약 · 작성일·출처 · 사업PM 해석 · 사례이지 비율 아님", b_real())
+    lead("A", "구단 가치 하락", "화폐 단위 변경(8/20) 영향 사례는 제외")
+    html('<div class="fc-evs one">' + "".join(ev_card(e, "a") for e in ev["A"]) + "</div>")
     o = ev["A_official"]
     html(f'<div class="fc-ev off"><span class="t">운영사 공식 대응 · 개인 의견 아님</span><b>{escape(o["line"])}</b>'
          f'<small>{escape(o["date"])} · {link(o["url"], o["src"] + " ↗")}</small><p>→ {escape(o["pm"])}</p></div>')
     lead("B", "강화 실패", "이후 접속 중단 여부는 미확인")
     html('<div class="fc-evs two">' + "".join(ev_card(e, "b") for e in ev["B"]) + "</div>")
-    lead("C", "키보드 vs 패드", "유튜브 댓글 캡처 10장 요약 · 작성일 미표기")
+    lead("C", "키보드 vs 패드", "공식 데이터센터 + 유튜브 댓글 캡처 10장 요약")
+    gallery("c", d["galleries"]["C"])
     urls = {i + 1: v[1] for i, v in enumerate(yt["videos"])}
     cls = {"조작 불만": "kb", "분리 찬성": "kb", "분리 반대": "pad", "제3의 의견": "alt"}
-    html('<div class="fc-evs c">' + "".join(
-        f'<div class="fc-ev {cls[g]}"><span class="t">{escape(g)}</span><b>{escape(t)}</b>'
-        f'<small>{link(urls[s], f"출처 {s} 영상 ↗")}</small><p>→ {escape(pm)}</p></div>'
+    html('<div class="fc-evs c3">' + "".join(
+        f'<div class="fc-ev {cls[g]}"><b>{escape(t)}</b>'
+        f'<small>{escape(g)} · 댓글 작성일 미표기 · {link(urls[s], f"유튜브 출처 {s} ↗")}</small><p>→ {escape(pm)}</p></div>'
         for (g, t, s), pm in zip(yt["cards"], ev["C_pm"])) + "</div>")
     html(f'<div class="fc-pm"><span>사업PM 해석</span><b>{escape(yt["pm"])}</b></div>')
     with st.expander("자세히 보기 · 근거 집계표 · 인벤 C 게시글 제목 · 공식 자료 · 자료 한계"):
@@ -188,14 +188,10 @@ def s3(d: dict) -> None:
     head("원인: A 자산 급락 · B 늦은 적응 · C 조작 조건 갈등", "인과는 실험으로만 판단", b_hypo())
     lead("A", "열심히 키운 구단, 왜 내 노력의 가치는 떨어질까?", "자산 급락 → 성장 박탈감")
     gallery("a", d["galleries"]["A"])
-    html('<div class="fc-drops">' + "".join(
-        f'<div><span>{escape(x["card"])}</span><b>{bp(x["peak"]).replace(" BP", "")} <i>→</i> <em>{bp(x["now"]).replace(" BP", "")}</em></b>'
-        f'<strong>▼{(1 - x["now"] / x["peak"]) * 100:.0f}%</strong></div>' for x in d["drops"]) + "</div>")
     lead("B", "강화 한 번의 실패가 떠나는 계기가 될 수 있다", "늦은 코치 세팅 → 초기 이탈")
     gallery("b", d["galleries"]["B"])
     html('<div class="fc-facts b3">' + "".join(f'<div><span>{escape(a)}</span><b>{escape(b)}</b><small>{escape(c)}</small></div>' for a, b, c in d["b_facts"]) + "</div>")
     lead("C", "키보드 vs 패드, 같은 경기인데 공정한가?", "조작의 자유인가, 경쟁의 형평성인가?")
-    gallery("c", d["galleries"]["C"])
 
     html('<div class="fc-vs2"><div class="kb"><div class="h">⌨️ 키보드 측</div><ul>' + "".join(f"<li>{escape(x)}</li>" for x in cs["keyboard"])
          + '</ul></div><div class="mid">VS</div><div class="pad"><div class="h">🎮 패드 측</div><ul>'

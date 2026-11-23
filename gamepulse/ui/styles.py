@@ -1247,6 +1247,17 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .pn-ad2 .bubble {{ align-self: flex-start; background: #FACC15; color: #0B1F3A; font-weight: 900; font-size: 1.35rem; border-radius: 16px; padding: 0.35rem 0.9rem; }}
 .pn-ad2 img {{ width: 100%; display: block; border-radius: 8px; }} .pn-ad2 .sub {{ color: #fff; font-weight: 700; font-size: 0.95rem; }}
 .pn-subway {{ background: #CBD5E1; border-radius: 14px; padding: 0.5rem; }}
+.pn-a3h {{ display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.6rem; margin: 0.6rem 0 0.5rem; }}
+.pn-a3h b {{ font-size: 1.35rem; color: #0B1F3A; }} .pn-a3h em {{ font-style: normal; font-size: 0.95rem; color: #334155; }}
+.pn-a3s {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; margin: 0 0 1.1rem; align-items: start; }}
+.pn-a3 {{ display: flex; flex-direction: column; gap: 0.35rem; }}
+.pn-a3 .frame {{ background: linear-gradient(180deg, #94A3B8, #CBD5E1); border-radius: 14px; padding: 0.55rem; box-shadow: inset 0 0 0 3px #64748B; }}
+.pn-a3 .frame .top {{ font-size: 0.78rem; font-weight: 800; color: #1E293B; margin: 0 0 0.35rem 0.2rem; }}
+.pn-a3 .frame .pn-photo {{ margin: 0; }} .pn-a3 .frame .pn-photo figcaption {{ display: none; }}
+.pn-a3 .frame img {{ width: 100%; max-width: none !important; height: auto; display: block; border-radius: 8px; }}
+.pn-a3 > b {{ font-size: 1.05rem; color: #0B1F3A; line-height: 1.4; }} .pn-a3 > span {{ font-size: 0.85rem; color: #475569; }}
+.pn-a3ref {{ font-size: 0.92rem; color: #1E3A8A; background: #EFF6FF; border-radius: 10px; padding: 0.45rem 0.75rem; margin: 0.3rem 0 0.6rem; }}
+@media (max-width: 900px) {{ .pn-a3s {{ grid-template-columns: 1fr; }} }}
 .pn-subway-top {{ font-size: 0.72rem; font-weight: 800; color: #334155; margin: 0 0 0.35rem 0.2rem; }}
 .pn-subway-in {{ position: relative; background: #0B1F3A; border: 6px solid #94A3B8; border-radius: 8px; padding: 0.4rem; }}
 .pn-qr {{ position: absolute; right: 0.8rem; bottom: 0.8rem; background: #fff; border-radius: 8px; padding: 0.3rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }}
@@ -1621,6 +1632,12 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-excl {{ font-size: 0.95rem; color: #7F1D1D; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px; padding: 0.5rem 0.8rem; margin: 0 0 0.6rem; }}
 @media (max-width: 900px) {{ .fc-sols {{ grid-template-columns: 1fr; }} }}
 .fc-facts.b3 {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+.fc-intro {{ background: #fff; border: 1px solid #E2E8F0; border-left: 6px solid #15803D; border-radius: 12px; padding: 0.8rem 1rem; margin: 0 0 0.6rem; }}
+.fc-intro > b {{ font-size: 1.2rem; color: #0B1F3A; }} .fc-intro p {{ margin: 0.3rem 0 0.45rem; font-size: 1.02rem; color: #1E293B; line-height: 1.55; }}
+.fc-intro ol {{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }}
+.fc-intro li {{ font-size: 1rem; font-weight: 800; color: #0B1F3A; }}
+.fc-evs.one {{ grid-template-columns: 1fr; }} .fc-evs.c3 {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+@media (max-width: 900px) {{ .fc-evs.c3 {{ grid-template-columns: 1fr; }} }}
 @media (max-width: 900px) {{ .fc-facts.b3 {{ grid-template-columns: 1fr; }} }}
 @media (max-width: 560px) {{ .fc-vs2 {{ grid-template-columns: 1fr; }} .fc-vs2 .mid {{ font-size: 1.2rem; }} }}
 
