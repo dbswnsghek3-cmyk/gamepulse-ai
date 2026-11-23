@@ -242,7 +242,11 @@ class Exporter:
         if t in ("toggle", "checkbox"):
             return f'<div class="sx-w"><span class="sx-w-l">{label}</span><span class="sx-w-v">{"켜짐" if n.value else "꺼짐"}</span></div>'
         if t in ("button", "download_button"):
-            return f'<span class="sx-btn">{label}</span>'
+            # 앱 버튼의 실제 기능을 정적 페이지에서 재현: 페이지 이동(go_*)은 링크, 나머지는 BTN_JS 가 key 로 동작을 찾는다
+            k = str(getattr(n, "key", "") or "")
+            if k.startswith("go_"):
+                return f'<a class="sx-btn" href="{H.escape(k[3:])}.html">{label}</a>'
+            return f'<button type="button" class="sx-btn" data-btn="{H.escape(k)}">{label}</button>'
         if t in ("text_input", "text_area", "chat_input"):
             ph = H.escape(str(getattr(n, "placeholder", "") or ""))
             return f'<div class="sx-w"><span class="sx-w-l">{label or "입력"}</span><span class="sx-w-in">{ph}</span></div>'
@@ -345,7 +349,7 @@ def overwatch_extras() -> dict[str, str]:
     shots = []
     at.button(key="ow_a_start").click().run()
     for step in range(1, 4):
-        cards = [m.value for m in at.markdown if 'class="ow-proto-card mock"' in m.value]
+        cards = [m.value for m in at.markdown if 'class="ow-proto-card mock' in m.value]
         if cards:
             shots.append(cards[0])
         at.button(key="ow_a_next").click().run()
@@ -353,7 +357,7 @@ def overwatch_extras() -> dict[str, str]:
         return {}
     body = "".join(shots)
     return {"A 복귀 브리핑": (
-        '<details class="sx-exp"><summary>시안 단계 미리보기 · "3분 요약 보기"를 눌렀을 때 1~3단계 (예시 계정: 2026년 1월 마지막 접속) '
+        '<details class="sx-exp" id="ow-a-steps"><summary>시안 단계 미리보기 · "3분 요약 보기"를 눌렀을 때 1~3단계 (예시 계정: 2026년 1월 마지막 접속) '
         '<span class="sx-more">펼쳐보기</span></summary>'
         f'<div class="sx-exp-b">{body}</div></details>')}
 
@@ -373,8 +377,90 @@ TAB_JS = """<script>(function(){
 })();</script>"""
 
 
+BTN_JS = """<script>(function(){
+  /* 앱 버튼 재현: sx-btn-map 의 key → 동작 (ans 답변 표시 · clear 답변 지우기 · info 안내 문구 · open 펼치기) */
+  var el=document.getElementById('sx-btn-map'); if(!el) return; var M=JSON.parse(el.textContent);
+  document.addEventListener('click',function(ev){
+    var b=ev.target.closest&&ev.target.closest('button.sx-btn[data-btn]'); if(!b) return;
+    var k=b.getAttribute('data-btn'), a=M[k]; if(!a) return;
+    if(a.t==='ans'){
+      var box=document.getElementById('sx-answers'), x=box&&box.querySelector('.sx-ans[data-for="'+k+'"]'); if(!x) return;
+      box.querySelectorAll('.sx-ans details').forEach(function(d){ d.open=false; });   /* 앱처럼 최신 답변만 펼침 */
+      box.insertBefore(x, box.querySelector('.sx-ans-end')); x.hidden=false; box.hidden=false;
+      x.querySelectorAll('details').forEach(function(d){ d.open=true; });
+      x.scrollIntoView({behavior:'smooth',block:'start'});
+    } else if(a.t==='clear'){
+      var bx=document.getElementById('sx-answers'); if(!bx) return;
+      bx.querySelectorAll('.sx-ans').forEach(function(x){ x.hidden=true; }); bx.hidden=true;
+    } else if(a.t==='info'){
+      var row=b.closest('.sx-row')||b.parentNode, n=row.nextElementSibling;
+      if(!(n&&n.classList.contains('sx-btn-msg'))){ n=document.createElement('div'); n.className='sx-alert info sx-btn-msg'; row.parentNode.insertBefore(n,row.nextSibling); }
+      n.textContent=a.m;
+    } else if(a.t==='open'){
+      var d=document.querySelector(a.sel); if(d){ d.open=true; d.scrollIntoView({behavior:'smooth',block:'start'}); }
+    }
+  });
+})();</script>"""
+
+
+def btn_script(actions: dict) -> str:
+    data = json.dumps(actions, ensure_ascii=False).replace("</", "<\\/")
+    return f'<script type="application/json" id="sx-btn-map">{data}</script>{BTN_JS}'
+
+
+def btn_check(body: str, actions: dict, page: str) -> None:
+    """페이지의 모든 버튼에 정적 동작이 연결됐는지 확인 (클릭되지 않는 버튼 방지)."""
+    import re
+    missing = sorted(set(re.findall(r'data-btn="([^"]*)"', body)) - set(actions))
+    if missing:
+        raise RuntimeError(f"{page}: 정적 동작이 없는 버튼 {missing}")
+
+
+def overwatch_btn_actions() -> dict:
+    """오버워치 04 시안 버튼: '3분 요약 보기' → 1~3단계 미리보기 펼침 · 나머지는 앱이 띄우는 안내 문구 그대로."""
+    acts = {"ow_a_start": {"t": "open", "sel": "#ow-a-steps"}}
+    for k in ("ow_a_later", "ow_b_practice", "ow_b_off"):
+        at = run_page("overwatch", tab=OW_TABS[3])
+        before = [i.value for i in at.info]
+        at.button(key=k).click().run()
+        new = [i.value for i in at.info if i.value not in before]
+        if not new:
+            raise RuntimeError(f"오버워치 {k}: 클릭 결과 안내 문구를 찾지 못함")
+        acts[k] = {"t": "info", "m": new[-1]}
+    return acts
+
+
+def assistant_answers(kind: str, base: AppTest) -> tuple[str, dict]:
+    """어시스턴트 추천 질문: 버튼마다 앱에서 실제로 눌러 얻은 답변을 숨겨 두고, 누르면 표시 (대화 지우기 포함)."""
+    from streamlit.testing.v1.element_tree import Block
+
+    def chats(n):
+        if isinstance(n, Block):
+            if n.type == "chat_message":
+                yield n
+            for _, c in sorted(n.children.items()):
+                yield from chats(c)
+    keys = [b.key for b in base.button if b.key and b.key.startswith(("faq_", "qa_"))]
+    parts, acts = [], {}
+    for k in keys:
+        at = run_page("assistant")
+        at.button(key=k).click().run()
+        if at.exception:
+            raise RuntimeError(f"어시스턴트 {k}: {[e.value for e in at.exception]}")
+        ex = Exporter(kind, id_prefix=f"a_{k}_")
+        parts.append(f'<div class="sx-ans" data-for="{H.escape(k)}" hidden>{"".join(ex.block(m, 1) for m in chats(at.main))}</div>')
+        acts[k] = {"t": "ans"}
+    acts["as_clear"] = {"t": "clear"}
+    box = ('<div id="sx-answers" hidden>' + "".join(parts) +
+           '<div class="sx-ans-end"><button type="button" class="sx-btn" data-btn="as_clear">대화 지우기</button></div></div>')
+    return box, acts
+
+
 def overwatch_body(kind: str) -> tuple[str, int]:
-    return tabbed_body("overwatch", OW_TABS, "ow_tab", kind, overwatch_extras())
+    body, charts = tabbed_body("overwatch", OW_TABS, "ow_tab", kind, overwatch_extras())
+    acts = overwatch_btn_actions()
+    btn_check(body, acts, "overwatch")
+    return body + btn_script(acts), charts
 
 
 PG_SCREENS_SRC = ROOT / "assets" / "pubg" / "site"      # scripts/capture_pubg_screens.py 가 만든 Streamlit 화면 캡처
@@ -549,6 +635,9 @@ html { scroll-behavior: smooth; }
 .sx-w-o span { border: 1px solid #DDE4EF; border-radius: 6px; padding: 0.1rem 0.5rem; color: #3A4A63; }
 .sx-w-in { border: 1px solid #DDE4EF; border-radius: 6px; padding: 0.15rem 0.6rem; color: #9AA6B8; min-width: 10rem; }
 .sx-btn { display: inline-block; margin: 0.25rem 0.35rem 0.25rem 0; border: 1px solid #C9D3E3; border-radius: 8px; padding: 0.35rem 0.8rem; font-size: 0.88rem; font-weight: 600; color: #0B1F3A; background: #fff; }
+button.sx-btn { font-family: inherit; line-height: inherit; text-align: left; cursor: pointer; } a.sx-btn { text-decoration: none; cursor: pointer; }
+button.sx-btn:hover, a.sx-btn:hover { border-color: #0B1F3A; background: #F4F7FC; }
+#sx-answers { border-top: 1px solid #DDE4EF; margin-top: 0.8rem; padding-top: 0.4rem; } .sx-ans { border-bottom: 1px solid #EEF2F7; padding: 0.4rem 0 0.6rem; scroll-margin-top: 80px; }
 .sx-foot { max-width: 1240px; margin: 0 auto; padding: 1rem 16px 2rem; font-size: 0.8rem; color: #6B7A90; border-top: 1px solid #DDE4EF; }
 .sx-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.9rem; margin: 0.8rem 0 1.4rem; }
 .sx-card { display: block; border: 1px solid #DDE4EF; border-radius: 14px; padding: 1rem 1.1rem; color: #0B1F3A; text-decoration: none; background: #fff; }
@@ -708,16 +797,15 @@ def main() -> int:
             continue
         ex = Exporter(kind)
         at = run_page(pid)
-        if pid == "assistant":     # 정적 화면: 게임별 자주 묻는 질문 답변을 미리 담는다 (직접 질문은 원본 앱)
-            for gid in ("overwatch", "pubg", "fconline", "dnf"):
-                for j in range(3):
-                    at.button(key=f"faq_{gid}_{j}").click().run()
-            for qk in ("qa_cmp_priority", "qa_cmp_budget"):   # 비교·우선순위 예시 답변
-                at.button(key=qk).click().run()
         body = ex.children(at.main, 0)
-        if pid == "assistant":
+        if pid == "assistant":     # 정적 화면: 추천 질문 버튼마다 앱의 실제 답변을 담아 두고 누르면 표시 (직접 질문은 원본 앱)
+            box, acts = assistant_answers(kind, at)
             body = (f'<div class="sx-live"><b>직접 질문하기</b> · GitHub Pages는 정적 화면이라 질문 입력이 동작하지 않습니다 → '
-                    f'<a href="{LIVE_URL}?page=assistant">Streamlit 원본 앱에서 질문하기 ↗</a> · 아래는 게임별 자주 묻는 질문 12개와 비교·우선순위 예시 2개의 실제 검색 답변입니다 · 비교·우선순위 질문 전체는 원본 앱에서.</div>') + body
+                    f'<a href="{LIVE_URL}?page=assistant">Streamlit 원본 앱에서 질문하기 ↗</a> · 추천 질문 버튼을 누르면 원본 앱과 같은 검색 답변이 아래에 표시됩니다.</div>') + body + box
+            btn_check(body, acts, "assistant")
+            body += btn_script(acts)
+        elif "data-btn=" in body:
+            btn_check(body, {}, pid)
         desc = GAMES[pid].get("one_liner", name) if pid in GAMES else name
         toc = ex.toc
         doc = save_images(page_html(name, desc, fname, body, toc, ex.charts > 0, gen))
