@@ -122,7 +122,6 @@ def _cover(d: dict) -> None:
          f'<div class="q" role="heading" aria-level="1">{escape(cv["title"])}</div><div class="s">{escape(cv["subtitle"])}</div></div></div>')
     html(f'<div class="fc-intro"><b>FC 온라인이란?</b><p>{escape(it["line"])}</p><ol>'
          + "".join(f"<li>{tr(t)}{escape(x)}</li>" for t, x in it["topics"]) + "</ol></div>")
-    gallery("intro", [it["img"]])
 
 
 def render() -> None:
