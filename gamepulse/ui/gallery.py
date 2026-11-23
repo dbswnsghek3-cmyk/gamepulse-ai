@@ -30,8 +30,10 @@ def gallery_html(key: str, slides: list[tuple[str, str, str]]) -> str:
     return f'<div class="fc-gal" data-gal="{key}"><div class="tr">{"".join(out)}</div></div>'
 
 
-def pair_html(key: str, slides: list[tuple[str, str, str]]) -> str:
-    """이미지 2장 나란히 (PC 좌우 · 모바일 위아래) · 번호 ①② · 클릭 확대 (갤러리와 같은 확대 마크업·JS 재사용)."""
+def pair_html(key: str, slides: list[tuple[str, str, str]], ratios: list[float] | None = None) -> str:
+    """이미지 2장 나란히 (PC 좌우 · 모바일 위아래) · 번호 ①② · 클릭 확대 (갤러리와 같은 확대 마크업·JS 재사용).
+
+    ratios = 각 이미지의 가로/세로 비 → 열 너비를 비율대로 나눠 두 이미지 높이를 맞춤 (검정 여백 없음)."""
     if not slides:
         return ""
     marks = "①②③④"
@@ -42,4 +44,6 @@ def pair_html(key: str, slides: list[tuple[str, str, str]]) -> str:
             f'<a class="zin" href="#z-{key}-{i}" data-zoom title="클릭하면 크게 보기">{media}</a>'
             f'<a class="zout" href="#g-{key}-{i}" data-close>✕ 닫기</a>'
             f'<figcaption><span class="n">{marks[i] if i < len(marks) else i + 1}</span><b>{escape(cap)}</b><small>{escape(credit)}</small></figcaption></figure>')
-    return f'<div class="fc-gal df-pair" data-gal="{key}"><div class="tr">{"".join(out)}</div></div>'
+    cols = (f' style="--cols: {" ".join(f"minmax(0, {r:.3f}fr)" for r in ratios)}"'
+            if ratios and len(ratios) == len(slides) else "")
+    return f'<div class="fc-gal df-pair" data-gal="{key}"><div class="tr"{cols}>{"".join(out)}</div></div>'

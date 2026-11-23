@@ -1805,11 +1805,11 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-core p {{ margin: 0 0 0.3rem; font-size: 0.92rem; line-height: 1.55; color: #dbe7ff; }}
 .fc-core small {{ font-size: 0.8rem; color: #b8c7e0; }}
 /* 던파 실제 화면 2장: PC 좌우 같은 크기 · 모바일 위아래 · 클릭 확대 (갤러리 확대 재사용) */
-.fc-gal.df-pair .tr {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; overflow: visible; border-radius: 0; align-items: stretch; }}
+.fc-gal.df-pair .tr {{ display: grid; grid-template-columns: var(--cols, repeat(2, minmax(0, 1fr))); gap: 0.8rem; overflow: visible; border-radius: 0; align-items: stretch; }}
 .fc-gal.df-pair .fc-gal-s {{ flex: none; border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0; background: #fff; }}
-.fc-gal.df-pair .zin {{ position: relative; background: #0b0b10; aspect-ratio: 16 / 10; overflow: hidden; }}
-.fc-gal.df-pair .fc-gal-s img {{ position: absolute; inset: 0; width: 100%; height: 100%; max-height: none; object-fit: contain; }}
-.fc-gal.df-pair .fc-gal-s figcaption {{ flex: 1; border: 0; border-top: 1px solid #E2E8F0; flex-wrap: nowrap; align-items: flex-start; display: grid; grid-template-columns: auto minmax(0, 1fr); }}
+.fc-gal.df-pair .zin {{ background: none; line-height: 0; }}
+.fc-gal.df-pair .fc-gal-s img {{ width: 100%; height: auto; max-height: none; }}
+.fc-gal.df-pair .fc-gal-s figcaption {{ flex: 1; border: 0; border-top: 1px solid #E2E8F0; flex-wrap: nowrap; align-items: flex-start; align-content: start; display: grid; grid-template-columns: auto minmax(0, 1fr); }}
 .fc-gal.df-pair .fc-gal-s figcaption .n {{ background: #b3261e; margin-top: 0.15rem; }}
 .fc-gal.df-pair .fc-gal-s figcaption small {{ grid-column: 2; }}
 .fc-gal.df-pair .fc-gal-s:target, .fc-gal.df-pair .fc-gal-s.zoom {{ border: 0; border-radius: 0; overflow: visible; background: #020617; }}
