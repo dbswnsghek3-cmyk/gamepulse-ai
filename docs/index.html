@@ -718,19 +718,19 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover { background: r
 
 /* ---------- 오버워치 v8: 탭 전환 · 전체 크기 축소 · 짧은 글 ---------- */
 /* 01~06 탭 (Streamlit: 가로 라디오를 버튼처럼) · 3열×2행 · 선택 = 파랑, 나머지 = 차분한 남색 */
-:is(.st-key-ow_tab, .st-key-pg_tab), :is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadio"], :is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"] { width: 100% !important; max-width: none !important; }
-:is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"] { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab), :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadio"], :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"] { width: 100% !important; max-width: none !important; }
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"] { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
   width: 100%; }
-:is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"] > div { width: 100%; margin: 0 !important; padding: 0 !important; }
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] { margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"] > div { width: 100%; margin: 0 !important; padding: 0 !important; }
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] { margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
   background: #1B3358; display: flex; align-items: center; cursor: pointer; width: 100%; transition: background 0.15s ease, box-shadow 0.15s ease; }
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] > div { width: 100%; }
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] > div > div:first-child { display: none !important; }  /* 라디오 동그라미 숨김 */
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] p { color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] > div { width: 100%; }
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] > div > div:first-child { display: none !important; }  /* 라디오 동그라미 숨김 */
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] p { color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
   overflow: hidden; text-overflow: ellipsis; }
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:hover { background: #24426F; }
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:has(input:checked),
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"][data-selected] { background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:hover { background: #24426F; }
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:has(input:checked),
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"][data-selected] { background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }
 /* 정적 보고서용 같은 모양의 탭 버튼 */
 .ow-tabbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 0.8rem; }
 .ow-tabbar button { font: inherit; text-align: left; border: 0; padding: 0.7rem 0.9rem; min-height: 3.1rem; border-radius: 10px;
@@ -804,9 +804,9 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover { background: r
 .ow-credits ul { margin: 0.25rem 0 0; padding-left: 1.1rem; } .ow-credits li { line-height: 1.6; }
 
 @media (max-width: 640px) {
-  :is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"], .ow-tabbar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
-  :is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"], .ow-tabbar button { padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }
-  :is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button { font-size: 0.92rem; }
+  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"], .ow-tabbar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
+  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"], .ow-tabbar button { padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }
+  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button { font-size: 0.92rem; }
   .ow-cover-c { font-size: 1.3rem !important; }
   .ow-pcard-t { font-size: 1.05rem; }
   .ow-chart-f2 > div { flex-direction: column; gap: 0.1rem; }
@@ -828,13 +828,13 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover { background: r
 .ow-hero3 small { display: block; font-size: 0.85rem; color: #64748B; margin-top: 0.2rem; line-height: 1.45; }
 
 /* 탭: 선택 = 파랑 배경·흰 글씨 · 나머지 = 흰 배경·연한 테두리·남색 글씨 */
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"], .ow-tabbar button { background: #FFFFFF !important; border: 1px solid #E2E8F0 !important;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"], .ow-tabbar button { background: #FFFFFF !important; border: 1px solid #E2E8F0 !important;
   box-shadow: none !important; min-height: 2.75rem !important; padding: 0.55rem 0.85rem !important; }
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button { color: #142B4D !important; font-size: 0.97rem !important; }
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:hover, .ow-tabbar button:hover { background: #F8FAFC !important; border-color: #BFDBFE !important; }
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:has(input:checked), :is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"][data-selected],
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button { color: #142B4D !important; font-size: 0.97rem !important; }
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:hover, .ow-tabbar button:hover { background: #F8FAFC !important; border-color: #BFDBFE !important; }
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:has(input:checked), :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"][data-selected],
 .ow-tabbar button[aria-selected="true"] { background: #2563EB !important; border-color: #2563EB !important; }
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:has(input:checked) p, .ow-tabbar button[aria-selected="true"] { color: #FFFFFF !important; }
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:has(input:checked) p, .ow-tabbar button[aria-selected="true"] { color: #FFFFFF !important; }
 .ow-tabbar button b { color: inherit; }
 
 /* 배지: 파랑·회색 계열 (텍스트·테두리 모양으로 구분) */
@@ -1393,6 +1393,111 @@ a.pn-btn:hover { background: #EAB308; }
 .pn-w b { font-size: 1.05rem; font-weight: 900; } .pn-w span { font-size: 0.82rem; font-weight: 700; opacity: 0.95; }
 @media (max-width: 900px) { .pn-w span { font-size: 0.7rem; } .pn-w b { font-size: 0.9rem; } }
 
+/* ---------- FC 온라인: 경기장(그린) × 금융시장(퍼플·티커) · fc- 전용 ---------- */
+.fc-anchor { display: none; }
+.fc-tr { display: inline-block; font-size: 0.78rem; font-weight: 900; border-radius: 6px; padding: 0.05rem 0.45rem; margin-right: 0.35rem; color: #fff; }
+.fc-tr.a { background: #6D28D9; } .fc-tr.b { background: #DC2626; } .fc-tr.c { background: #15803D; }
+.fc-hero { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr); gap: 1.5rem; align-items: center; border-radius: 18px; padding: 1.5rem 1.6rem; margin-bottom: 0.7rem;
+  background: linear-gradient(135deg, #052e16 0%, #14532d 45%, #3b0764 100%); color: #fff; }
+.fc-hero-t { display: flex; flex-direction: column; gap: 0.55rem; }
+.fc-hero .k { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.12em; color: #86EFAC; }
+.fc-hero .q { font-size: 2.3rem; font-weight: 900; line-height: 1.25; letter-spacing: -0.02em; }
+.fc-hero .s { font-size: 1.15rem; color: #DCFCE7; font-weight: 700; }
+.fc-hero .tick { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.3rem; }
+.fc-hero .tick span { background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 0.25rem 0.55rem; font-size: 0.85rem; color: #E2E8F0; font-family: ui-monospace, Consolas, monospace; }
+.fc-hero .tick b { color: #4ADE80; } .fc-hero .tick b.dn { color: #F87171; }
+.fc-hero-img { margin: 0; } .fc-hero-img img { width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,0.4); }
+.fc-hero-img figcaption { font-size: 0.78rem; color: #BBF7D0; margin-top: 0.35rem; }
+.fc-tracks { display: grid; grid-template-columns: 1.1fr 0.8fr 1fr; gap: 0.6rem; margin-bottom: 0.3rem; }
+.fc-tracks > div { background: #fff; border: 1px solid #E2E8F0; border-top: 5px solid #6D28D9; border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.2rem; }
+.fc-tracks > div.b { border-top-color: #DC2626; } .fc-tracks > div.c { border-top-color: #15803D; }
+.fc-tracks .h { display: flex; align-items: center; gap: 0.3rem; } .fc-tracks .h b { font-size: 1.35rem; font-weight: 900; color: #0B1F3A; }
+.fc-tracks .h span:not(.fc-tr) { font-size: 0.85rem; font-weight: 800; color: #475569; margin-left: 0.2rem; }
+.fc-tracks strong { font-size: 1.05rem; color: #0B1F3A; line-height: 1.4; } .fc-tracks small { font-size: 0.88rem; color: #475569; }
+.fc-cav { font-size: 0.88rem; color: #475569; margin: 0.2rem 0 0.9rem; line-height: 1.5; }
+.fc-why { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.9rem; }
+.fc-why > div { background: #fff; border: 1px solid #E2E8F0; border-left: 5px solid #6D28D9; border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.fc-why > div:nth-child(2) { border-left-color: #DC2626; } .fc-why > div:nth-child(3) { border-left-color: #15803D; }
+.fc-why span { font-size: 0.85rem; font-weight: 800; color: #475569; } .fc-why b { font-size: 1.02rem; color: #0B1F3A; line-height: 1.45; }
+.fc-why em { font-style: normal; color: #6D28D9; font-weight: 900; } .fc-why small { font-size: 0.82rem; color: #64748B; }
+.fc-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; margin-bottom: 0.8rem; }
+.fc-shot { margin: 0 0 0.8rem; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; }
+.fc-shot .bar { font-size: 0.88rem; font-weight: 700; color: #0B1F3A; padding: 0.45rem 0.7rem; }
+.fc-shot .bar span { background: #15803D; color: #fff; border-radius: 6px; padding: 0.05rem 0.45rem; font-size: 0.75rem; margin-right: 0.45rem; }
+.fc-shot img { width: 100%; height: auto; display: block; }
+.fc-shot figcaption { padding: 0.4rem 0.7rem 0.5rem; display: flex; flex-direction: column; }
+.fc-shot figcaption b { font-size: 0.92rem; color: #0B1F3A; } .fc-shot figcaption span { font-size: 0.75rem; color: #64748B; }
+.fc-big { background: #0B1F3A; color: #fff; border-radius: 12px; padding: 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.1rem; margin-bottom: 0.7rem; }
+.fc-big > span { font-size: 0.82rem; color: #CBD5E1; margin-bottom: 0.3rem; } .fc-big b { font-size: 1.7rem; font-weight: 900; font-family: ui-monospace, Consolas, monospace; color: #4ADE80; }
+.fc-big b.dn { color: #F87171; } .fc-big small { font-size: 0.85rem; color: #CBD5E1; } .fc-big em { font-style: normal; color: #F87171; font-weight: 900; }
+.fc-drops { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.4rem; }
+.fc-drops > div { background: #0B1F3A; color: #fff; border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.15rem; }
+.fc-drops span { font-size: 0.85rem; color: #CBD5E1; font-weight: 700; } .fc-drops b { font-size: 1.15rem; font-family: ui-monospace, Consolas, monospace; color: #E2E8F0; }
+.fc-drops b i { font-style: normal; color: #94A3B8; } .fc-drops b em { font-style: normal; color: #F87171; }
+.fc-drops strong { font-size: 1.8rem; font-weight: 900; color: #F87171; line-height: 1.1; } .fc-drops small { font-size: 0.78rem; color: #94A3B8; }
+.fc-scn { background: #FFFBEB; border: 1px dashed #F59E0B; border-radius: 12px; padding: 0.7rem 0.9rem; }
+.fc-scn > b { color: #78350F; } .fc-scn > div { display: flex; align-items: center; gap: 0.4rem; margin: 0.35rem 0; font-size: 1.4rem; font-weight: 900; color: #0B1F3A; }
+.fc-scn i { font-style: normal; color: #94A3B8; } .fc-scn .dn { color: #DC2626; } .fc-scn small { font-size: 0.82rem; color: #78350F; }
+.fc-demo { background: #F8FAFC; border: 1.5px dashed #6D28D9; border-radius: 14px; padding: 0.9rem 1rem; position: relative; }
+.fc-demo.b { border-color: #DC2626; background: #FFF7F7; } .fc-demo.c { border-color: #15803D; background: #F7FEF9; }
+.fc-demo::after { content: "기획 시안 · 실제 게임에 없음"; position: absolute; top: -0.7rem; right: 0.9rem; font-size: 0.72rem; font-weight: 800; background: #fff; border: 1px solid #CBD5E1; border-radius: 999px; padding: 0.05rem 0.5rem; color: #475569; }
+.fc-demo h4 { margin: 0 0 0.5rem; font-size: 1.08rem; color: #0B1F3A; }
+.fc-m { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin-bottom: 0.45rem; }
+.fc-m > div { background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.5rem 0.6rem; display: flex; flex-direction: column; }
+.fc-m small { font-size: 0.8rem; color: #475569; } .fc-m b { font-size: 1.2rem; font-weight: 900; color: #0B1F3A; line-height: 1.25; word-break: keep-all; }
+.fc-m b.up { color: #15803D; } .fc-m b.dn { color: #DC2626; } .fc-m em { font-style: normal; font-size: 0.8rem; color: #64748B; } .fc-m em.dn { color: #DC2626; font-weight: 700; }
+.fc-act { background: #fff; border-left: 4px solid #6D28D9; border-radius: 8px; padding: 0.5rem 0.7rem; margin: 0.4rem 0; font-size: 0.95rem; color: #1E293B; }
+.fc-demo.b .fc-act { border-left-color: #DC2626; } .fc-demo.c .fc-act { border-left-color: #15803D; }
+.fc-demo .src { font-size: 0.82rem; color: #475569; line-height: 1.5; }
+.fc-voice { display: flex; flex-direction: column; gap: 0.4rem; margin: 0.2rem 0 0.4rem; }
+.fc-voice > div { display: grid; grid-template-columns: 1.3fr auto 1fr auto 1fr auto 1.2fr; gap: 0.4rem; align-items: center; background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.55rem 0.7rem; font-size: 0.92rem; }
+.fc-voice .v { color: #334155; font-style: italic; } .fc-voice b { color: #0B1F3A; } .fc-voice .r { color: #B91C1C; } .fc-voice strong { color: #15803D; }
+.fc-voice i { font-style: normal; color: #94A3B8; font-weight: 900; }
+.fc-posts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.4rem; }
+.fc-posts a { display: flex; flex-direction: column; gap: 0.2rem; text-decoration: none !important; background: #fff; border: 1px solid #E2E8F0; border-left: 5px solid #94A3B8; border-radius: 10px; padding: 0.55rem 0.7rem; }
+.fc-posts a.kb { border-left-color: #0F766E; } .fc-posts a.pad { border-left-color: #7C3AED; } .fc-posts a.en { border-left-color: #DC2626; }
+.fc-posts span { font-size: 0.78rem; font-weight: 800; color: #475569; } .fc-posts b { font-size: 0.98rem; color: #0B1F3A; line-height: 1.4; } .fc-posts small { font-size: 0.78rem; color: #2563EB; }
+.fc-vs { display: grid; grid-template-columns: minmax(0, 1fr) 11rem minmax(0, 1fr); gap: 0.7rem; align-items: stretch; margin: 0.3rem 0 0.4rem; }
+.fc-vs > .kb, .fc-vs > .pad { border-radius: 14px; padding: 0.85rem 1rem; color: #fff; }
+.fc-vs > .kb { background: linear-gradient(160deg, #0F766E, #115E59); } .fc-vs > .pad { background: linear-gradient(160deg, #7C3AED, #5B21B6); }
+.fc-vs .h { font-size: 1.15rem; font-weight: 900; margin-bottom: 0.4rem; }
+.fc-vs ul { margin: 0 0 0.5rem; padding-left: 1.1rem; font-size: 0.95rem; line-height: 1.55; }
+.fc-vs .qs { display: flex; flex-direction: column; gap: 0.25rem; } .fc-vs .qs a { color: #fff !important; font-size: 0.85rem; background: rgba(0,0,0,0.2); border-radius: 6px; padding: 0.2rem 0.45rem; text-decoration: none; }
+.fc-vs .mid { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem; text-align: center; background: #fff; border: 1px solid #E2E8F0; border-radius: 14px; padding: 0.6rem; }
+.fc-vs .mid b { font-size: 2rem; font-weight: 900; color: #0B1F3A; } .fc-vs .mid span { font-size: 0.78rem; font-weight: 800; color: #475569; }
+.fc-vs .mid em { font-style: normal; font-size: 0.9rem; font-weight: 800; color: #15803D; background: #F0FDF4; border-radius: 999px; padding: 0.1rem 0.55rem; }
+.fc-pol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.8rem; }
+.fc-pol > div { background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.75rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.fc-pol > div.rec { border: 2px solid #15803D; box-shadow: 0 0 0 3px #DCFCE7; }
+.fc-pol span { font-size: 0.8rem; font-weight: 900; color: #15803D; } .fc-pol b { font-size: 1.08rem; color: #0B1F3A; } .fc-pol small { font-size: 0.88rem; color: #475569; }
+.fc-pol p { margin: 0; font-size: 0.9rem; } .fc-pol .pro { color: #15803D; } .fc-pol .con { color: #B91C1C; }
+.fc-opts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.8rem; }
+.fc-opts > div { background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #DC2626; border-radius: 10px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.2rem; }
+.fc-opts > div:first-child { border-top-color: #94A3B8; }
+.fc-opts b { font-size: 1.02rem; color: #0B1F3A; } .fc-opts span { font-size: 0.9rem; color: #334155; } .fc-opts small { font-size: 0.85rem; color: #475569; }
+.fc-final { background: #F0FDF4; border: 1px solid #86EFAC; border-left: 6px solid #15803D; border-radius: 12px; padding: 0.9rem 1.05rem; margin: 0.6rem 0 0.9rem; color: #0B1F3A; font-size: 1rem; line-height: 1.6; }
+.fc-final .k { font-size: 0.85rem; font-weight: 800; color: #15803D; margin-bottom: 0.2rem; } .fc-final p { margin: 0.4rem 0; }
+.fc-final strong { display: block; margin-top: 0.4rem; font-size: 1.05rem; color: #14532D; }
+.fc-final .chk { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.45rem 0; } .fc-final .chk span { background: #fff; border: 1px solid #BBF7D0; border-radius: 999px; padding: 0.1rem 0.55rem; font-size: 0.85rem; }
+.fc-kpi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.9rem; }
+.fc-kpi > div { background: #fff; border: 1px solid #E2E8F0; border-top: 5px solid #6D28D9; border-radius: 12px; padding: 0.7rem 0.85rem; }
+.fc-kpi > div.b { border-top-color: #DC2626; } .fc-kpi > div.c { border-top-color: #15803D; }
+.fc-kpi .h { font-weight: 900; color: #0B1F3A; margin-bottom: 0.35rem; } .fc-kpi p { margin: 0 0 0.35rem; display: flex; flex-direction: column; }
+.fc-kpi p b { font-size: 0.98rem; color: #0B1F3A; } .fc-kpi p span { font-size: 0.82rem; color: #475569; }
+.fc-order { list-style: none; margin: 0.2rem 0 0.8rem; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.fc-order li { display: grid; grid-template-columns: 3rem auto 1fr; grid-template-areas: "n t k" "n t d"; align-items: center; column-gap: 0.6rem; background: #fff; border: 1px solid #E2E8F0;
+  border-left: 5px solid #15803D; border-radius: 10px; padding: 0.55rem 0.8rem; }
+.fc-order li.a { border-left-color: #6D28D9; } .fc-order li.b { border-left-color: #DC2626; }
+.fc-order li > span:first-child { grid-area: n; font-size: 1.1rem; font-weight: 900; color: #0B1F3A; } .fc-order li .fc-tr { grid-area: t; }
+.fc-order li b { grid-area: k; font-size: 1.05rem; color: #0B1F3A; } .fc-order li small { grid-area: d; font-size: 0.9rem; color: #475569; }
+@media (max-width: 900px) {
+  .fc-hero, .fc-tracks, .fc-why, .fc-pair, .fc-posts, .fc-pol, .fc-kpi, .fc-vs, .fc-drops { grid-template-columns: 1fr; }
+  .fc-hero { padding: 1.1rem 1rem; } .fc-hero .q { font-size: 1.65rem; }
+  .fc-opts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fc-m { grid-template-columns: 1fr; }
+  .fc-voice > div { grid-template-columns: 1fr; } .fc-voice i { display: none; }
+  .fc-order li { grid-template-columns: 2.4rem 1fr; grid-template-areas: "n t" "n k" "n d"; }
+}
+
 .gp-footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #DDE4EF; font-size: 0.8rem; color: #6B7A90; }
 
 /* 모바일 */
@@ -1486,4 +1591,4 @@ html { scroll-behavior: smooth; }
   .sx-row { flex-direction: column; } .sx-col { flex: 1 1 auto !important; width: 100%; }
   .sx-tab-h { font-size: 1.2rem; }
 }
-</style></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="on" href="index.html">보고서 첫 화면</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="" href="pubg.html">PUBG · NEW START</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="fconline.html">FC 온라인</a><a class="" href="dnf.html">던전앤파이터</a><a class="" href="lol.html">리그 오브 레전드</a><a class="" href="data_lab.html">데이터 랩 (CSV 분석)</a><a class="" href="assistant.html">PM 어시스턴트 (미리보기)</a></nav></div></header><main class="sx-main"><div class="gp-hero"><div class="gp-eyebrow">Static Report for Reviewers</div><h1>GamePulse AI 포트폴리오 보고서</h1><p>게임 이용자 문제를 데이터로 정의하고, 사업PM 관점의 개선 전략과 KPI를 설계합니다.</p></div><h2>검토자 안내</h2><ul class="sx-ul"><li>이 보고서는 <a href="https://gamepulse-ai1.streamlit.app/">원본 Streamlit 앱</a>을 자동 변환한 정적 HTML입니다. JavaScript 없이도 모든 글자를 읽을 수 있습니다.</li><li><b>오버워치·PUBG 페이지</b>가 실제 자료 기반 분석입니다. 다른 게임 페이지는 시연용 <b>예시 데이터</b>입니다.</li><li>각 수치·차트에 출처 성격을 배지로 표시했습니다. 아래 배지 뜻을 참고하세요.</li><li>게임 스크린샷은 작성자가 직접 캡처한 최신 한국어 화면이며, 다른 플레이어 닉네임은 가림 처리했습니다.</li><li>생성 시각 2026-11-23 08:40 KST · 코드: <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a></li></ul><div class="sx-legend"><b>배지 뜻</b><span class="gp-badge k-real">실제 자료</span> 공개 출처·직접 캡처로 확인<span class="gp-badge k-interp">분석자 해석</span> 자료를 바탕으로 한 판단<span class="gp-badge k-hypo">검증 전 가설</span> 아직 입증되지 않음<span class="gp-badge k-mock">기획 시안</span> 게임에 없는 제안·계획<span class="gp-badge k-sim">가정 시뮬레이션</span> 가정값으로 계산 (실적 아님)<span class="gp-badge k-sample">예시 데이터</span> 시연용 가상 데이터</div><h2>페이지</h2><div class="sx-cards"><a class="sx-card feature" href="overwatch.html"><div class="k">대표 프로젝트 · 실제 자료 기반</div><h3>오버워치 · PROJECT RE:START</h3><p><b>복귀 후 달라진 전투에 적응하기 어렵다</b> — 놓친 변경점 브리핑 + 학습 순서 미션. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a><a class="sx-card feature" href="pubg.html"><div class="k">두 번째 프로젝트 · 실제 자료 기반</div><h3>PUBG · NEW START</h3><p><b>첫 치킨을 맛보기도 전에 떠나는 유저들. 그리고 돌아오지 않는 전우들.</b> — 신규 유저 정착(A 50%) · 휴면 유저 복귀(B 40%) · BM 신뢰·수익성(C 10%). 공식 자료와 Steam 리뷰(신규 45건 · 복귀 21건, 별도 표본)를 근거로 A1 경기별 코칭 데모, B1 복귀 광고 캠페인 «PUBG: 다시 낙하할 시간»과 클릭 가능한 랜딩페이지, A/B 테스트 설계를 만들었습니다.</p></a><a class="sx-card" href="home.html"><div class="k">도구 화면</div><h3>사이트 홈 · 개요</h3><p>사이트 전체 소개와 게임별 분석 바로가기</p></a><a class="sx-card" href="fconline.html"><div class="k">예시 데이터 기반 분석</div><h3>FC 온라인</h3><p>내 구단의 &#x27;가치&#x27;가 떨어질 때, 이용자는 무엇을 잃었다고 느끼는가?</p></a><a class="sx-card" href="dnf.html"><div class="k">예시 데이터 기반 분석</div><h3>던전앤파이터</h3><p>새 시즌은 &#x27;새 목표&#x27;인가, &#x27;지난 노력의 초기화&#x27;인가?</p></a><a class="sx-card" href="lol.html"><div class="k">예시 데이터 기반 분석</div><h3>리그 오브 레전드</h3><p>트롤을 더 세게 막는 것만큼, 피해를 본 사람이 다시 큐를 돌리게 만드는 것도 중요하다.</p></a><a class="sx-card" href="data_lab.html"><div class="k">도구 화면</div><h3>데이터 랩 (CSV 분석)</h3><p>CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)</p></a><a class="sx-card" href="assistant.html"><div class="k">도구 화면</div><h3>PM 어시스턴트 (미리보기)</h3><p>정리된 분석 내용을 대화형으로 찾아보는 규칙 기반 미리보기</p></a></div></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-23 08:40 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>
+</style></head><body><header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div><nav><a class="on" href="index.html">보고서 첫 화면</a><a class="" href="overwatch.html">오버워치 · PROJECT RE:START</a><a class="" href="pubg.html">PUBG · NEW START</a><a class="" href="fconline.html">FC 온라인 · 축구 게임인가, 주식 게임인가?</a><a class="" href="home.html">사이트 홈 · 개요</a><a class="" href="dnf.html">던전앤파이터</a><a class="" href="lol.html">리그 오브 레전드</a><a class="" href="data_lab.html">데이터 랩 (CSV 분석)</a><a class="" href="assistant.html">PM 어시스턴트 (미리보기)</a></nav></div></header><main class="sx-main"><div class="gp-hero"><div class="gp-eyebrow">Static Report for Reviewers</div><h1>GamePulse AI 포트폴리오 보고서</h1><p>게임 이용자 문제를 데이터로 정의하고, 사업PM 관점의 개선 전략과 KPI를 설계합니다.</p></div><h2>검토자 안내</h2><ul class="sx-ul"><li>이 보고서는 <a href="https://gamepulse-ai1.streamlit.app/">원본 Streamlit 앱</a>을 자동 변환한 정적 HTML입니다. JavaScript 없이도 모든 글자를 읽을 수 있습니다.</li><li><b>오버워치·PUBG 페이지</b>가 실제 자료 기반 분석입니다. 다른 게임 페이지는 시연용 <b>예시 데이터</b>입니다.</li><li>각 수치·차트에 출처 성격을 배지로 표시했습니다. 아래 배지 뜻을 참고하세요.</li><li>게임 스크린샷은 작성자가 직접 캡처한 최신 한국어 화면이며, 다른 플레이어 닉네임은 가림 처리했습니다.</li><li>생성 시각 2026-11-23 09:15 KST · 코드: <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a></li></ul><div class="sx-legend"><b>배지 뜻</b><span class="gp-badge k-real">실제 자료</span> 공개 출처·직접 캡처로 확인<span class="gp-badge k-interp">분석자 해석</span> 자료를 바탕으로 한 판단<span class="gp-badge k-hypo">검증 전 가설</span> 아직 입증되지 않음<span class="gp-badge k-mock">기획 시안</span> 게임에 없는 제안·계획<span class="gp-badge k-sim">가정 시뮬레이션</span> 가정값으로 계산 (실적 아님)<span class="gp-badge k-sample">예시 데이터</span> 시연용 가상 데이터</div><h2>페이지</h2><div class="sx-cards"><a class="sx-card feature" href="overwatch.html"><div class="k">대표 프로젝트 · 실제 자료 기반</div><h3>오버워치 · PROJECT RE:START</h3><p><b>복귀 후 달라진 전투에 적응하기 어렵다</b> — 놓친 변경점 브리핑 + 학습 순서 미션. 최신 한국어 게임 화면, 검증한 유저 의견 64건, 공식 업데이트·이용 지표를 근거로 개선안 A·B·C, 단계적 A/B 테스트, 가정 시뮬레이션까지 하나의 가정값으로 연결했습니다.</p></a><a class="sx-card feature" href="pubg.html"><div class="k">두 번째 프로젝트 · 실제 자료 기반</div><h3>PUBG · NEW START</h3><p><b>첫 치킨을 맛보기도 전에 떠나는 유저들. 그리고 돌아오지 않는 전우들.</b> — 신규 유저 정착(A 50%) · 휴면 유저 복귀(B 40%) · BM 신뢰·수익성(C 10%). 공식 자료와 Steam 리뷰(신규 45건 · 복귀 21건, 별도 표본)를 근거로 A1 경기별 코칭 데모, B1 복귀 광고 캠페인 «PUBG: 다시 낙하할 시간»과 클릭 가능한 랜딩페이지, A/B 테스트 설계를 만들었습니다.</p></a><a class="sx-card feature" href="fconline.html"><div class="k">세 번째 프로젝트 · 실제 자료 기반</div><h3>FC 온라인 · 축구 게임인가, 주식 게임인가?</h3><p><b>구단 가치는 떨어지고, 경기는 멈췄다.</b> — 구단 가치 하락(A 40%) · 강화 실패와 이탈(B 25%) · 키보드 vs 패드 경쟁 공정성(C 35%). 공식 강화 확률, 이적시장 캡처, 인벤 게시글을 근거로 구단 가치 분석기 · 강화 리스크 시뮬레이터 · 매칭 정책 선택 데모를 만들었습니다.</p></a><a class="sx-card" href="home.html"><div class="k">도구 화면</div><h3>사이트 홈 · 개요</h3><p>사이트 전체 소개와 게임별 분석 바로가기</p></a><a class="sx-card" href="dnf.html"><div class="k">예시 데이터 기반 분석</div><h3>던전앤파이터</h3><p>새 시즌은 &#x27;새 목표&#x27;인가, &#x27;지난 노력의 초기화&#x27;인가?</p></a><a class="sx-card" href="lol.html"><div class="k">예시 데이터 기반 분석</div><h3>리그 오브 레전드</h3><p>트롤을 더 세게 막는 것만큼, 피해를 본 사람이 다시 큐를 돌리게 만드는 것도 중요하다.</p></a><a class="sx-card" href="data_lab.html"><div class="k">도구 화면</div><h3>데이터 랩 (CSV 분석)</h3><p>CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)</p></a><a class="sx-card" href="assistant.html"><div class="k">도구 화면</div><h3>PM 어시스턴트 (미리보기)</h3><p>정리된 분석 내용을 대화형으로 찾아보는 규칙 기반 미리보기</p></a></div></main><footer class="sx-foot">GamePulse AI 정적 보고서 · 생성 2026-11-23 09:15 KST · <a href="https://gamepulse-ai1.streamlit.app/">원본 앱</a> · <a href="https://github.com/dbswnsghek3-cmyk/gamepulse-ai">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer></body></html>

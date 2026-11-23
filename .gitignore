@@ -25,3 +25,6 @@ Thumbs.db
 
 # PUBG 원본 스크린샷 (다른 플레이어 닉네임 포함)
 assets/pubg/_originals/
+
+# FC 온라인 원본 스크린샷 (상대 닉네임·브라우저 정보 포함)
+assets/fconline/_originals/

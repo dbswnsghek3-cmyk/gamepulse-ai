@@ -43,6 +43,7 @@ from gamepulse.ui.components import badge  # noqa: E402
 from gamepulse.ui.styles import CSS as APP_CSS  # noqa: E402
 from gamepulse.views.overwatch import TAB_LABELS as OW_TABS  # noqa: E402
 from gamepulse.views.pubg import TAB_LABELS as PG_TABS  # noqa: E402
+from gamepulse.views.fconline import TAB_LABELS as FC_TABS  # noqa: E402
 
 DOCS = ROOT / "docs"
 IMG_DIR = DOCS / "assets" / "img"
@@ -52,9 +53,10 @@ SITE_URL = "https://dbswnsghek3-cmyk.github.io/gamepulse-ai/"
 KST = dt.timezone(dt.timedelta(hours=9))
 
 # (앱 페이지 id, 파일명, 메뉴 이름, 차트 기본 분류)
-PAGES = [("overwatch", "overwatch.html", "오버워치 · PROJECT RE:START", "real"), ("pubg", "pubg.html", "PUBG · NEW START", "real")]
+PAGES = [("overwatch", "overwatch.html", "오버워치 · PROJECT RE:START", "real"), ("pubg", "pubg.html", "PUBG · NEW START", "real"),
+         ("fconline", "fconline.html", "FC 온라인 · 축구 게임인가, 주식 게임인가?", "real")]
 PAGES += [("home", "home.html", "사이트 홈 · 개요", "sample")]
-PAGES += [(g, f"{g}.html", GAMES[g]["name"], "sample") for g in GAME_ORDER if g not in ("overwatch", "pubg")]
+PAGES += [(g, f"{g}.html", GAMES[g]["name"], "sample") for g in GAME_ORDER if g not in ("overwatch", "pubg", "fconline")]
 PAGES += [("data_lab", "data_lab.html", "데이터 랩 (CSV 분석)", "sample"),
           ("assistant", "assistant.html", "PM 어시스턴트 (미리보기)", "sample")]
 
@@ -417,6 +419,15 @@ def pubg_body(kind: str) -> tuple[str, int]:
     return PAGE_CSS + '<div class="pg-static">' + note + top + body + "</div>" + PAGE_JS, charts
 
 
+def fconline_body(kind: str) -> tuple[str, int]:
+    """FC 온라인: 01~06을 모두 펼쳐 두고(JS 없이도 읽힘) A1·B1·C5 데모는 JS 조작판으로 교체."""
+    from fc_static_demos import demos as fc_demos
+    from pubg_static_demos import PAGE_CSS, PAGE_JS   # 같은 글꼴·하위 탭 처리 재사용
+    body, charts = tabbed_body("fconline", FC_TABS, "fc_tab", kind, {}, all_visible=True)
+    note = '<div class="sx-note">이 페이지는 JavaScript 없이도 01~06 내용을 모두 담고 있습니다. A1·B1·C5 데모는 이 페이지에서 직접 조작할 수 있습니다.</div>'
+    return PAGE_CSS + '<div class="pg-static">' + note + body + "</div>" + PAGE_JS + fc_demos(ROOT), charts
+
+
 def tabbed_body(pid: str, labels: list[str], tab_key: str, kind: str, extras: dict,
                 all_visible: bool = False, pane_extra=None) -> tuple[str, int]:
     """6개 탭을 각각 실행해 모은 뒤, 탭 버튼 + 패널(선택한 1개만 표시) + JS 로 합친다.
@@ -558,7 +569,7 @@ def page_html(title: str, desc: str, current: str, body: str, toc: list, charts:
                   for _, f, n, _ in [("index", "index.html", "보고서 첫 화면", "")] + PAGES)
     toc_html = ("" if not toc else '<nav class="sx-toc"><b>이 페이지 목차</b>'
                 + "".join(f'<a href="#{i}">{H.escape(l)}</a>' for i, l in toc) + "</nav>")
-    own_legend = current in ("overwatch.html", "pubg.html")   # 탭형 프로젝트는 앱이 배지 설명을 직접 표시
+    own_legend = current in ("overwatch.html", "pubg.html", "fconline.html")   # 탭형 프로젝트는 앱이 배지 설명을 직접 표시
     note = ("" if current == "index.html" else
             f'<div class="sx-note"><b>정적 보고서</b> · <a href="{LIVE_URL}">원본 앱</a> 스냅샷 ({gen}) · '
             + ("01~06 탭으로 섹션 전환 · " if own_legend else "")
@@ -573,7 +584,7 @@ def page_html(title: str, desc: str, current: str, body: str, toc: list, charts:
             f'{APP_CSS}<style>{STATIC_CSS}</style>{script}</head><body>'
             f'<header class="sx-top"><div class="sx-top-in"><div class="gp-brand"><a href="index.html">Game<span>Pulse</span> AI</a></div>'
             f'<nav>{nav}</nav></div></header><main class="sx-main">{note}'
-            f'{legend() if current not in ("index.html", "overwatch.html", "pubg.html") else ""}{toc_html}{body}</main>'
+            f'{legend() if current not in ("index.html", "overwatch.html", "pubg.html", "fconline.html") else ""}{toc_html}{body}</main>'
             f'<footer class="sx-foot">{APP_NAME} 정적 보고서 · 생성 {gen} · <a href="{LIVE_URL}">원본 앱</a> · '
             f'<a href="{REPO_URL}">GitHub 저장소</a> · 언급된 게임 및 상표는 각 권리자에게 있으며, 본 보고서는 해당 게임사와 관련이 없는 개인 분석물입니다.</footer>'
             '</body></html>')
@@ -589,7 +600,11 @@ def index_html(gen: str) -> str:
              '<h3>PUBG · NEW START</h3><p><b>첫 치킨을 맛보기도 전에 떠나는 유저들. 그리고 돌아오지 않는 전우들.</b> — 신규 유저 정착(A 50%) · '
              '휴면 유저 복귀(B 40%) · BM 신뢰·수익성(C 10%). 공식 자료와 Steam 리뷰(신규 45건 · 복귀 21건, 별도 표본)를 근거로 '
              'A1 경기별 코칭 데모, B1 복귀 광고 캠페인 «PUBG: 다시 낙하할 시간»과 클릭 가능한 랜딩페이지, A/B 테스트 설계를 만들었습니다.</p></a>']
-    for pid, f, name, _ in PAGES[2:]:
+    cards.append('<a class="sx-card feature" href="fconline.html"><div class="k">세 번째 프로젝트 · 실제 자료 기반</div>'
+                 '<h3>FC 온라인 · 축구 게임인가, 주식 게임인가?</h3><p><b>구단 가치는 떨어지고, 경기는 멈췄다.</b> — 구단 가치 하락(A 40%) · '
+                 '강화 실패와 이탈(B 25%) · 키보드 vs 패드 경쟁 공정성(C 35%). 공식 강화 확률, 이적시장 캡처, 인벤 게시글을 근거로 '
+                 '구단 가치 분석기 · 강화 리스크 시뮬레이터 · 매칭 정책 선택 데모를 만들었습니다.</p></a>')
+    for pid, f, name, _ in PAGES[3:]:
         one = GAMES[pid].get("one_liner", "") if pid in GAMES else {
             "home": "사이트 전체 소개와 게임별 분석 바로가기", "data_lab": "CSV 댓글 데이터를 올려 불만 유형을 분류하는 도구 (예시)",
             "assistant": "정리된 분석 내용을 대화형으로 찾아보는 규칙 기반 미리보기"}.get(pid, "")
@@ -660,9 +675,10 @@ def main() -> int:
 
     written = []
     for pid, fname, name, kind in PAGES:
-        if pid in ("overwatch", "pubg"):
-            body, n_charts = overwatch_body(kind) if pid == "overwatch" else pubg_body(kind)
-            desc = GAMES[pid].get("theme", name) if pid == "overwatch" else "신규 유저 정착과 휴면 유저 재활성화 전략"
+        if pid in ("overwatch", "pubg", "fconline"):
+            body, n_charts = {"overwatch": overwatch_body, "pubg": pubg_body, "fconline": fconline_body}[pid](kind)
+            desc = {"overwatch": GAMES[pid].get("theme", name), "pubg": "신규 유저 정착과 휴면 유저 재활성화 전략",
+                    "fconline": "구단 가치 하락 · 강화 리스크 · 키보드 vs 패드 경쟁 공정성"}[pid]
             doc = save_images(page_html(name, desc, fname, body, [], n_charts > 0, gen))
             (DOCS / fname).write_text(doc, encoding="utf-8")
             written.append(DOCS / fname)

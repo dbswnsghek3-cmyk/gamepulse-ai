@@ -12,7 +12,7 @@ from gamepulse.content.games import GAME_ORDER, GAMES  # noqa: E402
 from gamepulse.ui.components import footer, html  # noqa: E402
 from gamepulse.ui.styles import inject_css  # noqa: E402
 from gamepulse.ui.translate_guard import ensure as ensure_translate_guard  # noqa: E402
-from gamepulse.views import assistant, data_lab, game_page, home, overwatch, pubg  # noqa: E402
+from gamepulse.views import assistant, data_lab, fconline, game_page, home, overwatch, pubg  # noqa: E402
 
 
 @st.cache_resource(show_spinner=False)
@@ -41,7 +41,7 @@ if st.session_state.get("page") not in PAGES:
 
 def _sync_page_param() -> None:
     st.query_params["page"] = st.session_state["page"]
-    if st.session_state["page"] not in ("overwatch", "pubg"):
+    if st.session_state["page"] not in ("overwatch", "pubg", "fconline"):
         st.query_params.pop("tab", None)
 
 with st.sidebar:
@@ -62,6 +62,8 @@ elif page == "overwatch":
     overwatch.render()  # PROJECT RE:START 전용 페이지 (v0.1 분석은 페이지 내 부록 탭으로 유지)
 elif page == "pubg":
     pubg.render()       # PUBG: NEW START (v0.1 예시 분석은 game_page·games.py 에 보관, 메뉴에서는 제외)
+elif page == "fconline":
+    fconline.render()   # FC 온라인: 축구 게임인가, 주식 게임인가? (v0.1 예시 분석은 games.py 에 보관)
 else:
     game_page.render(page)
 

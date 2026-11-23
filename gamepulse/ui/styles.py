@@ -726,19 +726,19 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 
 /* ---------- 오버워치 v8: 탭 전환 · 전체 크기 축소 · 짧은 글 ---------- */
 /* 01~06 탭 (Streamlit: 가로 라디오를 버튼처럼) · 3열×2행 · 선택 = 파랑, 나머지 = 차분한 남색 */
-:is(.st-key-ow_tab, .st-key-pg_tab), :is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadio"], :is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"] {{ width: 100% !important; max-width: none !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"] {{ display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab), :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadio"], :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"] {{ width: 100% !important; max-width: none !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"] {{ display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
   width: 100%; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"] > div {{ width: 100%; margin: 0 !important; padding: 0 !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] {{ margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"] > div {{ width: 100%; margin: 0 !important; padding: 0 !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] {{ margin: 0 !important; padding: 0.7rem 0.9rem !important; min-height: 3.1rem; border-radius: 10px;
   background: #1B3358; display: flex; align-items: center; cursor: pointer; width: 100%; transition: background 0.15s ease, box-shadow 0.15s ease; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] > div {{ width: 100%; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] > div > div:first-child {{ display: none !important; }}  /* 라디오 동그라미 숨김 */
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] p {{ color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] > div {{ width: 100%; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] > div > div:first-child {{ display: none !important; }}  /* 라디오 동그라미 숨김 */
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] p {{ color: #fff !important; font-size: 1rem; font-weight: 700; margin: 0; white-space: nowrap;
   overflow: hidden; text-overflow: ellipsis; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:hover {{ background: #24426F; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:has(input:checked),
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"][data-selected] {{ background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:hover {{ background: #24426F; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:has(input:checked),
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"][data-selected] {{ background: #1E5EFF; box-shadow: 0 4px 12px rgba(30,94,255,0.3); }}
 /* 정적 보고서용 같은 모양의 탭 버튼 */
 .ow-tabbar {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 0.8rem; }}
 .ow-tabbar button {{ font: inherit; text-align: left; border: 0; padding: 0.7rem 0.9rem; min-height: 3.1rem; border-radius: 10px;
@@ -812,9 +812,9 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .ow-credits ul {{ margin: 0.25rem 0 0; padding-left: 1.1rem; }} .ow-credits li {{ line-height: 1.6; }}
 
 @media (max-width: 640px) {{
-  :is(.st-key-ow_tab, .st-key-pg_tab) [data-testid="stRadioGroup"], .ow-tabbar {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }}
-  :is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"], .ow-tabbar button {{ padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }}
-  :is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button {{ font-size: 0.92rem; }}
+  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) [data-testid="stRadioGroup"], .ow-tabbar {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }}
+  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"], .ow-tabbar button {{ padding: 0.55rem 0.7rem !important; min-height: 2.8rem; }}
+  :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button {{ font-size: 0.92rem; }}
   .ow-cover-c {{ font-size: 1.3rem !important; }}
   .ow-pcard-t {{ font-size: 1.05rem; }}
   .ow-chart-f2 > div {{ flex-direction: column; gap: 0.1rem; }}
@@ -836,13 +836,13 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background: 
 .ow-hero3 small {{ display: block; font-size: 0.85rem; color: #64748B; margin-top: 0.2rem; line-height: 1.45; }}
 
 /* 탭: 선택 = 파랑 배경·흰 글씨 · 나머지 = 흰 배경·연한 테두리·남색 글씨 */
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"], .ow-tabbar button {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important;
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"], .ow-tabbar button {{ background: #FFFFFF !important; border: 1px solid #E2E8F0 !important;
   box-shadow: none !important; min-height: 2.75rem !important; padding: 0.55rem 0.85rem !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button {{ color: #142B4D !important; font-size: 0.97rem !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:hover, .ow-tabbar button:hover {{ background: #F8FAFC !important; border-color: #BFDBFE !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:has(input:checked), :is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"][data-selected],
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"] p, .ow-tabbar button {{ color: #142B4D !important; font-size: 0.97rem !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:hover, .ow-tabbar button:hover {{ background: #F8FAFC !important; border-color: #BFDBFE !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:has(input:checked), :is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"][data-selected],
 .ow-tabbar button[aria-selected="true"] {{ background: #2563EB !important; border-color: #2563EB !important; }}
-:is(.st-key-ow_tab, .st-key-pg_tab) label[data-testid="stRadioOption"]:has(input:checked) p, .ow-tabbar button[aria-selected="true"] {{ color: #FFFFFF !important; }}
+:is(.st-key-ow_tab, .st-key-pg_tab, .st-key-fc_tab) label[data-testid="stRadioOption"]:has(input:checked) p, .ow-tabbar button[aria-selected="true"] {{ color: #FFFFFF !important; }}
 .ow-tabbar button b {{ color: inherit; }}
 
 /* 배지: 파랑·회색 계열 (텍스트·테두리 모양으로 구분) */
@@ -1400,6 +1400,111 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .pn-w {{ display: flex; flex-direction: column; line-height: 1.25; padding: 0.4rem 0.7rem !important; }}
 .pn-w b {{ font-size: 1.05rem; font-weight: 900; }} .pn-w span {{ font-size: 0.82rem; font-weight: 700; opacity: 0.95; }}
 @media (max-width: 900px) {{ .pn-w span {{ font-size: 0.7rem; }} .pn-w b {{ font-size: 0.9rem; }} }}
+
+/* ---------- FC 온라인: 경기장(그린) × 금융시장(퍼플·티커) · fc- 전용 ---------- */
+.fc-anchor {{ display: none; }}
+.fc-tr {{ display: inline-block; font-size: 0.78rem; font-weight: 900; border-radius: 6px; padding: 0.05rem 0.45rem; margin-right: 0.35rem; color: #fff; }}
+.fc-tr.a {{ background: #6D28D9; }} .fc-tr.b {{ background: #DC2626; }} .fc-tr.c {{ background: #15803D; }}
+.fc-hero {{ display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr); gap: 1.5rem; align-items: center; border-radius: 18px; padding: 1.5rem 1.6rem; margin-bottom: 0.7rem;
+  background: linear-gradient(135deg, #052e16 0%, #14532d 45%, #3b0764 100%); color: #fff; }}
+.fc-hero-t {{ display: flex; flex-direction: column; gap: 0.55rem; }}
+.fc-hero .k {{ font-size: 0.8rem; font-weight: 800; letter-spacing: 0.12em; color: #86EFAC; }}
+.fc-hero .q {{ font-size: 2.3rem; font-weight: 900; line-height: 1.25; letter-spacing: -0.02em; }}
+.fc-hero .s {{ font-size: 1.15rem; color: #DCFCE7; font-weight: 700; }}
+.fc-hero .tick {{ display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.3rem; }}
+.fc-hero .tick span {{ background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 0.25rem 0.55rem; font-size: 0.85rem; color: #E2E8F0; font-family: ui-monospace, Consolas, monospace; }}
+.fc-hero .tick b {{ color: #4ADE80; }} .fc-hero .tick b.dn {{ color: #F87171; }}
+.fc-hero-img {{ margin: 0; }} .fc-hero-img img {{ width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,0.4); }}
+.fc-hero-img figcaption {{ font-size: 0.78rem; color: #BBF7D0; margin-top: 0.35rem; }}
+.fc-tracks {{ display: grid; grid-template-columns: 1.1fr 0.8fr 1fr; gap: 0.6rem; margin-bottom: 0.3rem; }}
+.fc-tracks > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 5px solid #6D28D9; border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.2rem; }}
+.fc-tracks > div.b {{ border-top-color: #DC2626; }} .fc-tracks > div.c {{ border-top-color: #15803D; }}
+.fc-tracks .h {{ display: flex; align-items: center; gap: 0.3rem; }} .fc-tracks .h b {{ font-size: 1.35rem; font-weight: 900; color: #0B1F3A; }}
+.fc-tracks .h span:not(.fc-tr) {{ font-size: 0.85rem; font-weight: 800; color: #475569; margin-left: 0.2rem; }}
+.fc-tracks strong {{ font-size: 1.05rem; color: #0B1F3A; line-height: 1.4; }} .fc-tracks small {{ font-size: 0.88rem; color: #475569; }}
+.fc-cav {{ font-size: 0.88rem; color: #475569; margin: 0.2rem 0 0.9rem; line-height: 1.5; }}
+.fc-why {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.9rem; }}
+.fc-why > div {{ background: #fff; border: 1px solid #E2E8F0; border-left: 5px solid #6D28D9; border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; }}
+.fc-why > div:nth-child(2) {{ border-left-color: #DC2626; }} .fc-why > div:nth-child(3) {{ border-left-color: #15803D; }}
+.fc-why span {{ font-size: 0.85rem; font-weight: 800; color: #475569; }} .fc-why b {{ font-size: 1.02rem; color: #0B1F3A; line-height: 1.45; }}
+.fc-why em {{ font-style: normal; color: #6D28D9; font-weight: 900; }} .fc-why small {{ font-size: 0.82rem; color: #64748B; }}
+.fc-pair {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; margin-bottom: 0.8rem; }}
+.fc-shot {{ margin: 0 0 0.8rem; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; }}
+.fc-shot .bar {{ font-size: 0.88rem; font-weight: 700; color: #0B1F3A; padding: 0.45rem 0.7rem; }}
+.fc-shot .bar span {{ background: #15803D; color: #fff; border-radius: 6px; padding: 0.05rem 0.45rem; font-size: 0.75rem; margin-right: 0.45rem; }}
+.fc-shot img {{ width: 100%; height: auto; display: block; }}
+.fc-shot figcaption {{ padding: 0.4rem 0.7rem 0.5rem; display: flex; flex-direction: column; }}
+.fc-shot figcaption b {{ font-size: 0.92rem; color: #0B1F3A; }} .fc-shot figcaption span {{ font-size: 0.75rem; color: #64748B; }}
+.fc-big {{ background: #0B1F3A; color: #fff; border-radius: 12px; padding: 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.1rem; margin-bottom: 0.7rem; }}
+.fc-big > span {{ font-size: 0.82rem; color: #CBD5E1; margin-bottom: 0.3rem; }} .fc-big b {{ font-size: 1.7rem; font-weight: 900; font-family: ui-monospace, Consolas, monospace; color: #4ADE80; }}
+.fc-big b.dn {{ color: #F87171; }} .fc-big small {{ font-size: 0.85rem; color: #CBD5E1; }} .fc-big em {{ font-style: normal; color: #F87171; font-weight: 900; }}
+.fc-drops {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.4rem; }}
+.fc-drops > div {{ background: #0B1F3A; color: #fff; border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.15rem; }}
+.fc-drops span {{ font-size: 0.85rem; color: #CBD5E1; font-weight: 700; }} .fc-drops b {{ font-size: 1.15rem; font-family: ui-monospace, Consolas, monospace; color: #E2E8F0; }}
+.fc-drops b i {{ font-style: normal; color: #94A3B8; }} .fc-drops b em {{ font-style: normal; color: #F87171; }}
+.fc-drops strong {{ font-size: 1.8rem; font-weight: 900; color: #F87171; line-height: 1.1; }} .fc-drops small {{ font-size: 0.78rem; color: #94A3B8; }}
+.fc-scn {{ background: #FFFBEB; border: 1px dashed #F59E0B; border-radius: 12px; padding: 0.7rem 0.9rem; }}
+.fc-scn > b {{ color: #78350F; }} .fc-scn > div {{ display: flex; align-items: center; gap: 0.4rem; margin: 0.35rem 0; font-size: 1.4rem; font-weight: 900; color: #0B1F3A; }}
+.fc-scn i {{ font-style: normal; color: #94A3B8; }} .fc-scn .dn {{ color: #DC2626; }} .fc-scn small {{ font-size: 0.82rem; color: #78350F; }}
+.fc-demo {{ background: #F8FAFC; border: 1.5px dashed #6D28D9; border-radius: 14px; padding: 0.9rem 1rem; position: relative; }}
+.fc-demo.b {{ border-color: #DC2626; background: #FFF7F7; }} .fc-demo.c {{ border-color: #15803D; background: #F7FEF9; }}
+.fc-demo::after {{ content: "기획 시안 · 실제 게임에 없음"; position: absolute; top: -0.7rem; right: 0.9rem; font-size: 0.72rem; font-weight: 800; background: #fff; border: 1px solid #CBD5E1; border-radius: 999px; padding: 0.05rem 0.5rem; color: #475569; }}
+.fc-demo h4 {{ margin: 0 0 0.5rem; font-size: 1.08rem; color: #0B1F3A; }}
+.fc-m {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin-bottom: 0.45rem; }}
+.fc-m > div {{ background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.5rem 0.6rem; display: flex; flex-direction: column; }}
+.fc-m small {{ font-size: 0.8rem; color: #475569; }} .fc-m b {{ font-size: 1.2rem; font-weight: 900; color: #0B1F3A; line-height: 1.25; word-break: keep-all; }}
+.fc-m b.up {{ color: #15803D; }} .fc-m b.dn {{ color: #DC2626; }} .fc-m em {{ font-style: normal; font-size: 0.8rem; color: #64748B; }} .fc-m em.dn {{ color: #DC2626; font-weight: 700; }}
+.fc-act {{ background: #fff; border-left: 4px solid #6D28D9; border-radius: 8px; padding: 0.5rem 0.7rem; margin: 0.4rem 0; font-size: 0.95rem; color: #1E293B; }}
+.fc-demo.b .fc-act {{ border-left-color: #DC2626; }} .fc-demo.c .fc-act {{ border-left-color: #15803D; }}
+.fc-demo .src {{ font-size: 0.82rem; color: #475569; line-height: 1.5; }}
+.fc-voice {{ display: flex; flex-direction: column; gap: 0.4rem; margin: 0.2rem 0 0.4rem; }}
+.fc-voice > div {{ display: grid; grid-template-columns: 1.3fr auto 1fr auto 1fr auto 1.2fr; gap: 0.4rem; align-items: center; background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.55rem 0.7rem; font-size: 0.92rem; }}
+.fc-voice .v {{ color: #334155; font-style: italic; }} .fc-voice b {{ color: #0B1F3A; }} .fc-voice .r {{ color: #B91C1C; }} .fc-voice strong {{ color: #15803D; }}
+.fc-voice i {{ font-style: normal; color: #94A3B8; font-weight: 900; }}
+.fc-posts {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.4rem; }}
+.fc-posts a {{ display: flex; flex-direction: column; gap: 0.2rem; text-decoration: none !important; background: #fff; border: 1px solid #E2E8F0; border-left: 5px solid #94A3B8; border-radius: 10px; padding: 0.55rem 0.7rem; }}
+.fc-posts a.kb {{ border-left-color: #0F766E; }} .fc-posts a.pad {{ border-left-color: #7C3AED; }} .fc-posts a.en {{ border-left-color: #DC2626; }}
+.fc-posts span {{ font-size: 0.78rem; font-weight: 800; color: #475569; }} .fc-posts b {{ font-size: 0.98rem; color: #0B1F3A; line-height: 1.4; }} .fc-posts small {{ font-size: 0.78rem; color: #2563EB; }}
+.fc-vs {{ display: grid; grid-template-columns: minmax(0, 1fr) 11rem minmax(0, 1fr); gap: 0.7rem; align-items: stretch; margin: 0.3rem 0 0.4rem; }}
+.fc-vs > .kb, .fc-vs > .pad {{ border-radius: 14px; padding: 0.85rem 1rem; color: #fff; }}
+.fc-vs > .kb {{ background: linear-gradient(160deg, #0F766E, #115E59); }} .fc-vs > .pad {{ background: linear-gradient(160deg, #7C3AED, #5B21B6); }}
+.fc-vs .h {{ font-size: 1.15rem; font-weight: 900; margin-bottom: 0.4rem; }}
+.fc-vs ul {{ margin: 0 0 0.5rem; padding-left: 1.1rem; font-size: 0.95rem; line-height: 1.55; }}
+.fc-vs .qs {{ display: flex; flex-direction: column; gap: 0.25rem; }} .fc-vs .qs a {{ color: #fff !important; font-size: 0.85rem; background: rgba(0,0,0,0.2); border-radius: 6px; padding: 0.2rem 0.45rem; text-decoration: none; }}
+.fc-vs .mid {{ display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem; text-align: center; background: #fff; border: 1px solid #E2E8F0; border-radius: 14px; padding: 0.6rem; }}
+.fc-vs .mid b {{ font-size: 2rem; font-weight: 900; color: #0B1F3A; }} .fc-vs .mid span {{ font-size: 0.78rem; font-weight: 800; color: #475569; }}
+.fc-vs .mid em {{ font-style: normal; font-size: 0.9rem; font-weight: 800; color: #15803D; background: #F0FDF4; border-radius: 999px; padding: 0.1rem 0.55rem; }}
+.fc-pol {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.8rem; }}
+.fc-pol > div {{ background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.75rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; }}
+.fc-pol > div.rec {{ border: 2px solid #15803D; box-shadow: 0 0 0 3px #DCFCE7; }}
+.fc-pol span {{ font-size: 0.8rem; font-weight: 900; color: #15803D; }} .fc-pol b {{ font-size: 1.08rem; color: #0B1F3A; }} .fc-pol small {{ font-size: 0.88rem; color: #475569; }}
+.fc-pol p {{ margin: 0; font-size: 0.9rem; }} .fc-pol .pro {{ color: #15803D; }} .fc-pol .con {{ color: #B91C1C; }}
+.fc-opts {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.8rem; }}
+.fc-opts > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #DC2626; border-radius: 10px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.2rem; }}
+.fc-opts > div:first-child {{ border-top-color: #94A3B8; }}
+.fc-opts b {{ font-size: 1.02rem; color: #0B1F3A; }} .fc-opts span {{ font-size: 0.9rem; color: #334155; }} .fc-opts small {{ font-size: 0.85rem; color: #475569; }}
+.fc-final {{ background: #F0FDF4; border: 1px solid #86EFAC; border-left: 6px solid #15803D; border-radius: 12px; padding: 0.9rem 1.05rem; margin: 0.6rem 0 0.9rem; color: #0B1F3A; font-size: 1rem; line-height: 1.6; }}
+.fc-final .k {{ font-size: 0.85rem; font-weight: 800; color: #15803D; margin-bottom: 0.2rem; }} .fc-final p {{ margin: 0.4rem 0; }}
+.fc-final strong {{ display: block; margin-top: 0.4rem; font-size: 1.05rem; color: #14532D; }}
+.fc-final .chk {{ display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.45rem 0; }} .fc-final .chk span {{ background: #fff; border: 1px solid #BBF7D0; border-radius: 999px; padding: 0.1rem 0.55rem; font-size: 0.85rem; }}
+.fc-kpi {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.9rem; }}
+.fc-kpi > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 5px solid #6D28D9; border-radius: 12px; padding: 0.7rem 0.85rem; }}
+.fc-kpi > div.b {{ border-top-color: #DC2626; }} .fc-kpi > div.c {{ border-top-color: #15803D; }}
+.fc-kpi .h {{ font-weight: 900; color: #0B1F3A; margin-bottom: 0.35rem; }} .fc-kpi p {{ margin: 0 0 0.35rem; display: flex; flex-direction: column; }}
+.fc-kpi p b {{ font-size: 0.98rem; color: #0B1F3A; }} .fc-kpi p span {{ font-size: 0.82rem; color: #475569; }}
+.fc-order {{ list-style: none; margin: 0.2rem 0 0.8rem; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }}
+.fc-order li {{ display: grid; grid-template-columns: 3rem auto 1fr; grid-template-areas: "n t k" "n t d"; align-items: center; column-gap: 0.6rem; background: #fff; border: 1px solid #E2E8F0;
+  border-left: 5px solid #15803D; border-radius: 10px; padding: 0.55rem 0.8rem; }}
+.fc-order li.a {{ border-left-color: #6D28D9; }} .fc-order li.b {{ border-left-color: #DC2626; }}
+.fc-order li > span:first-child {{ grid-area: n; font-size: 1.1rem; font-weight: 900; color: #0B1F3A; }} .fc-order li .fc-tr {{ grid-area: t; }}
+.fc-order li b {{ grid-area: k; font-size: 1.05rem; color: #0B1F3A; }} .fc-order li small {{ grid-area: d; font-size: 0.9rem; color: #475569; }}
+@media (max-width: 900px) {{
+  .fc-hero, .fc-tracks, .fc-why, .fc-pair, .fc-posts, .fc-pol, .fc-kpi, .fc-vs, .fc-drops {{ grid-template-columns: 1fr; }}
+  .fc-hero {{ padding: 1.1rem 1rem; }} .fc-hero .q {{ font-size: 1.65rem; }}
+  .fc-opts {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .fc-m {{ grid-template-columns: 1fr; }}
+  .fc-voice > div {{ grid-template-columns: 1fr; }} .fc-voice i {{ display: none; }}
+  .fc-order li {{ grid-template-columns: 2.4rem 1fr; grid-template-areas: "n t" "n k" "n d"; }}
+}}
 
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 
