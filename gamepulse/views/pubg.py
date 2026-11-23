@@ -778,11 +778,21 @@ def demo_b2(ns: dict) -> None:
 
 
 def demo_c(ns: dict) -> None:
-    _lead("C", "BM 내부 분석 · 성장형 스킨 구조와 정책 시나리오", "사업PM 내부 분석 도구 · 유저 화면 제안이 아님")
-    _pfk(ns, "C")
-    table(["구조", "실제 운영 내용", "판단", "근거"],
-          [[f"<b>{escape(a)}</b>", escape(b), escape(c), escape(d)] for a, b, c, d in ns["skin_structure"]], badge_html=b_real())
+    _lead("C", "보조 사업성 검토 · BM 내부 분석", "A·B 다음 순위 · 사업PM 내부 분석 도구 · 유저 화면 제안이 아님")
+    cp = next(x for x in ns["proposals"] if x["key"] == "C")
+    rk = next((r for r in ns["risks"] if "BM" in r["risk"]), None)
+    kc = ns["kpis"]["C"]
+    steps = [("유저 불만", f"{cp['problem']} (Steam 리뷰 · 02 탭)"),
+             ("사업 리스크", "불만을 줄이는 변경은 단기 매출을 줄일 수 있다 (상충)" + (f" · {rk['risk']}" if rk else "")),
+             ("개선 전략", "새 확률 구조를 만들지 않음 · 기존 스크랩 교환·누적 보상 안에서 재료 지원을 소규모로 먼저 검토"),
+             ("실험", "유저 화면 변경 없는 내부 시나리오 비교 + 구매 만족도 설문"),
+             ("KPI", " · ".join(f"{k[0]} ({k[1]})" for k in kc)),
+             ("중단 기준", next((f"{k[0]} 하락 (가드레일)" for k in kc if k[1] == "가드레일"), "매출 가드레일 악화") + " · 구매 만족도 개선 없음 → 시나리오 중단")]
+    html('<ol class="df-chain">' + "".join(f'<li><span>{escape(a)}</span><p>{escape(b)}</p></li>' for a, b in steps) + "</ol>")
     note("천장 유사 구조(스크랩 교환·누적 보상)는 이미 있고 이중 가챠는 제거됐다 → 새 구조를 제안하지 않고, 유저 불만이 확인된 '확률·결과'만 관리 대상으로 둔다.")
+    with st.expander("자세히 보기 · 실제 상품 구조 (성장형 스킨 · 공식 자료)"):
+        table(["구조", "실제 운영 내용", "판단", "근거"],
+              [[f"<b>{escape(a)}</b>", escape(b), escape(c), escape(d)] for a, b, c, d in ns["skin_structure"]], badge_html=b_real())
     bm = ns["bm_sim"]
     box = {}
 

@@ -1766,6 +1766,26 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .df-points > div:last-child span {{ color: #1f5fbf; }}
 .df-points b {{ font-size: 0.98rem; color: {C['navy']}; line-height: 1.45; }}
 @media (max-width: 640px) {{ .df-points {{ grid-template-columns: 1fr; }} }}
+/* 던파 2026: 6단계 흐름 · 유튜브 임베드 · 영상 링크 · 의견 카드 요약/근거 */
+.df-points.six > div:last-child {{ border-left-color: #1f5fbf; background: #f4f7fd; }}
+.df-points.six > div.r {{ border-left-color: #b3261e; background: #fff; }}
+.df-points.six > div.s {{ border-left-color: #1f5fbf; background: #f4f7fd; }}
+.df-points.six > div.s span {{ color: #1f5fbf; }}
+.df-points.six > div.r span {{ color: #b3261e; }}
+.df-points.six b {{ font-size: 0.92rem; font-weight: 600; }}
+.df-yt {{ position: relative; max-width: 960px; margin: 0.4rem auto 0; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; }}
+.df-yt iframe {{ position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }}
+.df-ytcap {{ max-width: 960px; margin: 0.3rem auto 0.9rem; font-size: 0.82rem; color: #44546a; line-height: 1.55; }}
+.df-media {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.5rem; margin: 0 0 1rem; }}
+.df-media > div {{ background: #fff; border: 1px solid {C['line']}; border-radius: 10px; padding: 0.55rem 0.75rem; font-size: 0.86rem; }}
+.df-media span {{ font-size: 0.72rem; font-weight: 800; color: #6b778c; margin-right: 0.3rem; }}
+.df-media small {{ display: block; color: #6b778c; font-size: 0.76rem; margin-top: 0.2rem; line-height: 1.45; }}
+.df-op .sm, .df-op .ev {{ font-size: 0.88rem; line-height: 1.55; color: #22324a; margin: 0.3rem 0; }}
+.df-op .sm span, .df-op .ev span {{ display: inline-block; font-size: 0.72rem; font-weight: 800; padding: 1px 7px; border-radius: 6px; margin-right: 0.4rem; }}
+.df-op .sm span {{ background: #eef2f7; color: #3a4a63; }}
+.df-op .ev span {{ background: #e6f0ff; color: #1f5fbf; }}
+.df-gapnote {{ background: #fff7ed; border: 1px solid #f3c98b; border-radius: 10px; padding: 0.65rem 0.9rem; font-size: 0.92rem; line-height: 1.6; margin: 0.4rem 0 1rem; }}
+.df-fig.sm2 {{ max-width: 760px; }}
 </style>
 """
 

@@ -37,7 +37,7 @@ GAME_ALIASES = {
 INTENTS = {
     "kpi": ["kpi", "지표", "잔존", "d7", "d30", "측정", "성과", "a/b", "ab", "실험", "테스트"],
     "cause": ["원인", "가설", "왜"],
-    "strategy": ["전략", "개선", "해결", "제안", "방안", "기획", "아이디어"],
+    "strategy": ["전략", "개선", "해결", "제안", "방안", "기획", "아이디어", "어떻게", "접근"],
     "evidence": ["근거", "의견", "댓글", "유저", "리뷰", "목소리", "한계", "출처"],
     "plan": ["예산", "비용", "로드맵", "일정", "리스크", "판단", "우선순위", "실행", "결론"],
     "problem": ["문제", "불만", "요약", "핵심", "개요", "정리", "이탈", "적응"],
@@ -45,7 +45,7 @@ INTENTS = {
 }
 SYN = {"힘들": ["어려"], "어렵": ["어려"], "광고비": ["예산"], "돈": ["비용"], "짜증": ["불만"], "접": ["이탈"], "떠나": ["이탈"],
        "접는": ["떠나", "이탈"], "랜덤": ["확률", "운에"], "늘려": ["확대", "전액"], "늘리": ["확대", "전액"], "대응": ["재건", "분석"],
-       "떨어": ["하락"], "적응": ["어려"], "잔존율": ["d7", "잔존"]}
+       "떨어": ["하락"], "적응": ["어려"], "잔존율": ["d7", "잔존"], "논란": ["비판", "논란"], "개발진": ["개발사"], "운영진": ["개발사"], "대처": ["대응"], "접근": ["전략", "개선"], "달라지": ["격차", "갈리"]}
 TAB_OF_KIND = {"problem": "01", "evidence": "02", "cause": "03", "strategy": "04", "kpi": "05", "plan": "06", "priority": "06"}
 STOP = {"알려줘", "알려", "정리해줘", "뭐야", "무엇", "어떻게", "있어", "대해", "관련", "주세요", "은", "는", "이", "가", "의", "좀"}
 
@@ -179,6 +179,13 @@ def _fconline() -> list[Entry]:
                      [f"[{e[0]}] 대조 {e[1]} vs 실험 {e[2]} · 대상 {e[3]}" for e in d["experiments"]],
                      [f"중단 조건: {e[5]}" for e in d["experiments"] if len(e) > 5],
                      [f"[{k}] {x}" for k, v in d["kpis"].items() for x in v], "05"))
+    dc = next((o for o in d["official"] if "datacenter" in o["url"]), None)
+    if dc:
+        out.append(Entry("fconline", "evidence", "공식 데이터센터 · 키보드·패드 이용 비중", dc["fact"],
+                         [f"{dc['title']} ({dc['date']})", "상위 랭킹 구간의 입력장치 비율 · 전체 이용자 비율이나 불공정성의 직접 증거가 아님"],
+                         ["통합 매칭 유지 + 키보드 입력 판정은 검증 전 가설로 실험 (C-1·C-2)"], d["kpis"]["C"][:3], "02",
+                         "키보드 패드 비율 퍼센트 비중 데이터센터 컨트롤러 몇"))
+        out[-1].sources = [(f"{dc['title']} ({dc['date']})", dc["url"])]
     out.append(Entry("fconline", "strategy", "키보드·패드 통합 매칭을 유지하는 이유", d["c_excluded"],
                      [f"{a}: {b} {c}" for a, b, c in d["c_why"]] + [d["c_why_note"]],
                      [f"{x['key']}안 {x['name']}: {x['pro']} / {x['con']}" for x in d["c_policies"]] + [f"하지 않는 것: {d['c_not']}"],
@@ -199,35 +206,43 @@ def _fconline() -> list[Entry]:
 def _dnf() -> list[Entry]:
     d = _load("dnf/dnf.json")
     i = d["intro"]
-    out = [Entry("dnf", "problem", "던전앤파이터 핵심 질문", i["question"],
+    ops_all = d.get("key_opinions", [])
+    op_line = lambda o: f"유저 의견 {o['no']} ({o['date']}) {o['summary']} — 원문: “{o['quotes'][0][0]}”"  # noqa: E731
+    out = [Entry("dnf", "problem", "던전앤파이터 핵심 문제", f"{d['cover']['title']} {d['cover']['title2']}",
                  [f"{s[0]}: {s[1]} ({s[2]})" for s in i["season"]],
-                 [f"{p[0]}. {p[1]} — {p[2]} ({p[3]})" for p in d["problems"]], [], "01", i["line"])]
+                 [f"{p[0]}. {p[1]} — {p[2]} ({p[3]})" for p in d["problems"]], [], "01", i["line"] + " " + i["question"])]
     prob = {p[0]: f"{p[1]} {p[2]}" for p in d["problems"]}
     for s in d["solutions"]:
-        ops = [f"유저 의견 {o['no']} {o['theme']}: “{o['quotes'][0][0]}” → {o['pm']}" for o in d.get("key_opinions", []) if o["sol"] == s["k"]]
+        ops = [op_line(o) + f" → {o['pm']}" for o in ops_all if o["sol"] == s["k"]]
         out.append(Entry("dnf", "strategy", f"{s['k']}. {_clean(s['name'])}", _clean(s["p"]), ops or [f"문제 {s['k']}: {prob.get(s['k'], '')}"],
                          [_clean(s["c"])], [_clean(s.get("v", "")) or next((k[1] for k in d["kpis"] if k[0] == s["k"]), "")], "04",
                          _clean(s.get("r", "")) + " " + prob.get(s["k"], "")))
-    off = {o["src"]: o for o in d["official"]}
-    guide = next((o for o in d["official"] if "1484" in o["url"]), None)
+    upd = next((o for o in d["official"] if "2928057" in o["url"]), None)
     pb = next(x for x in d["problems"] if x[0] == "B")
     out.append(Entry("dnf", "cause", "랜덤 보상이 성취감 문제가 되는 이유 (가설)", pb[2],
-                     ([f"공식 구조: {guide['fact']}"] if guide else [])
-                     + [f"유저 의견 {o['no']} {o['theme']}: “{o['quotes'][0][0]}”" for o in d.get("key_opinions", []) if o["no"] in ("②", "③")],
-                     ["확률 보상의 재미는 유지하고, 운이 나쁜 클리어도 쌓이게 → B 불운 진척 게이지 (04 탭)"],
-                     [k[1] for k in d.get("kpi_main", [])][:3], "03", "랜덤 확률 운 왜 문제 성취감 노력"))
-    out.append(Entry("dnf", "strategy", "기존 보장 장치와 B 불운 진척 게이지의 차이",
-                     "기존 장치는 평균을 올리거나 별도 재료가 필요 · '이번 클리어의 운 나쁜 결과'를 쌓아 주는 장치는 확인되지 않음",
-                     [f"{a}: {b} → 한계: {c}" for a, b, c in d["existing"]],
-                     [_clean(next(x["c"] for x in d["solutions"] if x["k"] == "B")),
-                      "천장(K회 연속 실패 시 고배율 확정)은 재화 공급 과열 위험으로 제외 (05 탭 시뮬레이션 · 가정)"],
+                     ([f"공식 (2026-07-29 · 퍼스트서버): {upd['fact']}"] if upd else []) + [op_line(o) for o in ops_all if o["sol"] == "B"],
+                     ["확률 보상의 재미는 유지하고, 목표를 정해 운이 나쁜 클리어도 진척으로 쌓이게 → B 지정 장비 진척 게이지 (04 탭)"],
+                     [k[1] for k in d.get("kpi_main", [])][:3], "03", "랜덤 확률 운 운에 따라 달라 갈리 격차 왜 문제 성취감 노력"))
+    out.append(Entry("dnf", "cause", "미카엘라 하드 레이드 보상 논란 (2026)", "하드·일반 이상 난이도의 보상이 시간·난이도 대비 약하다는 유저 비판 → 개발사가 보상 부족을 인정",
+                     [op_line(o) for o in ops_all if o["no"] in ("②", "③")] + [f"{a}: {b}" for a, b, _ in d["dev_response"][:1]],
+                     [d["dev_gap"], "→ B 지정 장비 진척 게이지로 '반복 클리어 → 예측 가능한 목표' 연결 (04 탭)"],
+                     [k[1] for k in d.get("kpi_main", [])][:3], "02", "미카엘라 레이드 하드 보상 논란 비판 왜"))
+    out.append(Entry("dnf", "evidence", "개발사의 실제 대응 (2026-10)", "10/27 라이브에서 하드 보상 부족을 인정하고, 10/29부터 8주간 특별 경매를 임시 조치로 운영",
+                     [f"{a}: {b}" for a, b, _ in d["dev_response"]],
+                     [d["dev_gap"], "GamePulse AI 제안은 이 대응을 대체하지 않고 보완: 입찰 없는 본인 귀속 목표 · 확률·경매 유지"],
+                     [k[1] for k in d.get("kpi_main", [])][:3], "02", "개발사 대응 개발진 디렉터 특별 경매 공지 조치"))
+    out[-1].sources = [(f"{a.split(' · ')[0]} {a.split(' · ')[1] if ' · ' in a else ''}".strip(), u) for a, _, u in d["dev_response"]]
+    out.append(Entry("dnf", "strategy", "기존 보장 장치와 B 지정 장비 진척 게이지의 차이",
+                     "기존 경매·상점 재화·기대 배율은 확률 결과나 입찰에 달려 있음 · '목표 지정 + 이번 클리어의 불운 반영'은 확인되지 않음",
+                     [f"{a}: {b}" for a, b, _, _ in d["gap"]],
+                     [f"{a} → {c} ({e})" for a, _, c, e in d["gap"][:3]] + [f"{x[0]}: {x[1]} — {x[2]}" for x in d["alternatives"][1:]],
                      [f"{k[1]} — {k[2]}" for k in d.get("kpi_main", [])], "04", "기존 보장 시스템 차이 중복 다른 점 네 제안"))
-    out.append(Entry("dnf", "priority", "우선 실행: B 불운 진척 게이지 소규모 파일럿", d["decision"],
+    out.append(Entry("dnf", "priority", "우선 실행: B 지정 장비 진척 게이지 소규모 파일럿", d["decision"],
                      [f"{r[0]} {r[1]}: {r[2]}" for r in d["roadmap"]][:3],
                      [d["decision"]], [f"{k[1]}" for k in d.get("kpi_main", [])], "06", "우선 먼저 순서 1순위"))
     out.append(Entry("dnf", "kpi", "KPI · 실험", "개선안별 측정 지표와 실험 설계", list(d["experiment"]), [],
-                     [f"[{k[0]}] {k[1]}" for k in d["kpis"]], "05"))
-    out.append(Entry("dnf", "evidence", "유저 의견의 범위와 한계", "유튜브 댓글·지인 인터뷰는 정성 근거", list(d["limits"]), [], [], "02"))
+                     [f"{k[1]} ({k[0]})" for k in d.get("kpi_main", [])], "05"))
+    out.append(Entry("dnf", "evidence", "근거의 범위와 한계", "2026 공식 게시판 글 3건과 공식 발표 · 정성 근거", list(d["limits"]), [], [], "02"))
     out.append(Entry("dnf", "plan", "로드맵 · 판단 · 예산", d["decision"],
                      ["예산(인월): " + " · ".join(f"{c[0]} {c[1]}" for c in d["cost"]["items"]) + f" × 월 {d['cost']['monthly'] // 10000}만 원"]
                      + [f"리스크: {r[0]} → {r[1]}" for r in d["risks"]],
@@ -251,8 +266,8 @@ def _game_defaults() -> dict[str, dict]:
                      "evidence": [f"{c[0]}: {c[1]}" for c in fc.get("counts", [])[:3]],
                      "sources": src(fc["official"])},
         "dnf": {"problem": dn["intro"]["question"],
-                "evidence": [f"핵심 유저 의견 {o['no']} {o['theme']} — {o['pm']}" for o in dn.get("key_opinions", [])[:3]],
-                "sources": src(dn["official"], "src") + [(f"유튜브 {n} (댓글 근거)", u) for n, _, u in list(dn["videos"].values())[:1]]},
+                "evidence": [f"유저 의견 {o['no']} ({o['date']}) {o['theme']} — {o['pm']}" for o in dn.get("key_opinions", [])[:3]],
+                "sources": [(f"{o['src']} ({o['date']})", o["url"]) for o in dn["official"] if o["date"].startswith("2026-")][-3:]},
     }
 
 
@@ -288,6 +303,20 @@ def detect_games(q: str) -> list[str]:
     return [g for g, al in GAME_ALIASES.items() if any(_alias_hit(ql, a) for a in al)]
 
 
+def infer_game(q: str) -> str | None:
+    """게임 이름이 없을 때: 질문 단어 중 한 게임의 자료에만 있는 단어가 있으면 그 게임."""
+    by_game = {g: " ".join(e.text for e in build_index() if e.game == g) for g in NAMES}
+    owned: dict[str, list[str]] = {}
+    for t in _terms(q):
+        owners = [g for g, txt in by_game.items() if t in txt]
+        if len(owners) == 1:
+            owned.setdefault(owners[0], []).append(t)
+    if len(owned) != 1:
+        return None
+    g, ts = next(iter(owned.items()))
+    return g if len(ts) >= 2 or any(len(t) >= 3 for t in ts) else None   # '설정' 같은 흔한 2글자 단어 하나로는 추론하지 않음
+
+
 def detect_kinds(q: str) -> list[str]:
     ql = q.lower()
     return [k for k, words in INTENTS.items() if any(w in ql for w in words)]
@@ -315,6 +344,28 @@ def _terms(q: str) -> list[str]:
         if len(t) >= 2 and t not in STOP:
             out += [t] + SYN.get(t, [])
     return list(dict.fromkeys(out))
+
+
+NUM_Q = re.compile(r"몇\s*(퍼센트|%|명|개|회|원)|얼마|수치|매출|확률이\s*몇|비율이\s*몇")
+GENERIC = {"몇", "퍼센트", "얼마", "얼마야", "수치", "숫자", "정도", "실제", "대략", "현재", "최근"}
+
+
+def _missing_metric(q: str, game: str | None) -> str:
+    """수치를 묻는데 질문의 핵심 단어가 해당 게임 자료에 아예 없으면 그 단어를 돌려준다 (없으면 '')."""
+    if not NUM_Q.search(q):
+        return ""
+    games = [game] if game else detect_games(q)
+    pool = " ".join(e.text for e in build_index() if not games or e.game in games)
+    ql = q.lower()
+    for al in GAME_ALIASES.values():
+        for a in sorted(al, key=len, reverse=True):
+            if _alias_hit(ql, a):
+                ql = ql.replace(a, " ")
+    for t in re.findall(r"[가-힣a-z]+", ql):
+        t = re.sub(r"(은|는|이|가|을|를|의|에|로|으로|와|과|도|만|에서|이야|야|인가|인지|일까)$", "", t)
+        if len(t) >= 2 and t not in GENERIC and t not in STOP and t not in pool:
+            return t
+    return ""
 
 
 def search(q: str, game: str | None = None, k: int = 3) -> list[tuple[float, Entry]]:
@@ -346,8 +397,15 @@ def search(q: str, game: str | None = None, k: int = 3) -> list[tuple[float, Ent
 
 def answer_md(q: str, game: str | None = None, datalab: dict | None = None) -> str:
     """검색 결과를 '핵심 결론 → 문제와 근거 → 사업PM 개선 전략 → 핵심 KPI → 관련 페이지' 마크다운으로 (원문 그대로)."""
-    if not game and not detect_games(q) and any(w in q for w in ("공통", "전체", "모든 게임", "비교", "4개", "네 게임", "4 게임", "각 게임")):
+    if not game and not detect_games(q) and (any(w in q for w in ("공통", "전체", "모든 게임", "비교", "4개", "네 게임", "4 게임", "각 게임"))
+                                             or "priority" in detect_kinds(q)):
         return _cross_md(q)
+    if not game and not detect_games(q):
+        game = infer_game(q)
+    miss = _missing_metric(q, game)
+    if miss:
+        return (f"**{NOT_FOUND}** 분석 자료에 '{miss}' 수치가 없습니다. 근거 없는 수치는 만들지 않습니다.\n\n"
+                "공개 자료로 확인한 수치와 가정값만 각 게임 페이지에 표시되어 있습니다.")
     hits = search(q, game)
     if hits and not game and not detect_games(q):
         top_s = hits[0][0]

@@ -42,7 +42,7 @@ function cell(a,v,low){var d=v-a,c=(low?d<0:d>0)?'up':(Math.abs(d)>1e-9?'dn':'')
 function row(n,a,b,c,low){return '<tr><td>'+n+'</td><td>'+f(a)+'</td>'+cell(a,b,low)+cell(a,c,low)+'</tr>';}
 function sup(v){return '<b class="'+(Math.abs(v)>5?'dn':'up')+'">'+(v>=0?'+':'')+v.toFixed(1)+'%</b>';}
 function ins(r){var A=r.A,B=r.B;if(B.p10<A.p10)return '<b>B도 하위 10%가 줄어듦</b> · 이 설정은 개선안으로 쓰지 않는다';
- var m='<b>B 불운 진척 게이지</b> · 하위 10% '+A.p10.toFixed(1)+' → '+B.p10.toFixed(1)+' · 공급 '+(r.sb>=0?'+':'')+r.sb.toFixed(1)+'% · 고배율 ×'+r.jb.toFixed(1)+' '+
+ var m='<b>B 지정 장비 진척 게이지</b> · 하위 10% '+A.p10.toFixed(1)+' → '+B.p10.toFixed(1)+' · 공급 '+(r.sb>=0?'+':'')+r.sb.toFixed(1)+'% · 고배율 ×'+r.jb.toFixed(1)+' '+
   (Math.abs(r.sb)<=5?'→ 가드레일(±5%) 안에서 운이 나쁜 구간만 보완':'→ 공급이 가드레일(±5%)을 넘음: K를 늘리거나 공급 중립을 켠다');
  if(Math.abs(r.sc)>5)m+='<br><b>천장 (반례)</b> · 공급 '+(r.sc>=0?'+':'')+r.sc.toFixed(1)+'% → 재화 공급 과열';
  else if(r.jc<r.M*0.8)m+='<br><b>천장 (반례)</b> · 공급을 맞추려면 고배율이 ×'+r.M+' → ×'+r.jc.toFixed(1)+'로 줄어 확률 보상의 설렘이 크게 약해짐';
@@ -50,13 +50,13 @@ function ins(r){var A=r.A,B=r.B;if(B.p10<A.p10)return '<b>B도 하위 10%가 줄
 function D(){var N=+$('dn').value,p=+$('dp').value/100,M=+$('dm').value,K=+$('dk').value,neu=$('dneu').checked;
  $('dnv').textContent=N+'회';$('dpv').textContent=$('dp').value+'%';$('dmv').textContent='×'+M;$('dkv').textContent=K?K+'칸':'없음';
  var r=sim(N,p,M,K,neu),A=r.A,B=r.B,C=r.C;
- $('dout').innerHTML='<div class="fc-demo"><h4>현행 vs B 불운 진척 게이지 (제안) vs 천장 (비교) """ + B_SIM.replace("'", "\\'") + """</h4><div class="fc-cmp"><table>'+
-  '<tr><th>지표 (이용자 2,000명 · 가정)</th><th>현행</th><th>B 불운 진척 게이지</th><th>천장 (비교)</th></tr>'+
+ $('dout').innerHTML='<div class="fc-demo"><h4>현행 vs B 지정 장비 진척 게이지 (제안) vs 천장 (비교) """ + B_SIM.replace("'", "\\'") + """</h4><div class="fc-cmp"><table>'+
+  '<tr><th>지표 (이용자 2,000명 · 가정)</th><th>현행</th><th>B 지정 장비 진척 게이지</th><th>천장 (비교)</th></tr>'+
   row('하위 10% 누적 보상',A.p10,B.p10,C.p10)+row('최저 누적 보상',A.min,B.min,C.min)+row('평균 총보상',A.mean,B.mean,C.mean)+row('보상 편차 (표준편차)',A.sd,B.sd,C.sd,true)+row('현행 평균 이상 도달 비율 (%)',r.ra,r.rb,r.rc)+
   '<tr><td>보상 재화 공급량 변화</td><td>—</td><td>'+sup(r.sb)+'</td><td>'+sup(r.sc)+'</td></tr>'+
   '<tr><td>고배율 보상 크기 (×)</td><td>'+M+'</td><td><b>'+r.jb.toFixed(1)+'</b></td><td><b>'+r.jc.toFixed(1)+'</b></td></tr></table></div>'+
-  '<div class="fc-act">'+ins(r)+'</div>'+
-  '<div class="src">가정 시뮬레이션 · 확률·배율·K는 실제 던파 수치가 아님 · B 진척 게이지: 기대 미만 클리어가 K번 쌓이면 그 클리어 보상을 기대 배율 하한(1회 기대 보상)까지 보장 · 천장(비교): K회 연속 기대 미만이면 다음 1회 고배율 확정 · 공급 중립은 고배율 보상 크기만 조정 · 같은 난수열(시드 고정)</div></div>';}
+  '<div class="fc-act">'+ins(r)+'</div>'+(K?'<div class="fc-cav"><b>예측 가능한 상한</b> 목표 1회까지 최대 <b>기대 미만 클리어 '+K+'번</b> (설계값 K · 공식 확률이 없어 평균 횟수는 계산하지 않음)</div>':'')+
+  '<div class="src">가정 시뮬레이션 · 확률·배율·K는 실제 던파 수치가 아님 · 지정 장비 진척 게이지: 기대 미만 클리어가 K번 쌓이면 지정 목표를 1회 기대 보상 하한 수준으로 지급 · 천장(비교): K회 연속 기대 미만이면 다음 1회 고배율 확정 · 공급 중립은 고배율 보상 크기만 조정 · 같은 난수열(시드 고정)</div></div>';}
 function mount(){var el=document.querySelector('.fc-live[data-k="d1"]'),a=document.querySelector('.fc-anchor[data-k="d1"]'),row=a&&a.closest('.sx-row');
  if(el&&row){row.replaceWith(el);el.hidden=false;}
  ['dn','dp','dm','dk'].forEach(function(i){$(i).addEventListener('input',D);});$('dneu').addEventListener('change',D);D();}

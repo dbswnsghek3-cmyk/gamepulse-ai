@@ -1,7 +1,7 @@
 """던전앤파이터 — 어려운 던전을 클리어했는데, 왜 성장했다는 느낌이 없을까? (사업PM 포트폴리오 · 01~06 탭)
 
 - 01 문제 정의 (게임 소개 · 2026 시즌 상황 · 핵심 질문) · 02 유저 의견·검증 한계 · 03 원인 (현상 → 근거 → 체감 → 가설)
-  · 04 개선안 (A 성장 가치 · B 불운 진척 게이지 · C 다음 시즌 기대) · 05 시뮬레이터·KPI·실험 · 06 실행 로드맵·사업적 판단
+  · 04 개선안 (A 성장 가치 · B 지정 장비 진척 게이지 · C 다음 시즌 기대) · 05 시뮬레이터·KPI·실험 · 06 실행 로드맵·사업적 판단
 - 사실·가설·시안: data/dnf/dnf.json · 계산: gamepulse/sim/dnf_sim.py (정적 페이지 JS 와 같은 난수열·같은 식)
 - 근거 원본: DNF_GamePulse_OneShot/01_original_evidence (공개 금지 · .gitignore) → 공개용은 assets/dnf/evidence (아이디·아바타 블러, 문구 원문 그대로)
 - 친구 카톡은 개인정보가 있어 이미지를 공개하지 않고 원문 문구만 인용 · 1명의 정성 인터뷰로만 표시
@@ -114,39 +114,49 @@ def fig(im: dict, cls: str = "") -> None:
 def s1(d: dict) -> None:
     it = d["intro"]
     fig(d["hero_img"], "hero")
-    html('<div class="df-points">' + "".join(f'<div><span>{escape(k)}</span><b>{escape(v)}</b></div>' for k, v in d["cover"]["points"]) + "</div>")
+    html('<div class="df-points six">' + "".join(f'<div class="{c}"><span>{escape(k)}</span><b>{escape(v)}</b></div>' for k, v, c in d["cover"]["points"]) + "</div>")
     html(f'<div class="fc-intro dnf"><b>던전앤파이터란?</b><p>{escape(it["line"])}</p></div>')
     html('<div class="fc-evs">' + "".join(
         f'<div class="fc-ev off"><span class="t">{escape(k)} · 공식·보도</span><b>{escape(v)}</b><small>{link(u, s + " ↗")}</small></div>'
         for k, v, s, u in it["season"]) + "</div>")
     html(f'<div class="fc-pm"><span>핵심 질문</span><b>{escape(it["question"])}</b></div>')
-    head("문제: 클리어는 했는데 성장이 쌓이지 않는다", "세 문제 모두 가설 · 근거는 02 탭", b_hypo())
+    head("문제: 클리어는 했는데 성장이 쌓이지 않는다", "세 문제 모두 가설 · 근거(2026)는 02 탭", b_hypo())
     html('<div class="fc-why">' + "".join(
         f'<div><span>{escape(k)} · {escape(n)}</span><b>{escape(p)}</b><small>{escape(s)}</small></div>' for k, n, p, s in d["problems"]) + "</div>")
 
 
+def yt(vid: str, start: int, title: str) -> str:
+    """유튜브 공식 임베드 (캡처 재게시 대신)."""
+    return (f'<div class="df-yt"><iframe src="https://www.youtube-nocookie.com/embed/{vid}?start={start}" title="{escape(title)}" '
+            'loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>')
+
+
 def s2(d: dict) -> None:
-    head("근거: 핵심 유저 의견 5개 → 사업PM 해석 → 개선 전략", "원문 발췌는 문구를 바꾸지 않음 · 아이디 비공개 · 정성 근거", b_real())
+    m = d["media"]
+    head("근거 (2026): 실제 도전 → 유저 문제 제기 → 개발사 대응", "실제 플레이 영상은 유튜브 임베드 · 유저 주장과 공식 발표를 구분", b_real())
+    sub("① 실제 고난도 도전 · 미카엘라 하드 레이드", b_real())
+    c = m["clear"]
+    html(yt(c["id"], c["start"], c["title"]) + f'<div class="df-ytcap"><b>{escape(c["title"])}</b> · {escape(c["meta"])} · {link(c["url"], "유튜브에서 보기 ↗")}'
+         '<br>유저 영상 (본인·GamePulse AI 플레이 아님) · 캡처를 재게시하지 않고 공식 임베드로만 연결</div>')
+    html('<div class="df-media">' + "".join(f'<div><span>{escape(k)}</span><b>{link(u, t + " ↗")}</b><small>{escape(n)}</small></div>' for k, t, u, n in m["links"]) + "</div>")
+    sub("② 유저 문제 제기 · 2026년 공식 게시판 3건", b_real())
     html(f'<div class="fc-cav">{escape(d["opinion_scope"])}</div>')
-    sols = {x["k"]: x["name"] for x in d["solutions"]}
     cards = []
     for o in d["key_opinions"]:
-        qs = "".join(
-            f'<div class="q"><q>{escape(t)}</q><small>원문 발췌 · '
-            + (f'{escape(cap)} (1명 · 통계 아님)' if v == "friend" else f'유튜브 댓글 · {vlink(d, v, cap)}')
-            + '</small></div>' for t, v, cap in o["quotes"])
-        merged = f'<em class="mg">{escape(o["merged"])}</em>' if o["merged"] else ""
-        cards.append(f'<div class="df-op {o["sol"].lower()}"><div class="h"><span class="no">{o["no"]}</span><b>{escape(o["theme"])}</b>{merged}'
-                     f'<span class="to">→ 개선안 {o["sol"]}</span></div>{qs}<div class="pm"><span>사업PM 해석</span>{escape(o["pm"])}</div></div>')
+        q = o["quotes"][0][0]
+        cards.append(f'<div class="df-op {o["sol"].lower()}"><div class="h"><span class="no">{o["no"]}</span><b>{escape(o["theme"])}</b>'
+                     f'<span class="to">→ 개선안 {o["sol"]}</span></div>'
+                     f'<div class="sm"><span>유저 의견 요약</span>{escape(o["summary"])}</div>'
+                     f'<div class="q"><q>{escape(q)}</q><small>원문 발췌 · {escape(o["date"])} · {link(o["url"], o["title"] + " ↗")}</small></div>'
+                     f'<div class="ev"><span>확인된 근거</span>{escape(o["evidence"])}</div>'
+                     f'<div class="pm"><span>사업PM 해석</span>{escape(o["pm"])}</div></div>')
     html('<div class="df-ops">' + "".join(cards) + "</div>")
-    sub("핵심 의견 → 사업PM 해석 → 개선 전략", b_interp())
-    links = {"A": "①", "B": "②·③", "C": "④·⑤"}
-    table(["핵심 의견", "사업PM 해석", "개선 전략 (04 탭)"], [
-        [links["A"], "받은 성장의 의미가 다음 시즌으로 이어지지 않는다", f"<b>A. {escape(sols['A'])}</b>"],
-        [links["B"], "운이 나쁜 클리어에는 쌓이는 것이 없다", f"<b>B. {escape(sols['B'])}</b>"],
-        [links["C"], "시즌제는 수용 · 반복 피로와 다음 시즌 기대 부족", f"<b>C. {escape(sols['C'])}</b>"]])
+    sub("③ 개발사 대응 · 공식 발표와 보도", b_real())
+    html('<div class="fc-evs">' + "".join(f'<div class="fc-ev off"><span class="t">{escape(a)}</span><b>{escape(b)}</b><small>{link(u, "원문 ↗")}</small></div>'
+                                          for a, b, u in d["dev_response"]) + "</div>")
+    html(f'<div class="df-gapnote"><b>④ 남은 문제</b> {escape(d["dev_gap"])}</div>')
     conclude("유저 의견은 문제를 찾는 출발점 · 효과 판단은 로그와 실험(05 탭)으로 한다.")
-    with st.expander("자세히 보기 · 원문 캡처 (아이디·아바타 블러) · 지인 인터뷰 원문 · 보조 자료 · 검증 한계"):
+    with st.expander("자세히 보기 · 보조 자료 (이전 유튜브 댓글 캡처·지인 인터뷰 · 작성 시점이 2026 근거보다 불명확) · 검증 한계"):
         gallery("dfev", d["evidence_images"])
         f = d["friend"]
         st.markdown(f"**지인 인터뷰 · {f['label']}**")
@@ -155,7 +165,6 @@ def s2(d: dict) -> None:
         st.markdown("**보조 배경 자료 (영상 제작자 2차 자료 · 원자료 미확인)**")
         gallery("dfsec", d["secondary"])
         st.markdown("\n".join(f"- {x}" for x in d["limits"]))
-        st.markdown("\n".join(f"- {n} · [{t}]({u})" for n, t, u in d["videos"].values()))
 
 
 def _chain(rows: list[tuple[str, str, str]]) -> None:
@@ -169,16 +178,18 @@ def s3(d: dict) -> None:
     fig(d["reward_img"], "sm")
     _chain([("원인", "상급 던전은 주 2개 클리어 보상 · 보상은 기대 배율에 따른 확률 → 클리어해도 결과가 운에 갈린다", "공식 가이드"),
             ("기존 한계", "기대 배율은 '평균'을 올릴 뿐, 이번 클리어의 운 나쁜 결과는 보정하지 않는다 · 조율의 경계는 별도 재료가 필요", "공식 가이드 · 분석자 비교"),
-            ("체감", "'레어 장비 4~5개'면 의욕이 떨어진다는 댓글 (핵심 의견 ②)", "유저 의견 · 정성"),
+            ("체감", "일반 이상 난이도는 시간 대비 보상 차이가 작다는 비판 (2026-10-21 · 유저 의견 ③)", "유저 의견 · 정성"),
             ("검증", "불운한 클리어가 반복된 계정의 다음 주 재도전율이 낮은가 → 로그로 확인 (가설)", "검증 필요")])
     lead("A", "시즌 성장 가치", "시즌제 자체가 아니라 '받은 성장의 수명'")
     fig(d["equip_img"])
     _chain([("원인", "시즌마다 최상위 장비가 바뀐다 · 유일 장비는 다음 시즌에도 위상 유지 예고", "공식 · 방송 보도"),
             ("기존 한계", "무기고·통합 변환은 장비·세트를 보존하지만, '내 시즌을 돌아보고 다음 목표를 정하는' 화면은 확인 못함", "공식 · 분석자 비교"),
-            ("체감", "이벤트로 받은 장비가 다음 시즌에 의미를 잃는다 (핵심 의견 ①)", "유저 의견 · 정성"),
+            ("체감", "새 시즌도 같은 확률 파밍이 반복된다는 우려 (2026-03-12 · 유저 의견 ①)", "유저 의견 · 정성"),
             ("검증", "시즌 전환 후 복귀 계정의 D7·D30과 첫 목표 달성률 비교 (가설)", "검증 필요")])
-    lead("C", "다음 시즌 기대", "시즌 리셋은 수용 · 기대할 이야기와 반복 피로가 과제")
-    html('<div class="fc-cav">유저 근거: 핵심 의견 ④·⑤ · 지인 인터뷰는 스토리 쪽 의견에 동의하지 않음 → 의견이 갈리는 지점으로 남겨 둔다</div>')
+    lead("C", "목표 획득 시점 예측", "확률 보상 구조상 '언제 얻는지'를 알 수 없음")
+    _chain([("원인", "레이드·상급 던전 보상과 하드 경매가 모두 확률로 결정 (공식 공지·가이드)", "공식"),
+            ("기존 한계", "특별 경매도 '등장'만 100% · 낙찰은 입찰 경쟁 · 8주 임시 조치", "공식 공지"),
+            ("검증", "목표를 지정한 계정의 '목표 획득 전 이탈률'을 대조군과 비교 (가설)", "검증 필요")])
     with st.expander("자세히 보기 · 확인한 공식 자료"):
         table(["날짜", "자료", "확인한 사실"], [[escape(o["date"]), link(o["url"], o["src"]), escape(o["fact"])] for o in d["official"]], badge_html=b_real())
 
@@ -190,16 +201,17 @@ def s4(d: dict) -> None:
           [[f"<b>{escape(a)}</b>", escape(b), f"<b>{escape(c)}</b>", escape(e)] for a, b, c, e in d["gap"]])
     html('<div class="fc-sols">' + "".join(sol_card(x, x["k"].lower()) for x in d["solutions"][:2]) + "</div>")
     html('<div class="fc-sols one">' + sol_card(d["solutions"][2], "c") + "</div>")
-    sub("B 불운 진척 게이지 · 화면 시안", b_mock())
-    html('<div class="df-mock"><span class="tag">GamePulse AI 제안 시안 · 실제 게임 화면 아님</span>'
-         '<h5>상급 던전 클리어 결과</h5><div class="res"><span>이번 보상: 기대 배율 미만</span><b>진척 게이지 +1</b></div>'
-         '<div class="bar"><i></i></div><div class="cap"><span>불운 진척도 7 / 10</span><span>10칸이 차면 다음 보상 = 기대 배율 하한 보장</span></div>'
-         '<div class="note">확률·고배율은 그대로 · 연속 실패가 아니어도 쌓임 · 교환 불가 · 주간 상한 · 수치는 예시</div></div>')
+    sub("지정 장비 진척 게이지 · 화면 시안", b_mock())
+    im = d["proposal_img"]
+    pp = ASSETS / im["file"]
+    if pp.is_file():
+        html(f'<figure class="df-fig sm2"><img src="data:image/png;base64,{_png(im["file"], pp.stat().st_mtime)}" alt="{escape(im["cap"])}">'
+             f'<figcaption><b>{escape(im["cap"])}</b> · GamePulse AI 제작</figcaption></figure>')
     sub("검토한 대안과 판단", b_interp())
     table(["판단", "대안", "이유"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["alternatives"]])
     with st.expander("자세히 보기 · 기존 공식 장치와 중복 확인"):
         fig(d["convert_img"], "sm")
-        table(["기존 장치", "하는 일", "B 불운 진척 게이지와의 차이"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["existing"]], badge_html=b_real())
+        table(["기존 장치", "하는 일", "B 지정 장비 진척 게이지와의 차이"], [[f"<b>{escape(a)}</b>", escape(b), escape(c)] for a, b, c in d["existing"]], badge_html=b_real())
     conclude("운의 재미는 남기고, 플레이한 만큼의 성취는 반드시 쌓이게 한다.")
 
 
@@ -216,8 +228,8 @@ def sim_html(r: dict, note: str) -> str:
             return f'<td class="{cls}"><b>{f(v)}</b> <small>({d:+,.1f})</small></td>'
         return f"<tr><td>{n}</td><td>{f(a)}</td>{cell(b)}{cell(c)}</tr>"
     sup = lambda v: f'<b class="{"dn" if abs(v) > 5 else "up"}">{v:+.1f}%</b>'  # noqa: E731
-    return (f'<div class="fc-demo"><h4>현행 vs B 불운 진척 게이지 (제안) vs 천장 (비교) {b_sim()}</h4><div class="fc-cmp"><table>'
-            '<tr><th>지표 (이용자 2,000명 · 가정)</th><th>현행</th><th>B 불운 진척 게이지</th><th>천장 (비교)</th></tr>'
+    return (f'<div class="fc-demo"><h4>현행 vs B 지정 장비 진척 게이지 (제안) vs 천장 (비교) {b_sim()}</h4><div class="fc-cmp"><table>'
+            '<tr><th>지표 (이용자 2,000명 · 가정)</th><th>현행</th><th>B 지정 장비 진척 게이지</th><th>천장 (비교)</th></tr>'
             + row("하위 10% 누적 보상", A["p10"], B["p10"], C["p10"]) + row("최저 누적 보상", A["min"], B["min"], C["min"])
             + row("평균 총보상", A["mean"], B["mean"], C["mean"]) + row("보상 편차 (표준편차)", A["sd"], B["sd"], C["sd"], True)
             + row("현행 평균 이상 도달 비율 (%)", r["reach_a"], r["reach_b"], r["reach_c"])
@@ -232,7 +244,7 @@ def _insight(r: dict) -> str:
     A, B, C = r["A"], r["B"], r["C"]
     if B["p10"] < A["p10"]:
         return "<b>B도 하위 10%가 줄어듦</b> · 이 설정은 개선안으로 쓰지 않는다"
-    msg = (f"<b>B 불운 진척 게이지</b> · 하위 10% {A['p10']:.1f} → {B['p10']:.1f} · 공급 {r['supply_b']:+.1f}% · 고배율 ×{r['jack_b']:.1f} "
+    msg = (f"<b>B 지정 장비 진척 게이지</b> · 하위 10% {A['p10']:.1f} → {B['p10']:.1f} · 공급 {r['supply_b']:+.1f}% · 고배율 ×{r['jack_b']:.1f} "
            + ("→ 가드레일(±5%) 안에서 운이 나쁜 구간만 보완" if abs(r["supply_b"]) <= 5 else "→ 공급이 가드레일(±5%)을 넘음: K를 늘리거나 공급 중립을 켠다"))
     if abs(r["supply_c"]) > 5:
         msg += f"<br><b>천장 (반례)</b> · 공급 {r['supply_c']:+.1f}% → 재화 공급 과열"
@@ -246,7 +258,7 @@ def s5(d: dict) -> None:
     sub("대표 KPI 4개", b_mock())
     html('<div class="df-kpi">' + "".join(f'<div><span>{escape(t)}</span><b>{escape(n)}</b><small>{escape(x)}</small></div>' for t, n, x in d["kpi_main"]) + "</div>")
     html('<div class="fc-cav">' + " · ".join(escape(x) for x in d["experiment"] if x.startswith(("성공", "롤백"))) + " (기준값은 제안 · 파일럿 전 합의)</div>")
-    sub("B 불운 진척 게이지 시뮬레이션 · 천장 방식과 비교", b_sim())
+    sub("B 지정 장비 진척 게이지 시뮬레이션 · 천장 방식과 비교", b_sim())
     c1, c2 = st.columns([1, 1.6], gap="medium")
     with c1:
         anchor("d1")
@@ -258,6 +270,8 @@ def s5(d: dict) -> None:
     r = D.simulate(n, p / 100, m, k, neutral)
     with c2:
         html(sim_html(r, d["sim_note"]))
+        if k:
+            html(f'<div class="fc-cav"><b>예측 가능한 상한</b> 목표 1회까지 최대 <b>기대 미만 클리어 {k}번</b> (설계값 K · 공식 확률이 없어 평균 횟수는 계산하지 않음)</div>')
     with st.expander("자세히 보기 · 개선안별 전체 KPI · 실험 설계 (대조군·실험군 · 성공·롤백 기준)"):
         table(["개선안", "KPI"], [[tr(a), escape(b)] for a, b in d["kpis"]])
         st.markdown("\n".join(f"- {x}" for x in d["experiment"]))
@@ -272,11 +286,11 @@ def s6(d: dict) -> None:
     sub("실행 로드맵", b_mock())
     html('<ol class="fc-order">' + "".join(f'<li class="c"><span>{escape(w)}</span><b>{escape(k)}</b><small>{escape(x)}</small></li>'
                                            for w, k, x in d["roadmap"]) + "</ol>")
-    sub("대표 전략 한눈에 · B 불운 진척 게이지", b_mock())
+    sub("대표 전략 한눈에 · B 지정 장비 진척 게이지", b_mock())
     table(["단계", "내용"], [
         ["<b>문제</b>", "어려운 던전·레이드를 클리어해도 결과가 운에 갈려 노력이 체감되지 않는다 (가설)"],
-        ["<b>근거</b>", "공식: 상급 던전 기대 보상 배율·확률 보상 · 미카엘라 하드 동력 상실 지적 인지 · 유저: 핵심 의견 ②·③ (유튜브 댓글 2건) · 지인 인터뷰 1명"],
-        ["<b>해결책</b>", "기대 미만 클리어가 K번 쌓이면 1회 기대 배율 하한 보장 (연속일 필요 없음) · 확률·고배율은 그대로 · 교환 불가 · 천장 방식은 공급 과열로 제외"],
+        ["<b>근거</b>", "공식: 미카엘라 하드 경매 확률 진행(7/29) · 하드 보상 부족 인정·특별 경매 임시 조치(10/27·10/29) · 유저: 2026 공식 게시판 글 ②·③"],
+        ["<b>해결책</b>", "목표 1개 지정 → 기대 미만 클리어마다 진척 +1 → K칸이면 지정 목표 1회 (하한 수준) · 확률·고배율·경매 유지 · 교환 불가 · 천장·상점형은 제외"],
         ["<b>비용</b>", f"{eff:g}인월 × {c['monthly'] / 1e4:,.0f}만 원 = <b>{won(eff * c['monthly'])}</b> (전체 · 가정)"],
         ["<b>KPI</b>", "주간 고난도 재도전율 · 보상 만족도 · 하위 10% 누적 보상 · 가드레일: 재화 공급량 ±5%"],
         ["<b>실험</b>", "계정 10% 무작위 · 명성 구간 층화 · 롤백 기준 사전 합의"],
