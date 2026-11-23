@@ -1,84 +1,104 @@
-"""정적 보고서(GitHub Pages)용 FC 온라인 데모 2개 (A1 구단 가치 분석기 · C 매칭 정책 비교) — 서버 없이 브라우저에서 조작.
+"""정적 보고서(GitHub Pages)용 FC 온라인 데모 2개 (A 구단 가치 분석·재건 · C 정책 비교) + 갤러리 보강 — 서버 없이 브라우저에서 조작.
 
 Streamlit 데모 입력 칸 첫머리의 <div class="fc-anchor" data-k="…">를 찾아 그 행(.sx-row = 입력 칸 + 결과 칸)을
 아래 조작판으로 바꾼다. JavaScript 가 없으면 Streamlit 기본 화면 스냅샷만 보인다. 계산식은 gamepulse/sim/fc_sim.py 와 같다.
+갤러리: 정적 페이지는 #해시로 탭을 바꾸므로 갤러리 링크의 해시 이동을 막고, 넘기기·확대·닫기(Esc)를 JS 로 처리한다.
 """
 
 from __future__ import annotations
 
 import json
+from html import escape
 from pathlib import Path
 
 B_SIM = '<span class="gp-badge k-sim">가정 시뮬레이션</span>'
 
 PAGE_EXTRA_CSS = """<style>
 .fc-live .ctl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem 1rem;margin:.2rem 0 .8rem}
-.fc-live label{display:flex;flex-direction:column;gap:.25rem;font-size:.88rem;color:#31333F}
+.fc-live label{display:flex;flex-direction:column;gap:.25rem;font-size:.9rem;color:#1E293B}
 .fc-live label b{color:#6D28D9}
-.fc-live input[type=number],.fc-live select{padding:.45rem .6rem;border:1px solid #D5DAE5;border-radius:8px;font-size:.95rem;background:#F0F2F6;font-family:inherit}
+.fc-live input[type=number],.fc-live select{padding:.45rem .6rem;border:1px solid #CBD5E1;border-radius:8px;font-size:.95rem;background:#F8FAFC;font-family:inherit}
 .fc-live input[type=range]{accent-color:#15803D}
 .fc-live .seg{display:flex;flex-wrap:wrap;gap:.35rem;grid-column:1/-1}
-.fc-live .seg button{border:1px solid #D5DAE5;background:#fff;border-radius:999px;padding:.3rem .8rem;font-size:.88rem;cursor:pointer;font-family:inherit}
+.fc-live .seg button{border:1px solid #CBD5E1;background:#fff;border-radius:999px;padding:.3rem .8rem;font-size:.9rem;cursor:pointer;font-family:inherit}
 .fc-live .seg button[aria-pressed=true]{background:#15803D;border-color:#15803D;color:#fff}
-.fc-live .hint{font-size:.75rem;color:#64748B;margin-top:.4rem}
+.fc-live .hint{font-size:.8rem;color:#475569;margin-top:.4rem}
 @media(max-width:700px){.fc-live .ctl{grid-template-columns:1fr}}
+body.fc-noscroll{overflow:hidden}
 </style>"""
 
 
 def demos(root: Path) -> str:
     d = json.loads((root / "data" / "fconline" / "fc.json").read_text(encoding="utf-8"))
     pols = {p["key"]: {"fair": p["fair"], "ops": p["ops"]} for p in d["c_policies"]}
-    hint = '<div class="hint">이 페이지에서 직접 조작 · 값을 바꾸면 바로 다시 계산 (JavaScript)</div>'
+    ad = d["a_demo"]
+    hint = '<div class="hint">값을 바꾸면 바로 다시 계산</div>'
+    sl = "".join(
+        f'<label>{escape(nm)} 하락률 (고점 {pk:g}억) <b id="ap{i}v"></b><input type="range" id="ap{i}" min="0" max="90" value="{round((1 - now / pk) * 100)}"></label>'
+        for i, (nm, pk, now) in enumerate(ad["players"]))
     a1 = ('<div class="fc-live" data-k="a1" hidden><div class="ctl">'
-          '<label>초기 구단 가치 (억 BP · 가상)<input type="number" id="a1v" value="10" min="1" step="1"></label>'
-          '<label>내 구단 가치 하락률 <b id="a1mv">50%</b><input type="range" id="a1m" min="0" max="90" value="50"></label>'
-          '<label>시장 전체 하락률 <b id="a1kv">20%</b><input type="range" id="a1k" min="0" max="90" value="20"></label></div>'
-          f'<div class="fc-demo"><h4>구단 가치 진단 {B_SIM}</h4><div class="fc-m" id="a1o"></div>'
-          '<div class="fc-act"><b>가치가 떨어져도 능력치·팀컬러는 그대로</b> → 재건 플랜(A2)</div>'
-          f'<div class="src">시세와 경기 성능은 다른 숫자 · 시세 보장 없음</div></div>{hint}</div>')
+          f'<label>시장 전체 하락률 (% · 가정) <b id="amkv"></b><input type="range" id="amk" min="0" max="80" value="{ad["market"]}"></label>{sl}'
+          f'<label>보유 BP (억 · 가정)<input type="number" id="ahold" value="{ad["hold"]}" min="0" step="0.1"></label>'
+          f'<label>판매 수수료율 (% · 가정) <b id="afeev"></b><input type="range" id="afee" min="0" max="60" value="{ad["fee"]}"></label></div>'
+          f'<div id="aout"></div>{hint}</div>')
     c5 = ('<div class="fc-live" data-k="c5" hidden><div class="ctl"><div class="seg" id="c5p">'
           '<button type="button" data-k="1" aria-pressed="false">1안 · 완전 분리 매칭</button>'
-          '<button type="button" data-k="2" aria-pressed="false">2안 · 선택형 동일 장치 우선 매칭</button>'
+          '<button type="button" data-k="2" aria-pressed="false">2안 · 선택형 우선 매칭</button>'
           '<button type="button" data-k="3" aria-pressed="true">3안 · 통합 유지 + 조작 환경 개선 (권고)</button></div>'
-          '<label>키보드 이용자 비중 <b id="c5kv">50%</b><input type="range" id="c5k" min="5" max="95" value="50"></label>'
-          '<label>동시 매칭 대기 인원 (명 · 가정)<input type="number" id="c5n" value="10000" min="100" step="500"></label>'
-          '<label>랭크 구간<select id="c5r"><option value="0.05" selected>상위 랭크 (구간 비율 5% · 가정)</option>'
-          '<option value="0.35">중위 랭크 (35% · 가정)</option><option value="0.6">일반 랭크 (60% · 가정)</option></select></label>'
-          '<label>허용 대기시간 (통합 대비) <b id="c5av">2.0배</b><input type="range" id="c5a" min="1" max="5" step="0.5" value="2"></label>'
-          '<label>동일 장치 우선 선택 비율 <b id="c5fv">40%</b><input type="range" id="c5f" min="0" max="100" value="40"></label></div>'
+          '<label>키보드 이용자 비중 (% · 가정) <b id="c5kv">50%</b><input type="range" id="c5k" min="5" max="95" value="50"></label>'
+          '<label>2안 · 동일 장치 우선 선택 비율 (% · 가정) <b id="c5fv">40%</b><input type="range" id="c5f" min="0" max="100" value="40"></label></div>'
           f'<div class="fc-demo c"><h4>정책 비교 {B_SIM}</h4><div class="fc-cmp"><table id="c5t"></table></div><div class="fc-act" id="c5m"></div>'
-          '<div class="src">실제 매칭 알고리즘이 아닌 단순 모델 · 대기시간은 실제 초가 아니라 통합 대비 상대 배수 · 공정성·운영 난이도는 정성 평가</div></div>'
+          '<div class="fc-act rec"><b>최종 권고 3안 고정</b> · 비교는 자유롭게</div>'
+          '<div class="src">이용자 수·대기시간이 아닌 비율 모델 · 위험 구분선(40%·70%)은 모델용</div></div>'
           f'{hint}</div>')
-    data = json.dumps(pols, ensure_ascii=False)
-    js = """<script>(function(){var PO=""" + data + """;
+    data = json.dumps({"PO": pols, "PL": ad["players"]}, ensure_ascii=False)
+    js = """<script>(function(){var D=""" + data + """,PO=D.PO,PL=D.PL;
 function $(i){return document.getElementById(i);}
 function bp(x){x=Math.round(x);var s=x<0?'−':'';x=Math.abs(x);var jo=Math.floor(x/1e12),eok=Math.floor((x%1e12)/1e8),man=Math.floor((x%1e8)/1e4);
  var p=[];if(jo)p.push(jo.toLocaleString('ko-KR')+'조');if(eok)p.push(eok.toLocaleString('ko-KR')+'억');if(man)p.push(man.toLocaleString('ko-KR')+'만');return s+(p.join(' ')||x.toLocaleString('ko-KR'))+' BP';}
-function box(l,v,e,c,ec){return '<div><small>'+l+'</small><b class="'+(c||'')+'">'+v+'</b>'+(e?'<em class="'+(ec||'')+'">'+e+'</em>':'')+'</div>';}
-function A(){var v0=+$('a1v').value*1e8,m=+$('a1m').value/100,k=+$('a1k').value/100;$('a1mv').textContent=$('a1m').value+'%';$('a1kv').textContent=$('a1k').value+'%';
- var now=v0*(1-m),need=m<1?m/(1-m)*100:Infinity,rel=((1-m)/(1-k)-1)*100;
- $('a1o').innerHTML=box('현재 구단 가치',bp(now),'−'+bp(v0-now).replace(' BP',''),'','dn')+box('원래대로 돌아가려면','+'+need.toFixed(0)+'%','상승 필요','up')+
-  box('시장 대비',(rel>=0?'+':'')+rel.toFixed(0)+'%',rel<0?'시장보다 더 하락':'시장과 같거나 덜 하락');}
-var NAME={'1':'완전 분리 매칭','2':'선택형 동일 장치 우선 매칭','3':'통합 유지 + 조작 환경 개선'},MSG={
- '1':'공정성 체감은 좋아질 수 있지만 소수 장치·상위 랭크의 대기시간이 먼저 흔들릴 위험',
- '2':'선택한 사람만 같은 장치 우선 · 허용 배수에 닿으면 통합으로 확대',
- '3':'매칭 풀은 그대로 · 키보드 조작 개선으로 격차가 줄어드는지 승률·조작 성공률로 검증'},pol='3';
-function C(){var k=+$('c5k').value/100,n=+$('c5n').value,r=+$('c5r').value,al=+$('c5a').value,pf=+$('c5f').value/100;
- $('c5kv').textContent=$('c5k').value+'%';$('c5av').textContent=al.toFixed(1)+'배';$('c5fv').textContent=$('c5f').value+'%';
- var base=n*r,rows='<tr><th>정책</th><th>공정성 체감</th><th>상대 풀</th><th>대기시간 위험</th><th>운영 난이도</th></tr>';
- ['1','2','3'].forEach(function(key){var kb,pad;if(key==='1'){kb=base*k;pad=base*(1-k);}else if(key==='3'){kb=pad=base;}else{kb=pf>0?base*k*pf:base;pad=pf>0?base*(1-k)*pf:base;}
-  var kx=kb>0?base/kb:Infinity,px=pad>0?base/pad:Infinity,fb=key==='2'&&Math.max(kx,px)>al;if(key==='2'){kx=Math.min(kx,al);px=Math.min(px,al);}
-  var w=Math.max(kx,px),risk=fb?'주의 · 통합 확대':(w>al?'높음':(w>al*0.7?'주의':'낮음'));
-  rows+='<tr class="'+(key===pol?'on':'')+'"><td><b>'+key+'안</b> '+NAME[key]+(key==='3'?' <em>권고</em>':'')+'</td><td>'+PO[key].fair+'</td><td>키보드 '+Math.round(kb).toLocaleString('ko-KR')+
-   ' · 패드 '+Math.round(pad).toLocaleString('ko-KR')+'명</td><td class="'+(risk==='높음'?'dn':'')+'">'+risk+'<small>통합의 '+w.toFixed(1)+'배</small></td><td>'+PO[key].ops+'</td></tr>';});
+function e8(v){return bp(v*1e8);}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function A(){var mk=+$('amk').value/100,hold=Math.max(0,+$('ahold').value||0),fee=+$('afee').value/100;$('amkv').textContent=$('amk').value+'%';$('afeev').textContent=$('afee').value+'%';
+ var rows=[],pk=0,nw=0,mt=0,ot=0;PL.forEach(function(p,i){var dr=+$('ap'+i).value/100;$('ap'+i+'v').textContent=$('ap'+i).value+'%';
+  var peak=p[1],now=peak*(1-dr),loss=Math.max(0,peak-now),m=Math.min(loss,peak*mk),o=loss-m;rows.push({i:i,peak:peak,now:now,loss:loss,m:m,o:o,sw:o>m});pk+=peak;nw+=now;mt+=m;ot+=o;});
+ var lt=mt+ot,sw=rows.filter(function(r){return r.sw;}),sale=sw.reduce(function(a,r){return a+r.now;},0)*(1-fee),bud=hold+sale,tg=sw.reduce(function(a,r){return a+r.peak;},0),gap=Math.max(0,tg-bud);
+ var drop=pk>0?lt/pk:0,rec=drop<1?drop/(1-drop)*100:Infinity,cov=tg>0?bud/tg*100:100,mx=Math.max.apply(null,rows.map(function(r){return r.loss;}))||1;
+ var bars=rows.map(function(r){var sh=lt>0?r.loss/lt*100:0;return '<div class="bar"><span>'+esc(PL[r.i][0])+'</span><div class="t"><i class="mk" style="width:'+(r.m/mx*100).toFixed(1)+'%"></i><i class="own" style="width:'+(r.o/mx*100).toFixed(1)+'%"></i></div><em class="'+(r.sw?'sw':'')+'">'+sh.toFixed(0)+'% · '+(r.sw?'교체 검토':'유지')+'</em></div>';}).join('');
+ $('aout').innerHTML='<div class="fc-demo"><h4>구단 가치 분석·재건 """ + B_SIM.replace("'", "\\'") + """</h4><div class="fc-m">'+
+  '<div><small>구단 가치</small><b>'+e8(nw)+'</b><em class="dn">−'+(drop*100).toFixed(0)+'% · 고점 '+e8(pk)+'</em></div>'+
+  '<div><small>시장 요인 · 개별 요인</small><b>'+(lt?mt/lt*100:0).toFixed(0)+'% · '+(lt?ot/lt*100:0).toFixed(0)+'%</b><em>하락분 구성</em></div>'+
+  '<div><small>고점 회복에 필요한 상승</small><b class="up">+'+rec.toFixed(0)+'%</b><em>시세 회복은 보장 불가</em></div></div>'+
+  '<div class="fc-bars"><div class="lg"><i class="mk"></i>시장 요인 <i class="own"></i>개별 요인 · 막대 = 선수별 하락액</div>'+bars+'</div>'+
+  '<div class="fc-m two"><div><small>① 현재 스쿼드 유지</small><b>'+e8(nw)+'</b><em>지출 0 · 경기력 그대로</em></div>'+
+  '<div><small>② 교체 검토 '+sw.length+'명 재편</small><b>예산 '+e8(bud)+'</b><em>보유 BP + 판매 수익 · 고점의 '+cov.toFixed(0)+'%</em></div></div>'+
+  '<ol class="fc-path"><li><b>진단</b> 개별 하락 '+sw.length+'명 · 시장 하락 '+(rows.length-sw.length)+'명</li><li><b>유지</b> 시장과 함께 내린 선수</li>'+
+  '<li><b>재편</b> 교체 검토 선수 판매 → 재편 예산 '+e8(bud)+'</li><li><b>이벤트 연계</b> 남은 목표 '+e8(gap)+' → 이벤트·패스 보상 목표 (BP 지급 아님)</li></ol>'+
+  '<div class="src">가상 선수 · 모든 값은 가정 · 실제 시세·수수료 아님</div></div>';}
+var NAME={'1':'완전 분리 매칭','2':'선택형 우선 매칭','3':'통합 유지 + 조작 환경 개선'},MSG={
+ '1':'공정성 체감은 좋아질 수 있지만 상대 풀이 장치 비중만큼 줄어든다',
+ '2':'선택한 사람만 같은 장치를 먼저 찾고, 못 찾으면 통합으로 넓힌다 · 규칙이 복잡해진다',
+ '3':'상대 풀은 그대로 · 키보드 조작 개선 효과를 조작 성공률·승률로 검증한다'},pol='3';
+function C(){var k=+$('c5k').value/100,s=+$('c5f').value/100;$('c5kv').textContent=$('c5k').value+'%';$('c5fv').textContent=$('c5f').value+'%';
+ var rows='<tr><th>정책</th><th>공정성 체감</th><th>매칭 품질 · 상대 풀 (통합=100%)</th><th>풀 축소 위험</th><th>운영 리스크</th></tr>';
+ ['1','2','3'].forEach(function(key){var kb,pad;if(key==='1'){kb=k*100;pad=(1-k)*100;}else if(key==='2'){if(s>0){kb=k*s*100;pad=(1-k)*s*100;}else{kb=pad=100;}}else{kb=pad=100;}
+  var m=Math.min(kb,pad),risk=m<40?'높음':(m<70?'주의':'낮음');
+  rows+='<tr class="'+(key===pol?'on':'')+'"><td><b>'+key+'안</b> '+NAME[key]+(key==='3'?' <em>권고</em>':'')+'</td><td>'+PO[key].fair+'</td><td>키보드 '+kb.toFixed(0)+'% · 패드 '+pad.toFixed(0)+'%</td><td class="'+(risk==='높음'?'dn':'')+'">'+risk+'</td><td>'+PO[key].ops+'</td></tr>';});
  $('c5t').innerHTML=rows;$('c5m').innerHTML='<b>'+pol+'안 선택</b> · '+MSG[pol];}
+function closeZoom(){document.querySelectorAll('.fc-gal-s.zoom').forEach(function(f){f.classList.remove('zoom');});document.body.classList.remove('fc-noscroll');}
+function gal(){document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('.fc-gal a');if(!a)return;ev.preventDefault();
+  var fig=a.closest('.fc-gal-s'),tr=a.closest('.tr');
+  if(a.hasAttribute('data-go')){var t=tr.children[+a.getAttribute('data-go')];if(t)tr.scrollTo({left:t.offsetLeft-tr.offsetLeft,behavior:'smooth'});}
+  else if(a.hasAttribute('data-zoom')){if(fig.classList.contains('zoom'))closeZoom();else{closeZoom();fig.classList.add('zoom');document.body.classList.add('fc-noscroll');}}
+  else if(a.hasAttribute('data-close'))closeZoom();},true);
+ document.addEventListener('keydown',function(ev){if(ev.key==='Escape')closeZoom();});
+ document.addEventListener('click',function(ev){var f=ev.target.classList&&ev.target.classList.contains('fc-gal-s')&&ev.target.classList.contains('zoom');if(f)closeZoom();});}
 function mount(){document.querySelectorAll('.fc-live').forEach(function(el){var a=document.querySelector('.fc-anchor[data-k="'+el.dataset.k+'"]');
   var row=a&&a.closest('.sx-row');if(row){row.replaceWith(el);el.hidden=false;}});
- ['a1v','a1m','a1k'].forEach(function(i){$(i).addEventListener('input',A);});
- ['c5k','c5n','c5r','c5a','c5f'].forEach(function(i){$(i).addEventListener('input',C);$(i).addEventListener('change',C);});
+ ['amk','ahold','afee'].concat(PL.map(function(_,i){return 'ap'+i;})).forEach(function(i){$(i).addEventListener('input',A);});
+ ['c5k','c5f'].forEach(function(i){$(i).addEventListener('input',C);});
  $('c5p').querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){$('c5p').querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed','false');});
   b.setAttribute('aria-pressed','true');pol=b.dataset.k;C();});});
- A();C();}
+ A();C();gal();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
 })();</script>"""
     return PAGE_EXTRA_CSS + a1 + c5 + js

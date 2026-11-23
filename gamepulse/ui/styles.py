@@ -1427,14 +1427,14 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-why > div {{ background: #fff; border: 1px solid #E2E8F0; border-left: 5px solid #6D28D9; border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; }}
 .fc-why > div:nth-child(2) {{ border-left-color: #DC2626; }} .fc-why > div:nth-child(3) {{ border-left-color: #15803D; }}
 .fc-why span {{ font-size: 0.85rem; font-weight: 800; color: #475569; }} .fc-why b {{ font-size: 1.02rem; color: #0B1F3A; line-height: 1.45; }}
-.fc-why em {{ font-style: normal; color: #6D28D9; font-weight: 900; }} .fc-why small {{ font-size: 0.82rem; color: #64748B; }}
+.fc-why em {{ font-style: normal; color: #6D28D9; font-weight: 900; }} .fc-why small {{ font-size: 0.82rem; color: #475569; }}
 .fc-pair {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; margin-bottom: 0.8rem; }}
 .fc-shot {{ margin: 0 0 0.8rem; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; }}
 .fc-shot .bar {{ font-size: 0.88rem; font-weight: 700; color: #0B1F3A; padding: 0.45rem 0.7rem; }}
-.fc-shot .bar span {{ background: #15803D; color: #fff; border-radius: 6px; padding: 0.05rem 0.45rem; font-size: 0.75rem; margin-right: 0.45rem; }}
+.fc-shot .bar span {{ background: #15803D; color: #fff; border-radius: 6px; padding: 0.05rem 0.45rem; font-size: 0.8rem; margin-right: 0.45rem; }}
 .fc-shot img {{ width: 100%; height: auto; display: block; }}
 .fc-shot figcaption {{ padding: 0.4rem 0.7rem 0.5rem; display: flex; flex-direction: column; }}
-.fc-shot figcaption b {{ font-size: 0.92rem; color: #0B1F3A; }} .fc-shot figcaption span {{ font-size: 0.75rem; color: #64748B; }}
+.fc-shot figcaption b {{ font-size: 0.92rem; color: #0B1F3A; }} .fc-shot figcaption span {{ font-size: 0.8rem; color: #475569; }}
 .fc-big {{ background: #0B1F3A; color: #fff; border-radius: 12px; padding: 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.1rem; margin-bottom: 0.7rem; }}
 .fc-big > span {{ font-size: 0.82rem; color: #CBD5E1; margin-bottom: 0.3rem; }} .fc-big b {{ font-size: 1.7rem; font-weight: 900; font-family: ui-monospace, Consolas, monospace; color: #4ADE80; }}
 .fc-big b.dn {{ color: #F87171; }} .fc-big small {{ font-size: 0.85rem; color: #CBD5E1; }} .fc-big em {{ font-style: normal; color: #F87171; font-weight: 900; }}
@@ -1442,18 +1442,18 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-drops > div {{ background: #0B1F3A; color: #fff; border-radius: 12px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.15rem; }}
 .fc-drops span {{ font-size: 0.85rem; color: #CBD5E1; font-weight: 700; }} .fc-drops b {{ font-size: 1.15rem; font-family: ui-monospace, Consolas, monospace; color: #E2E8F0; }}
 .fc-drops b i {{ font-style: normal; color: #94A3B8; }} .fc-drops b em {{ font-style: normal; color: #F87171; }}
-.fc-drops strong {{ font-size: 1.8rem; font-weight: 900; color: #F87171; line-height: 1.1; }} .fc-drops small {{ font-size: 0.78rem; color: #94A3B8; }}
+.fc-drops strong {{ font-size: 1.8rem; font-weight: 900; color: #F87171; line-height: 1.1; }} .fc-drops small {{ font-size: 0.82rem; color: #CBD5E1; }}
 .fc-scn {{ background: #FFFBEB; border: 1px dashed #F59E0B; border-radius: 12px; padding: 0.7rem 0.9rem; }}
 .fc-scn > b {{ color: #78350F; }} .fc-scn > div {{ display: flex; align-items: center; gap: 0.4rem; margin: 0.35rem 0; font-size: 1.4rem; font-weight: 900; color: #0B1F3A; }}
 .fc-scn i {{ font-style: normal; color: #94A3B8; }} .fc-scn .dn {{ color: #DC2626; }} .fc-scn small {{ font-size: 0.82rem; color: #78350F; }}
 .fc-demo {{ background: #F8FAFC; border: 1.5px dashed #6D28D9; border-radius: 14px; padding: 0.9rem 1rem; position: relative; }}
 .fc-demo.b {{ border-color: #DC2626; background: #FFF7F7; }} .fc-demo.c {{ border-color: #15803D; background: #F7FEF9; }}
-.fc-demo::after {{ content: "기획 시안 · 실제 게임에 없음"; position: absolute; top: -0.7rem; right: 0.9rem; font-size: 0.72rem; font-weight: 800; background: #fff; border: 1px solid #CBD5E1; border-radius: 999px; padding: 0.05rem 0.5rem; color: #475569; }}
+.fc-demo::after {{ content: "기획 시안 · 실제 게임에 없음"; position: absolute; top: -0.7rem; right: 0.9rem; font-size: 0.76rem; font-weight: 800; background: #fff; border: 1px solid #CBD5E1; border-radius: 999px; padding: 0.05rem 0.5rem; color: #475569; }}
 .fc-demo h4 {{ margin: 0 0 0.5rem; font-size: 1.08rem; color: #0B1F3A; }}
 .fc-m {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin-bottom: 0.45rem; }}
 .fc-m > div {{ background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.5rem 0.6rem; display: flex; flex-direction: column; }}
 .fc-m small {{ font-size: 0.8rem; color: #475569; }} .fc-m b {{ font-size: 1.2rem; font-weight: 900; color: #0B1F3A; line-height: 1.25; word-break: keep-all; }}
-.fc-m b.up {{ color: #15803D; }} .fc-m b.dn {{ color: #DC2626; }} .fc-m em {{ font-style: normal; font-size: 0.8rem; color: #64748B; }} .fc-m em.dn {{ color: #DC2626; font-weight: 700; }}
+.fc-m b.up {{ color: #15803D; }} .fc-m b.dn {{ color: #DC2626; }} .fc-m em {{ font-style: normal; font-size: 0.8rem; color: #475569; }} .fc-m em.dn {{ color: #DC2626; font-weight: 700; }}
 .fc-act {{ background: #fff; border-left: 4px solid #6D28D9; border-radius: 8px; padding: 0.5rem 0.7rem; margin: 0.4rem 0; font-size: 0.95rem; color: #1E293B; }}
 .fc-demo.b .fc-act {{ border-left-color: #DC2626; }} .fc-demo.c .fc-act {{ border-left-color: #15803D; }}
 .fc-demo .src {{ font-size: 0.82rem; color: #475569; line-height: 1.5; }}
@@ -1524,27 +1524,82 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-facts.why {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }} .fc-facts.why > div {{ border-top-color: #15803D; }} .fc-facts.why span {{ color: #15803D; }} .fc-facts.why small {{ color: #14532D; font-weight: 700; }}
 .fc-facts {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.4rem; }}
 .fc-facts > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #DC2626; border-radius: 10px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.2rem; }}
-.fc-facts span {{ font-size: 0.78rem; font-weight: 900; color: #B91C1C; }} .fc-facts b {{ font-size: 0.98rem; color: #0B1F3A; line-height: 1.4; }} .fc-facts small {{ font-size: 0.8rem; color: #64748B; }}
+.fc-facts span {{ font-size: 0.78rem; font-weight: 900; color: #B91C1C; }} .fc-facts b {{ font-size: 0.98rem; color: #0B1F3A; line-height: 1.4; }} .fc-facts small {{ font-size: 0.8rem; color: #475569; }}
 .fc-two {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; margin: 0.2rem 0 0.3rem; }}
 .fc-two > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #6D28D9; border-radius: 10px; padding: 0.7rem 0.85rem; }}
 .fc-two b {{ font-size: 1.05rem; color: #0B1F3A; }} .fc-two ul {{ margin: 0.35rem 0 0; padding-left: 1.1rem; font-size: 0.95rem; line-height: 1.6; color: #1E293B; }}
 .fc-steps {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.4rem; }}
 .fc-steps > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #DC2626; border-radius: 10px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.2rem; }}
 .fc-steps > div:last-child {{ border-style: dashed; border-top-style: solid; }}
-.fc-steps span {{ font-size: 0.82rem; font-weight: 900; color: #B91C1C; }} .fc-steps b {{ font-size: 0.96rem; color: #0B1F3A; line-height: 1.45; }} .fc-steps small {{ font-size: 0.8rem; color: #64748B; }}
+.fc-steps span {{ font-size: 0.82rem; font-weight: 900; color: #B91C1C; }} .fc-steps b {{ font-size: 0.96rem; color: #0B1F3A; line-height: 1.45; }} .fc-steps small {{ font-size: 0.8rem; color: #475569; }}
 .fc-planc {{ background: #fff; border: 1px solid #BBF7D0; border-left: 5px solid #15803D; border-radius: 10px; padding: 0.7rem 0.9rem; margin: 0 0 0.4rem; }}
 .fc-planc b {{ font-size: 1.02rem; color: #14532D; }} .fc-planc ol {{ margin: 0.35rem 0; padding-left: 1.2rem; font-size: 0.95rem; line-height: 1.6; color: #1E293B; }}
 .fc-planc small {{ font-size: 0.85rem; color: #475569; }}
 .fc-cmp {{ overflow-x: auto; }} .fc-cmp table {{ width: 100%; border-collapse: collapse; font-size: 0.88rem; }}
 .fc-cmp th, .fc-cmp td {{ text-align: left; padding: 0.4rem 0.45rem; border-bottom: 1px solid #E2E8F0; vertical-align: top; }}
 .fc-cmp th {{ font-size: 0.78rem; color: #475569; }} .fc-cmp tr.on td {{ background: #DCFCE7; }}
-.fc-cmp td small {{ display: block; font-size: 0.75rem; color: #64748B; }} .fc-cmp td.dn {{ color: #DC2626; font-weight: 800; }}
+.fc-cmp td small {{ display: block; font-size: 0.8rem; color: #475569; }} .fc-cmp td.dn {{ color: #DC2626; font-weight: 800; }}
 .fc-cmp em {{ font-style: normal; font-size: 0.7rem; font-weight: 900; color: #fff; background: #15803D; border-radius: 999px; padding: 0.02rem 0.4rem; margin-left: 0.2rem; }}
 @media (max-width: 900px) {{
   .fc-yt, .fc-themes, .fc-two {{ grid-template-columns: 1fr; }} .fc-facts, .fc-steps {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
   .fc-themes.yt {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .fc-facts.why {{ grid-template-columns: 1fr; }}
 }}
 @media (max-width: 520px) {{ .fc-facts, .fc-steps, .fc-themes.yt {{ grid-template-columns: 1fr; }} }}
+
+/* FC 최종 마감: 갤러리(큰 이미지 1장·넘기기·확대) · 근거 카드 · 데모 막대 */
+.fc-hero.solo {{ grid-template-columns: 1fr; padding: 1.4rem 1.6rem; }}
+.fc-tracks {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+.fc-tracks .h span:not(.fc-tr) {{ font-size: 1rem; font-weight: 900; color: #0B1F3A; }}
+.fc-pm.dir {{ background: #14532D; }}
+.fc-gal {{ margin: 0.4rem 0 0.8rem; }}
+.fc-gal .tr {{ display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0; align-items: flex-start; border-radius: 12px; scrollbar-width: thin; }}
+.fc-gal-s {{ flex: 0 0 100%; scroll-snap-align: start; margin: 0; position: relative; display: flex; flex-direction: column; }}
+.fc-gal-s .anc {{ position: absolute; top: -90px; left: 0; width: 100%; height: 1px; pointer-events: none; }}
+.fc-gal-s .zin {{ display: block; cursor: zoom-in; background: #0B1F3A; }}
+.fc-gal-s img {{ display: block; width: 100%; height: auto; max-height: 72vh; object-fit: contain; }}
+.fc-gal-s figcaption {{ background: #fff; border: 1px solid #E2E8F0; border-top: 0; padding: 0.5rem 0.8rem 0.55rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.15rem 0.55rem; }}
+.fc-gal-s figcaption .n {{ font-size: 0.8rem; font-weight: 900; color: #fff; background: #0B1F3A; border-radius: 999px; padding: 0.05rem 0.5rem; }}
+.fc-gal-s figcaption b {{ font-size: 1rem; color: #0B1F3A; line-height: 1.45; }} .fc-gal-s figcaption small {{ flex-basis: 100%; font-size: 0.8rem; color: #475569; }}
+.fc-gal-s .nav a {{ position: absolute; top: 40%; width: 2.6rem; height: 2.6rem; border-radius: 999px; background: rgba(11,31,58,0.78); color: #fff !important; font-size: 1.7rem; line-height: 2.4rem; text-align: center; text-decoration: none !important; }}
+.fc-gal-s .nav a:first-child {{ left: 0.6rem; }} .fc-gal-s .nav a:last-child {{ right: 0.6rem; }}
+.fc-gal-s .zout {{ display: none; }}
+.fc-gal-s:target, .fc-gal-s.zoom {{ position: fixed; inset: 0; z-index: 999999; background: rgba(2,6,23,0.94); justify-content: center; align-items: center; padding: 2.6rem 1rem 1rem; }}
+.fc-gal-s:target img, .fc-gal-s.zoom img {{ max-height: 82vh; max-width: 96vw; width: auto; }}
+.fc-gal-s:target .zin, .fc-gal-s.zoom .zin {{ cursor: zoom-out; background: none; }}
+.fc-gal-s:target .zout, .fc-gal-s.zoom .zout {{ display: block; position: absolute; top: 0.6rem; right: 1rem; color: #fff !important; font-weight: 800; background: rgba(255,255,255,0.15); border-radius: 999px; padding: 0.25rem 0.8rem; text-decoration: none !important; }}
+.fc-gal-s:target .nav, .fc-gal-s.zoom .nav {{ display: none; }}
+.fc-gal-s:target figcaption, .fc-gal-s.zoom figcaption {{ background: none; border: 0; justify-content: center; }}
+.fc-gal-s:target figcaption b, .fc-gal-s.zoom figcaption b {{ color: #fff; }} .fc-gal-s:target figcaption small, .fc-gal-s.zoom figcaption small {{ display: none; }}
+.fc-gal .hint {{ font-size: 0.82rem; color: #475569; margin-top: 0.25rem; }}
+.fc-cnt {{ display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.2rem 0 0.6rem; }}
+.fc-cnt > span {{ display: flex; align-items: center; gap: 0.35rem; background: #fff; border: 1px solid #E2E8F0; border-radius: 999px; padding: 0.25rem 0.75rem 0.25rem 0.35rem; font-size: 0.9rem; color: #334155; }}
+.fc-cnt b {{ font-size: 1.05rem; color: #0B1F3A; }}
+.fc-evs {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0.2rem 0 0.5rem; }}
+.fc-evs.two {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .fc-evs.c {{ grid-template-columns: repeat(4, minmax(0, 1fr)); }}
+.fc-ev {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #6D28D9; border-radius: 10px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }}
+.fc-ev.b {{ border-top-color: #DC2626; }} .fc-ev.kb {{ border-top-color: #0F766E; }} .fc-ev.pad {{ border-top-color: #7C3AED; }} .fc-ev.alt {{ border-top-color: #CA8A04; }}
+.fc-ev.off {{ border: 1px solid #BFDBFE; border-left: 5px solid #1D4ED8; background: #EFF6FF; margin: 0 0 0.6rem; }}
+.fc-ev .t {{ font-size: 0.8rem; font-weight: 900; color: #475569; }} .fc-ev b {{ font-size: 1rem; color: #0B1F3A; line-height: 1.45; }}
+.fc-ev q {{ font-size: 0.88rem; color: #334155; background: #F8FAFC; border-left: 3px solid #CBD5E1; padding: 0.15rem 0.45rem; }}
+.fc-ev small {{ font-size: 0.82rem; color: #475569; }} .fc-ev small a {{ font-weight: 700; }}
+.fc-ev p {{ margin: auto 0 0; font-size: 0.88rem; font-weight: 700; color: #14532D; }}
+.fc-bars {{ display: flex; flex-direction: column; gap: 0.3rem; margin: 0.2rem 0 0.6rem; }}
+.fc-bars .lg {{ font-size: 0.8rem; color: #475569; }} .fc-bars i {{ display: inline-block; height: 0.8rem; vertical-align: middle; }}
+.fc-bars .lg i {{ width: 0.8rem; margin: 0 0.2rem 0 0.4rem; border-radius: 3px; }}
+.fc-bars i.mk {{ background: #94A3B8; }} .fc-bars i.own {{ background: #DC2626; }}
+.fc-bars .bar {{ display: grid; grid-template-columns: 5.5rem 1fr 7.5rem; align-items: center; gap: 0.45rem; font-size: 0.85rem; color: #0B1F3A; }}
+.fc-bars .bar .t {{ background: #F1F5F9; border-radius: 4px; height: 0.8rem; display: flex; overflow: hidden; }}
+.fc-bars .bar em {{ font-style: normal; font-weight: 700; color: #334155; }} .fc-bars .bar em.sw {{ color: #DC2626; }}
+.fc-m.two {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+.fc-path {{ margin: 0.2rem 0 0.5rem; padding-left: 1.3rem; font-size: 0.9rem; line-height: 1.6; color: #1E293B; }} .fc-path b {{ color: #6D28D9; margin-right: 0.3rem; }}
+.fc-act.rec {{ background: #DCFCE7; }}
+.gp-tbl span.dn, table span.dn {{ color: #B91C1C; }}
+@media (max-width: 900px) {{
+  .fc-evs, .fc-evs.two, .fc-evs.c, .fc-tracks {{ grid-template-columns: 1fr; }} .fc-m.two {{ grid-template-columns: 1fr; }}
+  .fc-gal-s .nav a {{ top: 30%; width: 2.2rem; height: 2.2rem; line-height: 2rem; font-size: 1.4rem; }}
+  .fc-bars .bar {{ grid-template-columns: 4.6rem 1fr 6.6rem; font-size: 0.8rem; }}
+}}
+@media (min-width: 901px) and (max-width: 1200px) {{ .fc-evs.c {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} }}
 
 .gp-footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid {C['line']}; font-size: 0.8rem; color: {C['gray']}; }}
 

@@ -10,7 +10,7 @@ from gamepulse.content.games import GAME_ORDER, GAMES
 from gamepulse.ui.components import hero, notice
 
 EXAMPLES = [
-    "리그 오브 레전드 KPI 알려줘",
+    "오버워치 KPI 알려줘",
     "FC 온라인 강화 실패 원인 가설은?",
     "배그 신규 이용자 개선 전략",
     "던파 불만 유형 정리해줘",

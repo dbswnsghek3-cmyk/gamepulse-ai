@@ -9,7 +9,7 @@
 
 from __future__ import annotations
 
-GAME_ORDER =["overwatch", "pubg", "fconline", "dnf", "lol"]
+GAME_ORDER = ["overwatch", "pubg", "fconline", "dnf"]  # 리그 오브 레전드는 프로젝트에서 제외 (GAMES 정의는 데이터 랩 호환용으로 유지)
 
 GAMES = {
     # ------------------------------------------------------------------
