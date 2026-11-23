@@ -1658,6 +1658,10 @@ a.pn-btn:hover {{ background: #EAB308; }}
 .fc-intro ol {{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }}
 .fc-intro li {{ font-size: 1rem; font-weight: 800; color: #0B1F3A; }}
 .fc-evs.one {{ grid-template-columns: 1fr; }}
+.fc-types {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.45rem; margin: 0.3rem 0 0.3rem; }}
+.fc-types > div {{ background: #fff; border: 1px solid #E2E8F0; border-top: 4px solid #6D28D9; border-radius: 10px; padding: 0.5rem 0.65rem; display: flex; flex-direction: column; gap: 0.15rem; }}
+.fc-types b {{ font-size: 0.92rem; color: #0B1F3A; }} .fc-types span {{ font-size: 0.86rem; color: #1E293B; line-height: 1.45; }} .fc-types small {{ font-size: 0.8rem; color: #6D28D9; font-weight: 700; }}
+@media (max-width: 1100px) {{ .fc-types {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} }} @media (max-width: 560px) {{ .fc-types {{ grid-template-columns: 1fr; }} }}
 .fc-flow3 {{ display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); gap: 0.4rem; align-items: stretch; margin: 0.2rem 0 0.6rem; }}
 .fc-flow3 > i {{ font-style: normal; align-self: center; color: #6D28D9; font-weight: 900; }}
 .fc-flow3 > div {{ background: #F5F3FF; border-radius: 10px; padding: 0.55rem 0.75rem; display: flex; flex-direction: column; gap: 0.15rem; }}

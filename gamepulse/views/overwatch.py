@@ -439,7 +439,7 @@ def render() -> None:
      lambda: _s3_hypothesis(rs, ops),
      lambda: _s4_experience(rs, ops, heroes, tl, statuses, plan),
      lambda: _s5_kpi(rs, plan),
-     lambda: _s6_execution(rs, g, statuses, plan)][i]()
+     lambda: _s6_execution(rs, g, statuses, plan, ops)][i]()
     image_credits()
 
 
@@ -1464,8 +1464,30 @@ def _s5_kpi(rs: dict, plan: dict) -> None:
 
 # ======================================================================
 # 06 실행 계획과 최종 제안
-def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
+def _evidence_line(ops: pd.DataFrame | None) -> str:
+    """대표 전략 표의 근거 줄: 원본 CSV 에서 계산 (하드코딩 금지)."""
+    if ops is None:
+        return "검증 의견 · 02 탭 참고"
+    v = ops[ops["verified"]]
+    ret = v[v["user_type"] == "복귀"]
+    lv = lambda d: sum(bool(set(opinion_codes(r)) & LEARNING_CODES) for _, r in d.iterrows())  # noqa: E731
+    return f"검증 의견 {len(v)}건 중 학습·적응 {lv(v)}건 · 복귀 유저 {len(ret)}건 중 {lv(ret)}건 · 공식 복귀 요약과 방향이 같음"
+
+
+def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict, ops: pd.DataFrame | None = None) -> None:
     sc = plan["sched"]
+    _eff = {x["key"]: x["effort"] for x in rs["rice"]["items"]}
+    _mc = rs["experiment"]["cost"]["monthly_cost_per_person"]
+    _seg = plan["seg"]["복귀"]
+    sub("대표 전략 한눈에 · A 복귀 브리핑 (먼저 실행)", b_mock())
+    table(["단계", "내용"], [
+        ["<b>문제</b>", "복귀 후 바뀐 영웅·규칙을 모른 채 첫 주에 막힌다 (이탈 원인은 가설 · 매칭·실력·팀원 요인도 함께 확인)"],
+        ["<b>근거</b>", _evidence_line(ops)],
+        ["<b>해결책</b>", "접속 직후 놓친 변경점 3개 요약 (영웅·밸런스·매칭은 바꾸지 않음)"],
+        ["<b>비용</b>", f"{_eff['A']}인월 × {_mc / 1e4:,.0f}만 원 = <b>{_eff['A'] * _mc / 1e4:,.0f}만 원</b> (일회성 · 가정) · 유지보수 별도"],
+        ["<b>KPI</b>", f"복귀 D7 (ITT) · 목표 +{_seg['mde']['D7']:.1f}%p (목표값 · 실적 아님) · 보조: 브리핑 완료율 · 첫 10경기 완료율 · D30"],
+        ["<b>실험</b>", f"복귀 계정 50:50 · 그룹당 {_seg['n']:,}명 · {sc['e1_d7']}주차 D7 판정 (주당 유입 가정 기준)"],
+        ["<b>사업적 판단</b>", "<b>소규모 파일럿 → 유의하면 확대</b> · 개발비가 가장 작고 실패해도 손실이 작다"]])
     head(f"A부터 단계 출시 · {sc['decision'] + 2}주 파일럿 (준비 2주 + 운영 {sc['decision']}주)", "", b_mock())
     sub("우선순위와 이유")
     rice = pd.DataFrame(rice_table(rs["rice"]["items"], plan["quarter"]["reach"])).sort_values("score", ascending=False)
@@ -1475,27 +1497,30 @@ def _s6_execution(rs: dict, g: dict, statuses: dict, plan: dict) -> None:
           [[f"<b>{order.get(x.key, '')}</b>", f"{x.key} {escape(sname[x.key]['name'])}", f"{x.score:,.0f}점",
             escape(x.why), escape(sname[x.key].get("feasibility", ""))] for x in rice.itertuples()], badge_html=b_sim())
 
-    sub("개발·운영 부담 vs 기대 효과 · 비용 검산", b_sim())
-    mc = rs["experiment"]["cost"]["monthly_cost_per_person"]
-    eff = {x["key"]: x["effort"] for x in rs["rice"]["items"]}
-    add = plan["quarter"]["added_d7"]
-    cost = {k: eff[k] * mc for k in eff}
-    rows = [["<b>A</b> 복귀 브리핑", f"{eff['A']}인월", f"<b>{cost['A'] / 1e4:,.0f}만 원</b>", f"분기 추가 복귀 D7 약 {add['A']:,.0f}명", f"약 {cost['A'] / add['A']:,.0f}원"],
-            ["<b>C</b> 첫 10경기 미션", f"{eff['C']}인월", f"<b>{cost['C'] / 1e4:,.0f}만 원</b>", f"분기 추가 신규 D7 약 {add['C']:,.0f}명", f"약 {cost['C'] / add['C']:,.0f}원"],
-            ["<b>B</b> 전투 학습 카드", f"{eff['B']}인월", f"<b>{cost['B'] / 1e4:,.0f}만 원</b>", "사용성 검증 · 잔존 효과는 판단 안 함", "—"],
-            ["<b>A~C 합계</b>", f"{eff['A'] + eff['B'] + eff['C']}인월", f"<b>{(cost['A'] + cost['B'] + cost['C']) / 1e4:,.0f}만 원</b>",
-             f"D(보류) {eff['D']}인월 · {cost['D'] / 1e4:,.0f}만 원은 합계 제외", ""]]
-    table(["개선안", "공수", "개발·운영 비용", "기대 효과 (가정)", "추가 1명당"], rows)
-    st.caption(f"비용 = 공수 × 1인 월 {mc / 1e4:,.0f}만 원 (가정) · 기대 효과 = 분기 유입 × MDE (가정) · 실제 측정 전이라 ROI·매출 증가로 단정하지 않는다")
-    html(f'<div class="owx-int"><b>먼저 검증할 것: A 복귀 브리핑</b> — 공수가 가장 작고({eff["A"]}인월) 추가 1명당 비용도 가장 낮다(약 {cost["A"] / add["A"]:,.0f}원, 가정). '
-         'C는 A 결과 후, B는 수동형 사용성 검증부터.</div>')
+    with st.expander("자세히 보기 · 개발·운영 부담 vs 기대 효과 · 비용 검산 (A~C)"):
+        mc = rs["experiment"]["cost"]["monthly_cost_per_person"]
+        eff = {x["key"]: x["effort"] for x in rs["rice"]["items"]}
+        add = plan["quarter"]["added_d7"]
+        cost = {k: eff[k] * mc for k in eff}
+        rows = [["<b>A</b> 복귀 브리핑", f"{eff['A']}인월", f"<b>{cost['A'] / 1e4:,.0f}만 원</b>", f"분기 추가 복귀 D7 약 {add['A']:,.0f}명", f"약 {cost['A'] / add['A']:,.0f}원"],
+                ["<b>C</b> 첫 10경기 미션", f"{eff['C']}인월", f"<b>{cost['C'] / 1e4:,.0f}만 원</b>", f"분기 추가 신규 D7 약 {add['C']:,.0f}명", f"약 {cost['C'] / add['C']:,.0f}원"],
+                ["<b>B</b> 전투 학습 카드", f"{eff['B']}인월", f"<b>{cost['B'] / 1e4:,.0f}만 원</b>", "사용성 검증 · 잔존 효과는 판단 안 함", "—"],
+                ["<b>A~C 합계</b>", f"{eff['A'] + eff['B'] + eff['C']}인월", f"<b>{(cost['A'] + cost['B'] + cost['C']) / 1e4:,.0f}만 원</b>",
+                 f"D(보류) {eff['D']}인월 · {cost['D'] / 1e4:,.0f}만 원은 합계 제외", ""]]
+        table(["개선안", "공수", "개발·운영 비용", "기대 효과 (가정)", "추가 1명당"], rows)
+        st.caption(f"비용 = 공수 × 1인 월 {mc / 1e4:,.0f}만 원 (가정) · 기대 효과 = 분기 유입 × MDE (가정) · 실제 측정 전이라 ROI·매출 증가로 단정하지 않는다")
+        html(f'<div class="owx-int"><b>먼저 검증할 것: A 복귀 브리핑</b> — 공수가 가장 작고({eff["A"]}인월) 추가 1명당 비용도 가장 낮다(약 {cost["A"] / add["A"]:,.0f}원, 가정). '
+             'C는 A 결과 후, B는 수동형 사용성 검증부터.</div>')
     q_in, seg = plan["quarter"]["inflow"], plan["seg"]
     with st.expander("자세히 보기 · 계산 근거 · 복귀 유저 정의 · 실패 대응"):
         st.markdown(
             f"- **추가 복귀 D7 약 {add['A']:,.0f}명** = 분기({plan['quarter']['weeks']}주) 복귀 유입 {q_in['복귀']:,.0f}명 × 복귀 D7 MDE +{seg['복귀']['mde']['D7']:.1f}%p (ITT · 가정)\n"
             f"- **비용 {cost['A'] / 1e4:,.0f}만 원** = {eff['A']}인월 × {mc / 1e4:,.0f}만 원 (개발·QA 인건비 가정 · 실제 견적 아님) · 출시 후 유지보수·콘텐츠 갱신 비용은 **미포함** → 확대 결정 시 별도 산정\n"
             "- **D7 +2.0%p는 실험 목표**이지 달성한 성과가 아니다 · 모집단·기준 잔존율은 파일럿 전 과거 로그로 다시 정하고 표본 수도 그때 확정한다\n"
-            "- 우선순위(A → C → B)는 **기획 제안**이며 실제 개발팀의 확정 일정이 아니다")
+            "- 우선순위(A → C → B)는 **기획 제안**이며 실제 개발팀의 확정 일정이 아니다\n"
+            f"- **일정 민감도** 그룹당 {seg['복귀']['n']:,}명 × 2 = {2 * seg['복귀']['n']:,}명 필요 · 주당 복귀 유입 {seg['복귀']['weekly']:,.0f}명(가정)이면 배정 {seg['복귀']['assign_weeks']}주 → "
+            f"마지막 배정 +7일인 {plan['sched']['e1_d7']}주차에 D7 판정 · 주당 3,000명이면 배정 {math.ceil(2 * seg['복귀']['n'] / 3000)}주 → {math.ceil((math.ceil(2 * seg['복귀']['n'] / 3000) * 7 + 7) / 7)}주차 판정\n"
+            f"- **추가 D7 유저당 비용**(약 {cost['A'] / add['A']:,.0f}원)은 이미 들어온 복귀 유저를 더 남기는 비용이다 · 새 유저를 데려오는 **획득 비용(CAC)**과 비교하지 않는다")
         table(["구분", "운영상 정의 (실험용 · 실제 데이터 아님)"],
               [["<b>복귀 유저</b>", "90일 이상 미접속 후 재접속 · 같은 계정의 과거 플레이 이력 있음 · 신규 가입 계정 제외"],
                ["<b>세그먼트</b>", "미접속 기간 (90~180일 / 180일+) × 과거 경쟁전 경험 (있음 / 없음) → 층화 무작위 배정"],

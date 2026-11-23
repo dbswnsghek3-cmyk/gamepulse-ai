@@ -303,7 +303,8 @@ def s2(ns: dict, ops: pd.DataFrame, ret: pd.DataFrame, steam: pd.DataFrame, pool
     html('<div class="pn-cause">' + "".join(
         f'<div class="{c}"><small>{escape(src)}</small><b>{n}</b><strong>{escape(t)}</strong><span>{escape(d)}</span></div>'
         for c, n, t, d, src in causes) + '</div>'
-        f'<div class="pn-cav2"><b>합계 {len(ops) + len(ret)}건(신규·BM {len(ops)} + 복귀 {len(ret)})은 서로 다른 시기에 고른 선별 사례</b>다 · '
+        f'<div class="pn-cav2"><b>서로 다른 리뷰 {len(set(ops.source_url) | set(ret.source_url))}개</b> (신규·BM {len(ops)}건 + 복귀 {len(ret)}건 · '
+        f'같은 리뷰 {len(set(ops.source_url) & set(ret.source_url))}건은 두 표본에 각각 분류)는 직접 고른 선별 사례다 · '
         '전체 유저를 대표하는 표본이 아니며 건수는 비율이 아니다</div>')
     sub("TRACK A · 신규 유저", tr("A"))
     c1, c2 = st.columns([1.35, 1], gap="medium")
@@ -494,7 +495,13 @@ def s3(ns: dict, ops: pd.DataFrame, ret: pd.DataFrame, rpool: dict) -> None:
                  ("interp", "기대와 다른 결과", "목표 스킨 대신 다른 보상"),
                  ("hypo", "만족도 저하 가능성", "검증 전 · 내부 데이터로 확인")], "sub"))
     note("서버·운영 논란 같은 다른 원인은 무작위 배정으로 고르게 섞인다 → 기능 효과만 분리된다.")
-    with st.expander("자세히 보기 · 단계별 근거와 검증 방법 · 다른 원인"):
+    with st.expander("자세히 보기 · 복귀 장벽별 근거 판정 · 단계별 근거와 검증 방법 · 다른 원인"):
+        table(["복귀 장벽", "복귀 리뷰 근거 (21건 중 · 중복 분류 없음)", "판정"],
+              [["실력 격차", f"숙련도 격차 {int(r.get('숙련도 격차', 0))}건", "근거 있음 (소수)"],
+               ["불법 프로그램 불신", f"핵·공정성 {int(r.get('핵·공정성', 0))}건 · 계정 도용·정지 {int(r.get('계정 도용·정지', 0))}건", "근거 있음"],
+               ["함께하던 친구 이탈", f"친구·스쿼드 {int(r.get('친구·스쿼드', 0))}건", "근거 있음"],
+               ["복귀 후 적응 부담", "별도 분류 없음", "<b>가설</b> · 복귀 첫날 설문으로 확인"],
+               ["운영·BM 불신", f"운영 신뢰 {int(r.get('운영 신뢰', 0))}건 · 과금 신뢰 {int(r.get('과금 신뢰', 0))}건", "근거 있음"]], badge_html=b_real())
         table(["단계", "구분", "근거", "검증 방법"],
               [[f"{tr('A')}① 훈련·봇 경기", KIND["real"](), "기본 훈련 17챕터 · 초심자 훈련소 14일 (42.2 · 2026-07, 현재) · 일반전 봇 (2020 도입 · 2024 개발자 노트, 과거 자료)", "훈련 완료율 · 경기당 봇 비율"],
                [f"{tr('A')}② 첫 실전 좌절", KIND["interp"](),
@@ -881,7 +888,7 @@ def s5(ns: dict, plan: dict) -> None:
     html(f'<div class="pn-abt"><div class="pn-abt-h">{b_mock()} B1 광고 A/B 테스트 · 대조군 포함 4그룹</div>'
          '<table><tr><th>그룹</th><th>광고</th><th>가설</th></tr>' + "".join(
              f'<tr><td><b>{escape(g)}</b></td><td>{escape(ad)}</td><td>{escape(h)}</td></tr>' for g, ad, h in cp["abtest"]) + '</table>'
-         '<div class="pn-abt-k"><span>비교</span><b>복귀 전환율</b> + <b>복귀 D30</b> · 배정된 전원 기준(ITT) 비교 · 클릭한 사람만 비교하지 않음 · CTR은 보조</div></div>')
+         '<div class="pn-abt-k"><span>주요 KPI</span><b>순증 D30 재정착 유저당 비용</b> · 보조: CTR · 복귀 로그인 전환율 · 첫 매치 완료율 · D7 · D30 · 스쿼드 재참여율 · 같은 휴면 리스트를 4그룹 무작위 배정(광고별 타깃 동일 · 같은 예산·기간) · 홀드아웃 대비 순증 · 배정된 전원 기준(ITT)</div></div>')
     dig = cp["budget"] * next(w for n, _, w in cp["channels"] if "디지털" in n) / 100
     land = ex["cost"]["B1_effort"] * ex["cost"]["monthly_cost_per_person"]
     pilot = dig + land
@@ -889,17 +896,18 @@ def s5(ns: dict, plan: dict) -> None:
     sub("B1 사업성 판단 · 결론: 전액 집행 보류 → 디지털 소규모 파일럿", b_sim())
     html(f'<div class="pn-biz"><p><b>손익분기 조건</b> 순증 복귀자 1명이 남은 기간 동안 내는 기대 매출이 <b>약 {full_u / 1e4:,.0f}만 원 이상</b>이어야 전액 집행이 정당화된다. '
          'PUBG의 ARPU·LTV는 공개 자료로 확인하지 못해 <b>수익성은 판단 불가</b> → 1억 원 전액 집행은 보류한다.</p></div>')
-    table(["안", "비용", "순증 측정", "순증 복귀 유저당", "판단"],
-          [["<b>전액</b> (디지털·옥외·콘텐츠 + 제작)", won(plan["b1_cost"]), "디지털만 무작위 · 옥외는 측정 불가", f"약 {full_u / 1e4:,.0f}만 원", "보류 (수익성 미확인)"],
-           [f"<b>디지털 파일럿</b> (리타깃팅 {won(dig)} + 랜딩·UTM {won(land)})", won(pilot), "4그룹 무작위 · 그대로 측정", f"약 {pilot_u / 1e4:,.0f}만 원", "<b>권고</b> · 소재별 성과 확인 후 확대"],
-           ["<b>소재 조기 중단</b>", "파일럿 안에서", "2주 차 중간 점검", "—", "대조군과 차이 없는 소재 중단 → 남은 예산을 상위 소재로"],
-           ["<b>옥외(지하철·정류장·PC방)</b>", f"{won(plan['b1_cost'] - pilot)}", "QR 유입만 참고", "—", "파일럿에서 순증·D30이 확인된 뒤 검토"]],
-          badge_html=b_sim())
-    table(["복귀 후 D30 잔존 (가정)", "20%", "30%", "40%"],
-          [["재정착 유저당 비용 · 전액", *[f"약 {full_u / r / 1e4:,.0f}만 원" for r in (0.2, 0.3, 0.4)]],
-           ["재정착 유저당 비용 · 파일럿", *[f"약 {pilot_u / r / 1e4:,.0f}만 원" for r in (0.2, 0.3, 0.4)]]])
-    st.caption(f"재정착 유저당 비용 = 순증 복귀 유저당 비용 ÷ 복귀 후 D30 잔존율 · 순증 복귀자 약 {add_n:,.0f}명은 같은 실험 설계(광고 3그룹 × {pr['n']:,}명 × +{pr['mde']:.1f}%p) · "
-               "D30 20·30·40%는 민감도 확인용 가정 · 광고 목표는 클릭·로그인이 아니라 재정착(D30)")
+    cont = cp["budget"] * next(w for n, _, w in cp["channels"] if "콘텐츠" in n) / 100
+    scen = [("저예산 파일럿", "디지털 리타깃팅 + 랜딩·UTM", pilot, "<b>권고</b>"),
+            ("중간 규모", "파일럿 + 랜딩 유입·콘텐츠 홍보", pilot + cont, "파일럿에서 순증·D30 확인 시"),
+            ("기존 제안 (전액)", "디지털·옥외·콘텐츠 + 제작", plan["b1_cost"], "보류")]
+    table(["시나리오", "구성", "비용", "순증 복귀 1인당", "손익분기 기여이익 (순증 D30 재정착 1인당 · D30 20 / 30 / 40%)", "판단"],
+          [[f"<b>{a}</b>", b, won(c), f"약 {c / add_n / 1e4:,.0f}만 원",
+            " / ".join(f"{c / add_n / r / 1e4:,.0f}만" for r in (0.2, 0.3, 0.4)), dcs] for a, b, c, dcs in scen], badge_html=b_sim())
+    html('<div class="pn-cav2"><b>확대</b> 파일럿에서 소재 1개 이상이 홀드아웃 대비 유의한 순증 + 측정된 재정착 1인당 비용 ≤ 내부 LTV 기준 · '
+         '<b>중단</b> 모든 소재가 홀드아웃과 차이 없음 · 또는 복귀자 신고율 악화 · 2주 차 중간 점검에서 차이 없는 소재는 먼저 중단</div>')
+    st.caption(f"손익분기 기여이익 = 비용 ÷ (순증 복귀자 × D30 잔존율) · 순증 복귀자 약 {add_n:,.0f}명 = 광고 3그룹 × {pr['n']:,}명 × +{pr['mde']:.1f}%p (무작위 배정이 가능한 디지털 기준 · "
+               "옥외·콘텐츠는 순증 측정이 안 돼 분모를 늘리지 않는 보수적 계산) · D30 20·30·40%는 민감도용 가정 · ARPU·LTV 미확인 → 수익성 판단 불가")
+    note("C(BM)는 후속 정책 검토: 확률형 불만을 줄이는 변경은 단기 매출을 줄일 수 있어 서로 상충 → 매출 효과는 단정하지 않고 내부 데이터로 시나리오만 비교")
     note("C는 실험 없이 구매 전환율·ARPPU·구매 만족도를 내부 시나리오·설문으로 본다.")
 
     with st.expander("자세히 보기 · 가정 시뮬레이션 · 판정 기준 · 비용 계산"):
@@ -952,38 +960,50 @@ def s6(ns: dict, plan: dict) -> None:
     sc = plan["sched"]
     pm = plan["practical_min"]
     c = ns["experiment"]["cost"]
+    sub("대표 전략 한눈에 · 핵심 A1 · B1", b_mock())
+    a1c, b1p = c["A1_effort"] * c["monthly_cost_per_person"], ns["campaign"]["budget"] * 0.5 + c["B1_effort"] * c["monthly_cost_per_person"]
+    table(["단계", "A1 신규 코칭 (먼저 실행)", "B1 복귀 광고"], [
+        ["<b>문제</b>", "첫 실전에서 막혀 떠난다", "떠난 유저에게 다시 할 이유와 달라진 점이 전달되지 않는다"],
+        ["<b>근거</b>", "신규 리뷰 26건 중 11건 (실력 격차 5 · 봇→실전 4 · 첫 사망 2)", "복귀 리뷰 21건 (추억 6 · 핵·도용 6 · 친구 3 · 운영·과금 4 · 숙련도 2)"],
+        ["<b>해결책</b>", "경기 후 행동 1개 코칭 → 다음 경기 달성 확인 (기본 훈련·훈련소 이후 첫 실전)", "광고 3종 + 랜딩 '달라진 점' (공식 변경만)"],
+        ["<b>비용</b>", f"{c['A1_effort']}인월 = <b>{won(a1c)}</b> (가정)", f"파일럿 <b>{won(b1p)}</b> (전액 {won(plan['b1_cost'])}은 보류)"],
+        ["<b>KPI</b>", "신규 D7 (ITT)", "순증 D30 재정착 유저당 비용"],
+        ["<b>실험</b>", "신규 계정 50:50", "휴면 리스트 4그룹 (홀드아웃 포함)"],
+        ["<b>사업적 판단</b>", "<b>소규모 파일럿 → 유의하면 확대</b> · 매칭 변경 없음", "<b>소규모 파일럿</b> · 수익성은 LTV 확인 전 판단 불가"]])
     head(f"실행: A1 → B1·B2 순서로 검증 · 준비 2주 + 운영 {sc['decision']}주 (가정 표본 기준)", "우선순위는 예상 효과 · 개발 난도 · 데이터 접근성으로 다시 점검했다", b_mock())
     order = [("1차", "A", "A1 NEXT MATCH COACH", "신규 코칭 MVP · 공개 텔레메트리로 판정 · 매칭 변경 없음"),
              ("2차", "B", "B1 다시 낙하할 시간 · B2 첫 플레이", "광고 3종 + 랜딩 · 광고 A/B(대조군 포함) · 복귀 첫날 친구와 3경기"),
              ("3차", "A", "A2 로드맵 · A3 매칭 품질 실험", "A1 결과 후 · A3는 내부 매칭 데이터 확인 후"),
              ("4차", "C", "C BM 정책 검토", "유저 화면 변경 없는 내부 분석 · 구매 만족도 설문")]
-    html('<ol class="pn-order">' + "".join(f'<li class="{t.lower()}"><span>{n}</span>{tr(t)}<b>{escape(k)}</b><small>{escape(d)}</small></li>'
-                                           for n, t, k, d in order) + "</ol>")
-    sub("비용 가정 · 검산", b_sim())
-    mp = c["monthly_cost_per_person"]
-    a1, land, ad, cc = c["A1_effort"] * mp, c["B1_effort"] * mp, c["B1_ad_budget"], c["C_effort"] * mp
-    b1 = ad + land
-    assert abs(b1 - plan["b1_cost"]) < 1 and abs(a1 - plan["a1_cost"]) < 1 and abs(cc - plan["c_cost"]) < 1   # 화면 숫자 = 계산 모듈 숫자
-    rows = [("A1 개발·운영", f"{c['A1_effort']}인월 × {mp / 1e4:,.0f}만 원", a1, ""),
-            ("B1 광고·콘텐츠 파일럿", "디지털 50% · 옥외 30% · 콘텐츠 20% (04와 동일)", ad, ""),
-            ("B1 추가 제작비", f"랜딩·UTM {c['B1_effort']}인월 × {mp / 1e4:,.0f}만 원", land, ""),
-            ("B1 총액", "파일럿 + 추가 제작비", b1, "sub"),
-            ("C 내부 분석", f"{c['C_effort']}인월 × {mp / 1e4:,.0f}만 원", cc, ""),
-            ("전체 합계", "A1 + B1 총액 + C", a1 + b1 + cc, "tot")]
-    html('<div class="gp-table-wrap"><table class="gp-table pn-cost"><tr><th>항목</th><th>산출</th><th>금액</th></tr>' + "".join(
-        f'<tr class="{k}"><td>{escape(n)}</td><td>{escape(f)}</td><td><b>{won(v)}</b></td></tr>' for n, f, v, k in rows) + "</table></div>")
-    sub("성공 · 수정 · 중단 조건", b_mock())
-    table(["결과", "A1 NEXT MATCH COACH", "B1 다시 낙하할 시간 (+B2)"],
-          [["<b>확대</b>", "①②③ 모두 통과", "가장 좋은 광고가 ① 통과 + D30·획득 비용 ② + 가드레일 ③ → 그 메시지로 확대"],
-           ["<b>수정</b>", f"① 유의 · ② 미달 (+{pm:.1f}%p 미만) → 코칭 항목·위치 수정", "복귀는 늘었지만 D30 낮음 → B2 첫날 경험 수정 · 채널 비중 조정"],
-           ["<b>연장</b>", "판단 불가 → 1회 재실험", "판단 불가 → 휴면 기준 확대 후 재집행"],
-           ["<b>중단</b>", f"효과 상한 &lt; +{pm:.1f}%p · 또는 ③ 악화", "모든 광고가 대조군과 차이 없음 · 또는 복귀자 신고율 악화"]])
-    cp = ns["campaign"]
-    assert cp["budget"] == ad and sum(w for _, _, w in cp["channels"]) == 100   # 채널 배분 합 = 광고비
-    sub(f"B1 광고·콘텐츠 파일럿 {won(ad)} · 채널 배분 (가정)", b_sim())
-    html('<div class="pn-budget">' + "".join(
-        f'<div style="flex:{w} 1 0"><b>{w}%</b><span>{escape(n)}</span><small>{cp["budget"] * w / 100 / 1e4:,.0f}만 원</small></div>'
-        for n, d, w in cp["channels"]) + f'</div><div class="pn-cav2">파일럿 {won(ad)} 안에서의 배분 · 추가 제작비 {won(land)} 별도 → B1 총액 {won(b1)} · 버스 정류장은 옥외 30% 안에서 검토 · 가정</div>')
+    with st.expander("자세히 보기 · 실행 순서 1~4차"):
+        html('<ol class="pn-order">' + "".join(f'<li class="{t.lower()}"><span>{n}</span>{tr(t)}<b>{escape(k)}</b><small>{escape(d)}</small></li>'
+                                               for n, t, k, d in order) + "</ol>")
+    with st.expander(f"자세히 보기 · 비용 검산 (전체 합계 {won(c['A1_effort'] * c['monthly_cost_per_person'] + c['B1_ad_budget'] + c['B1_effort'] * c['monthly_cost_per_person'] + c['C_effort'] * c['monthly_cost_per_person'])} · 가정) · 성공·수정·중단 조건 · 채널 배분"):
+        mp = c["monthly_cost_per_person"]
+        a1, land, ad, cc = c["A1_effort"] * mp, c["B1_effort"] * mp, c["B1_ad_budget"], c["C_effort"] * mp
+        b1 = ad + land
+        assert abs(b1 - plan["b1_cost"]) < 1 and abs(a1 - plan["a1_cost"]) < 1 and abs(cc - plan["c_cost"]) < 1   # 화면 숫자 = 계산 모듈 숫자
+        rows = [("A1 개발·운영", f"{c['A1_effort']}인월 × {mp / 1e4:,.0f}만 원", a1, ""),
+                ("B1 광고·콘텐츠 (기존 제안 전액)", "디지털 50% · 옥외 30% · 콘텐츠 20% (04와 동일)", ad, ""),
+                ("B1 추가 제작비", f"랜딩·UTM {c['B1_effort']}인월 × {mp / 1e4:,.0f}만 원", land, ""),
+                ("B1 총액 (기존 제안)", "광고·콘텐츠 + 추가 제작비 · 보류", b1, "sub"),
+                ("B1 권고 파일럿", "디지털 리타깃팅 50% + 추가 제작비 (05 사업성 판단)", ad * 0.5 + land, ""),
+                ("C 내부 분석", f"{c['C_effort']}인월 × {mp / 1e4:,.0f}만 원", cc, ""),
+                ("전체 합계", "A1 + B1 총액 + C", a1 + b1 + cc, "tot")]
+        html('<div class="gp-table-wrap"><table class="gp-table pn-cost"><tr><th>항목</th><th>산출</th><th>금액</th></tr>' + "".join(
+            f'<tr class="{k}"><td>{escape(n)}</td><td>{escape(f)}</td><td><b>{won(v)}</b></td></tr>' for n, f, v, k in rows) + "</table></div>")
+        sub("성공 · 수정 · 중단 조건", b_mock())
+        table(["결과", "A1 NEXT MATCH COACH", "B1 다시 낙하할 시간 (+B2)"],
+              [["<b>확대</b>", "①②③ 모두 통과", "가장 좋은 광고가 ① 통과 + D30·획득 비용 ② + 가드레일 ③ → 그 메시지로 확대"],
+               ["<b>수정</b>", f"① 유의 · ② 미달 (+{pm:.1f}%p 미만) → 코칭 항목·위치 수정", "복귀는 늘었지만 D30 낮음 → B2 첫날 경험 수정 · 채널 비중 조정"],
+               ["<b>연장</b>", "판단 불가 → 1회 재실험", "판단 불가 → 휴면 기준 확대 후 재집행"],
+               ["<b>중단</b>", f"효과 상한 &lt; +{pm:.1f}%p · 또는 ③ 악화", "모든 광고가 대조군과 차이 없음 · 또는 복귀자 신고율 악화"]])
+        cp = ns["campaign"]
+        assert cp["budget"] == ad and sum(w for _, _, w in cp["channels"]) == 100   # 채널 배분 합 = 광고비
+        sub(f"기존 제안 B1 광고·콘텐츠 {won(ad)} · 채널 배분 (가정 · 권고는 디지털 파일럿)", b_sim())
+        html('<div class="pn-budget">' + "".join(
+            f'<div style="flex:{w} 1 0"><b>{w}%</b><span>{escape(n)}</span><small>{cp["budget"] * w / 100 / 1e4:,.0f}만 원</small></div>'
+            for n, d, w in cp["channels"]) + f'</div><div class="pn-cav2">파일럿 {won(ad)} 안에서의 배분 · 추가 제작비 {won(land)} 별도 → B1 총액 {won(b1)} · 버스 정류장은 옥외 30% 안에서 검토 · 가정</div>')
     html('<div class="pn-final">' + art(ns, "winner", "첫 치킨의 성취감 · 신규는 처음으로, 복귀 유저는 다시 한 번", "winner") +
          f'<div class="ow-conclusion"><div class="ow-conclusion-k">최종 사업PM 판단 {b_mock()}</div>'
          '<b>신규는 다음 경기 행동으로, 떠난 유저는 다시 낙하할 이유로.</b><br>'

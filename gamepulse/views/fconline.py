@@ -146,7 +146,7 @@ def s1(d: dict) -> None:
 def s2(d: dict) -> None:
     ev, yt = d["evidence"], d["youtube"]
     head("근거: 확인한 원문과 공식 데이터만", "카드 = 유저 의견 요약 · 작성일·출처 · 사업PM 해석 · 사례이지 비율 아님", b_real())
-    lead("A", "구단 가치 하락", "화폐 단위 변경(8/20) 영향 사례는 제외")
+    lead("A", "구단 가치 하락", "실제 경험·관찰 7건 중 유형별 대표 4건 · 전체 검증표는 아래 펼쳐보기 · 모두 8/20 화폐 단위 변경 이후 글")
     html('<div class="fc-evs two">' + "".join(ev_card(e, "a") for e in ev["A"]) + "</div>")
     o = ev["A_official"]
     html(f'<div class="fc-ev off"><span class="t">운영사 공식 대응 · 개인 의견 아님</span><b>{escape(o["line"])}</b>'
@@ -162,6 +162,10 @@ def s2(d: dict) -> None:
         f'<small>{escape(g)} · {link(urls[s], f"유튜브 {s} ↗")}</small><p>→ {escape(pm)}</p></div>'
         for (g, t, s), pm in zip(yt["cards"], ev["C_pm"])) + "</div>")
     with st.expander("자세히 보기 · 근거 집계표 · 인벤 C 게시글 제목 · 공식 자료 · 자료 한계"):
+        allA = {e["id"]: e for e in ev["A"] + ev["A_more"]}
+        table(["번호", "작성일", "제목 (원문)", "경험 여부", "문제 유형", "한계"],
+              [[f"<b>{i}</b>", escape(allA[i]["date"]), link(allA[i]["url"], allA[i]["title"]), escape(k), escape(t), escape(lim)]
+               for i, t, k, lim in ev["A_all"]], badge_html=b_real())
         x = ev["A_extra"]
         html(f'<div class="fc-ev off"><span class="t">A 보조 참고 · 집계 제외</span><b>{escape(x["line"])}</b>'
              f'<small>{escape(x["date"])} · {link(x["url"], x["src"] + " ↗")}</small><p>→ {escape(x["pm"])}</p></div>')
@@ -183,6 +187,8 @@ def s3(d: dict) -> None:
     cs = d["c_sides"]
     head("원인: A 자산 급락 · B 늦은 적응 · C 조작 조건 갈등", "인과는 실험으로만 판단", b_hypo())
     lead("A", "열심히 키운 구단, 왜 내 노력의 가치는 떨어질까?", "자산 급락 → 성장 박탈감")
+    html('<div class="fc-types">' + "".join(f'<div><b>{escape(a)}</b><small>{escape(c)}</small></div>' for a, b, c in d["a_types"]) + "</div>")
+    html(f'<div class="fc-cav">{escape(d["a_types_note"])}</div>')
     gallery("a", d["galleries"]["A"])
     pc = d["price_check"]
     with st.expander("자세히 보기 · 가격 사례 검증 (카드 · 시즌 · 강화 · 기준 · 시점 · 단위)"):
@@ -334,7 +340,21 @@ def budget_rows(d: dict) -> tuple[list[list[str]], float, float]:
 
 
 def s6(d: dict) -> None:
-    head("실행: 1차 C → 2차 A → 3차 B", "예산은 실제 견적이 아닌 기획 추정치", b_mock())
+    head("실행: 1차 A → 2차 C → 3차 B", "예산은 실제 견적이 아닌 기획 추정치", b_mock())
+    mc0 = d["cost"]["monthly_cost_per_person"]
+    a_eff = sum(x[2] for x in d["a_cost"])
+    sub("대표 전략 한눈에 · A 구단 가치 (먼저 실행)", b_mock())
+    table(["단계", "내용"], [
+        ["<b>문제</b>", "구단 가치가 왜 떨어졌는지 모른 채, 들인 시간과 이벤트 노력이 허무해진다"],
+        ["<b>근거</b>", "인벤 실제 경험·관찰 7건 (8/20 이후) · 같은 기준 가격 캡처 3장 · 공식 이적시장 안정화 공지 1건"],
+        ["<b>해결책</b>", "A-1 시장 전체 / 선수별 하락 분리 → A-2 유지·교체 비용 비교 + 이벤트 보상 단계 목표"],
+        ["<b>비용</b>", f"{a_eff:g}인월 × {mc0 / 1e4:,.0f}만 원 = <b>{won(a_eff * mc0)}</b> (일회성 · 가정) · 유지보수 별도"],
+        ["<b>KPI</b>", "원인 분석 화면 사용률 · 재건 계획 완료율 · 선수 교체 실행률 · D7·D30 (대조군 대비)"],
+        ["<b>실험</b>", "구단 가치 −30% 이상 계정 무작위 50:50 · 가드레일: 특정 선수 매도 쏠림·거래량 급변"],
+        ["<b>사업적 판단</b>", "<b>소규모 파일럿</b> — A-1 먼저 출시 → 사용률·D30 신호 확인 후 A-2 · 사용률만으로 잔존 효과를 주장하지 않음"]])
+    with st.expander("자세히 보기 · A 개발 범위 (인월 시나리오)"):
+        table(["기능", "작업 범위 (인월)", "합계"], [[f"<b>{escape(a)}</b>", escape(b), f"{c:g}인월"] for a, b, c in d["a_cost"]], badge_html=b_sim())
+        st.caption(d["a_cost_note"])
     html('<ol class="fc-order">' + "".join(f'<li class="{t.lower()}"><span>{n}</span>{tr(t)}<b>{escape(k)}</b><small>{escape(w)}</small></li>'
                                            for n, t, k, w in d["priority"]) + "</ol>")
     sub("예산 (기획 추정치)", b_sim())
@@ -343,6 +363,6 @@ def s6(d: dict) -> None:
     rows.append(["<b>합계</b>", f"<b>{eff_t:g}인월</b>", "", f"<b>{won(tot)}</b>", "재화 지급 0원", ""])
     table(["항목", "공수", "단가 (1인월)", "금액", "기존 기능 활용", "신규 개발"], rows)
     st.caption(f"검산: {eff_t:g}인월 × {mc / 1e4:,.0f}만 원 = {won(eff_t * mc)} (단가는 가정 · 다른 프로젝트와 같은 기준)")
-    sub("리스크와 대응", b_interp())
-    table(["리스크", "대응"], [[escape(a), f"<b>{escape(b)}</b>"] for a, b in d["risks"]])
+    with st.expander("자세히 보기 · 리스크와 대응"):
+        table(["리스크", "대응"], [[escape(a), f"<b>{escape(b)}</b>"] for a, b in d["risks"]], badge_html=b_interp())
     html('<div class="fc-final"><b>A 성장 경험 회복 · B 초기 적응 개선 · C 통합 매칭 유지와 조작 환경 개선</b></div>')
